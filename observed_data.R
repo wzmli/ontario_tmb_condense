@@ -6,7 +6,7 @@ ontario_dat <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41
 print(ontario_dat)
 
 ## Cleaning and picking the time series of interest for calibration
-calibration_dat <- (ontario_dat
+observed_data <- (ontario_dat
 	%>% transmute(date = as.Date(`Reported Date`)
 		, report_inc = diff(c(0,`Total Cases`))
 		, hosp_preval = `Number of patients hospitalized with COVID-19`
@@ -15,4 +15,9 @@ calibration_dat <- (ontario_dat
 	%>% pivot_longer(names_to = "var", -"date")
 )
 
-print(calibration_dat)
+print(observed_data)
+
+(ggplot(observed_data)
+  + facet_wrap(~var)
+  + geom_line(aes(date, value))
+)

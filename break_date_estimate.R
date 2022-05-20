@@ -3,7 +3,6 @@ library(tidyverse)
 library(lubridate)
 library(zoo)
 library(data.table)
-source("observed_data.R")
 
 
 ## filter on observed report time series
@@ -15,7 +14,7 @@ report_dat <- (calibration_dat
 )
 
 ## check
-gg <- ggplot(report_dat,aes(x=date,y=lmavg)) + geom_line() 
+gg <- ggplot(report_dat,aes(x=date,y=lmavg)) + geom_line()
 gg
 
 ## fit a loglinear regression

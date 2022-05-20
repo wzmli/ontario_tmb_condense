@@ -12,7 +12,7 @@ url <- paste0('https://api.covid19tracker.ca/reports/province/'
 )
 
 vaccine_database <- fromJSON(url)
-vaccine_dat <- (upd$data
+vaccine_dat <- (vaccine_database$data
 	%>% transmute(province = prov
 		, date
 		, total_vaccinations
