@@ -1,5 +1,3 @@
-source('context_information.R')
-
 model_calibrated = calibrate_flexmodel(model_uncalibrated, optimizer = 'nlminb')
 convergence_info(model_calibrated)
 
