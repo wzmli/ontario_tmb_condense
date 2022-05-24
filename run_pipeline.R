@@ -1,0 +1,7 @@
+source("package_conflict_rules.R")
+source("observed_data.R")
+source("inputs_data.R")
+source("model_definition.R")
+source("break_date_estimate.R")
+source("context_information.R")
+source("calibration.R")
