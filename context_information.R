@@ -7,8 +7,8 @@ options(MP_default_do_sim_constraint = TRUE)
 # Simulation Bounds
 # ---------------------------
 
-simulation_start_date = ymd(20200101)   # guys ... i have no idea
-calibration_end_date = ymd(20200601)  # TODO: should we infer this from calibration data?
+simulation_start_date = lubridate::ymd(20200101)   # guys ... i have no idea
+calibration_end_date = lubridate::ymd(20200601)  # TODO: should we infer this from calibration data?
 forecast_period_days = 14   # number of days to forecast beyond calibration_end_date
 
 # ---------------------------
@@ -43,7 +43,7 @@ params_timevar = (
     between(
       as.Date(Date),
       as.Date(simulation_start_date),
-      as.Date(calibration_end_date) - days(1)
+      as.Date(calibration_end_date) - lubridate::days(1)
     )
   )
   #%>% filter(Symbol == 'beta0', Date != min(as.Date('2020-03-28')))

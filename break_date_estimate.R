@@ -7,7 +7,7 @@ library(data.table)
 
 ## filter on observed report time series
 ## smooth it with log 7 day moving average
-report_dat <- (calibration_dat
+report_dat <- (observed_data
 	%>% filter(var == "report_inc")
 	%>% mutate(lmavg = log(frollmean(value,n=7,align = "right")))
 	%>% filter(!is.infinite(lmavg))
