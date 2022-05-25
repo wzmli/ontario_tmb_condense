@@ -8,7 +8,7 @@ options(MP_default_do_sim_constraint = TRUE)
 # ---------------------------
 
 simulation_start_date = lubridate::ymd(20200101)   # guys ... i have no idea
-calibration_end_date = lubridate::ymd(20200601)  # TODO: should we infer this from calibration data?
+calibration_end_date = lubridate::ymd(20201201)  # TODO: should we infer this from calibration data?
 forecast_period_days = 14   # number of days to forecast beyond calibration_end_date
 
 # ---------------------------
@@ -126,8 +126,8 @@ model_uncalibrated = (flexmodel(
   %>% update_condense_map(condense_map)
   %>% add_piece_wise(params_timevar)
   %>% update_observed(filter(calibration_dat, var == 'report_inc'))
-  %>% update_opt_params(log_beta0 ~ log_normal(-1.7, 5)
-    , log_nb_disp_report_inc ~ log_normal(10, 0.01)
+  %>% update_opt_params(log_beta0 ~ log_normal(-1.7,1)
+    , log_nb_disp_report_inc ~ log_normal(10, 1)
     #, log_nb_disp_hosp_preval ~ log_flat(-1)
     #, log_nb_disp_icu_preval ~ log_flat(-1)
   )

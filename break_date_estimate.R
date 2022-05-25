@@ -11,6 +11,7 @@ report_dat <- (observed_data
 	%>% filter(var == "report_inc")
 	%>% mutate(lmavg = log(frollmean(value,n=7,align = "right")))
 	%>% filter(!is.infinite(lmavg))
+	%>% filter(date < as.Date("2022-01-01"))
 )
 
 ## check
