@@ -8,7 +8,7 @@ options(MP_default_do_sim_constraint = TRUE)
 # ---------------------------
 
 simulation_start_date = lubridate::ymd(20200101)   # guys ... i have no idea
-calibration_end_date = lubridate::ymd(20201201)  # TODO: should we infer this from calibration data?
+calibration_end_date = lubridate::ymd(20211201)  # TODO: should we infer this from calibration data?
 forecast_period_days = 14   # number of days to forecast beyond calibration_end_date
 
 # ---------------------------
