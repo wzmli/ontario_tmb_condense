@@ -8,7 +8,7 @@ options(MP_default_do_sim_constraint = TRUE)
 # ---------------------------
 
 simulation_start_date = lubridate::ymd(20200101)   # guys ... i have no idea
-calibration_end_date = lubridate::ymd(20211201)  # TODO: should we infer this from calibration data?
+calibration_end_date = lubridate::ymd(20220301)  # TODO: should we infer this from calibration data?
 forecast_period_days = 14   # number of days to forecast beyond calibration_end_date
 
 # ---------------------------
@@ -85,13 +85,34 @@ condense_map = c(
 # calibration data
 # ---------------------------
 
-calibration_dat = filter(
-  observed_data,
-  between(
+calibration_dat = filter(observed_data
+  ## filter to calibration period
+  , between(
     as.Date(date),
     as.Date(simulation_start_date),
     as.Date(calibration_end_date)
   )
+  # ,
+  ## remove reports after date when testing became unreliable
+  , !(var == "report_inc" & date > lubridate::ymd(20211215))
+)
+
+p1 <- (ggplot(calibration_dat %>% drop_na()
+        , aes(x = date, y = value, colour = var))
+  + geom_point(alpha = 0.3, size = 1.5)
+  + facet_wrap(
+    ~ var
+    , ncol = 1
+    , scales = "free_y"
+)
+  + labs(title = "Observed data used in calibration")
+  + guides(colour = "none")
+)
+ggsave(
+  file.path("figs", "context_information-observed_data.png")
+  , p1
+  , width = fig.width
+  , height = 1.3*fig.width
 )
 
 # ---------------------------
@@ -109,7 +130,8 @@ model_uncalibrated = (flexmodel(
   %>% add_model_structure
   %>% update_condense_map(condense_map)
   %>% add_piece_wise(params_timevar)
-  %>% update_observed(filter(calibration_dat, var == 'report_inc'))
+  %>% update_observed(
+    filter(calibration_dat, var == 'report_inc'))
   %>% update_opt_params(log_beta0 ~ log_normal(-1.7,1)
     , log_nb_disp_report_inc ~ log_normal(10, 1)
     #, log_nb_disp_hosp_preval ~ log_flat(-1)
