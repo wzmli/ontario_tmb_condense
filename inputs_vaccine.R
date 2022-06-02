@@ -25,11 +25,11 @@ vaccine_raw <- (
     province = prov
     , date
     , doseall_total = total_vaccinations ## total number of doses administered
-    ## prev = "prevalence", vs inc = "incidence"
-    ## prev = cumulative vax, (daily) incidence = new vax
-    , dose2_prev = total_vaccinated ## total number of people with two doses (second doses given)
-    , dose3_prev = total_boosters_1 ## third doses given
-    , dose4_prev = total_boosters_2 ## fourth doses given
+    ## preval = "prevalence", vs inc = "incidence"
+    ## preval = cumulative vax, (daily) incidence = new vax
+    , dose2_preval = total_vaccinated ## total number of people with two doses (second doses given)
+    , dose3_preval = total_boosters_1 ## third doses given
+    , dose4_preval = total_boosters_2 ## fourth doses given
     )
 )
 
@@ -42,21 +42,21 @@ vaccine_tidy <- (vaccine_raw
   ## get dose1 prevalence
   %>% mutate(
     ## count up all non-dose1 prevalence
-    not_dose1_prev = rowSums(across(ends_with("prev"))),
+    not_dose1_preval = rowSums(across(ends_with("preval"))),
     ## get dose1 prev by subtracting non-dose1 from total vaccines administered
-    dose1_prev = doseall_total - not_dose1_prev
+    dose1_preval = doseall_total - not_dose1_preval
   )
   ## drop unneeded cols
   %>% select(-ends_with("total"), -starts_with("not"))
   ## reorder
-  %>% relocate(dose1_prev, .after = "date")
+  %>% relocate(dose1_preval, .after = "date")
   ## calculate incidence
   %>% transmute(
     date
-    , across(ends_with("prev"), ~ .x - lag(.x))
+    , across(ends_with("preval"), ~ .x - lag(.x))
   )
-  %>% rename_with(~ str_replace(.x, "prev", "inc"),
-                  ends_with("prev"))
+  %>% rename_with(~ str_replace(.x, "preval", "inc"),
+                  ends_with("preval"))
   ## replace negative incidence or NA
   ## with 0 for all numeric columns
   %>% mutate(across(where(is.numeric),
@@ -126,7 +126,6 @@ params_timevar_vaccine <- (
     values_to = "Value"
   )
   %>% rename(Date = date)
-  %>% mutate(Type = "abs")
   %>% as.data.frame()
 )
 

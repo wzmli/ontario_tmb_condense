@@ -15,27 +15,11 @@ forecast_period_days = 14   # number of days to forecast beyond calibration_end_
 # Time-Variation of Parameters in the Calibration Period
 # ---------------------------
 
-clamp_to_0_1 = function(x) {
-  x[is.nan(x)] = 0
-  x[x > 1] = 1
-  x[x < 0] = 0
-  x
-}
-
-params_timevar_vaccine_dat = (vaccine_dat
-  %>% mutate(Date = as.Date(date))
-  %>% mutate(vax_doses_per_day = c(0, diff(total_vaccinations)))
-  %>% mutate(boosters_per_day = c(0, diff(total_boosters_1 + total_boosters_2)))
-  %>% mutate(vax_prop_first_dose = clamp_to_0_1(1 - (boosters_per_day / vax_doses_per_day)))
-  %>% select(Date, vax_doses_per_day, vax_prop_first_dose)
-  %>% pivot_longer(-Date, names_to = 'Symbol', values_to = 'Value')
-)
-
 params_timevar_beta_break_dates = beta_break_dates
 
 params_timevar = (
   bind_rows(
-    params_timevar_vaccine_dat,
+    params_timevar_vaccine, ## generated in inputs_vaccine.R, which is called by inputs_data.R
     params_timevar_beta_break_dates
   )
   %>% mutate(Type = "abs")
