@@ -57,9 +57,6 @@ p1 <- (ggplot(vaccine_check
     , scales = "free_y"
     , strip.position = "top"
     )
-  + theme(
-    legend.position = "bottom"
-  )
   + labs(title = "Comparing vaccine parameters as input (observed) vs as simulated")
 )
 ggsave(
