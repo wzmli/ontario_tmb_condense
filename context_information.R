@@ -131,7 +131,8 @@ model_uncalibrated = (flexmodel(
   %>% update_condense_map(condense_map)
   %>% add_piece_wise(params_timevar)
   %>% update_observed(
-    filter(calibration_dat, var == 'report_inc'))
+    calibration_dat
+  )
   %>% update_opt_params(log_beta0 ~ log_normal(-1.7,1)
     , log_nb_disp_report_inc ~ log_normal(10, 1)
     #, log_nb_disp_hosp_preval ~ log_flat(-1)
