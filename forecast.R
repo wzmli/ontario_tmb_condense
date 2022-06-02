@@ -8,7 +8,7 @@ forecast_intervals = (model_to_forecast
 p1 <- (ggplot(forecast_intervals)
   + facet_wrap(~var)
   + geom_ribbon(aes(Date, ymax = upr, ymin = lwr),
-                alpha = 0.5)
+                alpha = 0.2)
   + geom_point(aes(date, value), data = model_calibrated$observed$data %>% rename(name = var),
                size = 1.5, alpha = 0.2)
   + geom_line(aes(Date, value), colour = 'red')
@@ -18,8 +18,8 @@ p1 <- (ggplot(forecast_intervals)
     , scales = "free_y"
     , strip.position = "top"
     )
+  + labs(title = "Forecast")
 )
-fig.width = 6
 ggsave(
   file.path("figs", "forecast.png"),
   p1,
