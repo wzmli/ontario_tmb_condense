@@ -82,12 +82,16 @@ p1 <- (ggplot(vaccine_plot,
   + guides(colour = "none")
   + labs(title = "Daily new doses")
 )
-ggsave(
-  file.path("figs","inputs_vaccine.png"),
-  p1,
-  width = fig.width,
-  height = 1.3*fig.width
-)
+#ggsave(
+#  file.path("figs","inputs_vaccine.png"),
+#  p1,
+#  width = fig.width,
+#  height = 1.3*fig.width
+#)
+
+print(p1)
+
+quit()
 
 ## fit/forecast (if need be)
 
