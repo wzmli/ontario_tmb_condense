@@ -4,7 +4,7 @@
 
 Read in data and produce two outputs:
 
-* `calibration_dat`
+* `observed_dat`
   * long-format with three columns: date, var, value
   * will be passed _as is_ into a `flexmodel` using `add_observed`
   * all names in `var` therefore need to be columns returned by the 
@@ -18,3 +18,5 @@ Read in data and produce two outputs:
     `params` vector of the associated `flexmodel`
   * all dates in `Date` must be within the `start_date` and `end_date`
     of the `flexmodel`
+
+

@@ -26,6 +26,8 @@ vaccine_raw <- (
 )
 
 ## tidy data
+## We want everything to ending up long format
+
 vaccine_tidy <- (vaccine_raw
   ## convert date col to dates
   %>% mutate(
@@ -53,34 +55,16 @@ vaccine_tidy <- (vaccine_raw
   ## with 0 for all numeric columns
   %>% mutate(across(where(is.numeric),
                     ~ ifelse((.x < 0 | is.na(.x)), 0, .x)))
-)
-
-## plot for diagnostics
-vaccine_plot <- (
-  vaccine_tidy
-  ## drop days where no vaccine was administered
   %>% mutate(total = rowSums(across(ends_with("inc"))))
   %>% filter(total != 0)
   %>% select(-total)
   %>% pivot_longer(-date)
 )
-p1 <- (ggplot(vaccine_plot,
-             aes(x = date, y = value, colour = name))
+
+
+p1 <- (ggplot(vaccine_tidy,aes(x = date, y = value))
   + geom_point(alpha = 0.3)
-  + facet_wrap(
-     ~ name,
-  ncol = 1,
-  scales = "free_y",
-  labeller = labeller(
-    name = function(x){
-      y <- str_replace(x, "_inc", "")
-      y <- str_replace(y, "dose", "dose ")
-      return(y)
-      }
-    ),
-               strip.position = "top")
-  + guides(colour = "none")
-  + labs(title = "Daily new doses")
+  + facet_wrap(~ name,ncol = 1)
 )
 #ggsave(
 #  file.path("figs","inputs_vaccine.png"),
@@ -90,6 +74,8 @@ p1 <- (ggplot(vaccine_plot,
 #)
 
 print(p1)
+
+## Jump to fourth dose here?!? 
 
 quit()
 
@@ -142,9 +128,3 @@ p2 <- (ggplot(
          x = "date")
 )
 
-ggsave(
-  file.path("figs","inputs_vaccine_params_timevar.png"),
-  p2,
-  width = fig.width,
-  height = fig.width
-)
