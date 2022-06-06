@@ -59,6 +59,8 @@ vaccine_tidy <- (vaccine_raw
   %>% filter(total != 0)
   %>% select(-total)
   %>% pivot_longer(-date)
+  %>% group_by(name)
+  %>% mutate(cumval = cumsum(value))
 )
 
 
@@ -66,6 +68,13 @@ p1 <- (ggplot(vaccine_tidy,aes(x = date, y = value))
   + geom_point(alpha = 0.3)
   + facet_wrap(~ name,ncol = 1)
 )
+
+p2 <- (ggplot(vaccine_tidy,aes(x = date, y = cumval/12e6))
+  + geom_point(alpha = 0.3)
+  + facet_wrap(~ name,ncol = 1)
+)
+
+print(p2)
 #ggsave(
 #  file.path("figs","inputs_vaccine.png"),
 #  p1,
