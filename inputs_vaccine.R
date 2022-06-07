@@ -68,7 +68,7 @@ vaccine_tidy <- (vaccine_raw
 p1 <- (ggplot(vaccine_tidy,aes(x = date, y = value))
   + geom_point(alpha = 0.3)
   + facet_wrap(~ name,ncol = 1)
-  + labs(title = "daily doses")
+  + labs(title = "Daily vaccine doses")
 )
 
 print(p1)
@@ -76,7 +76,7 @@ print(p1)
 p2 <- (ggplot(vaccine_tidy,aes(x = date, y = cumval/12e6))
   + geom_point(alpha = 0.3)
   + facet_wrap(~ name,ncol = 1)
-  + labs(title = "cumulative doses")
+  + labs(title = "Cumulative vaccine doses")
 )
 
 print(p2)
