@@ -61,17 +61,22 @@ vaccine_tidy <- (vaccine_raw
   %>% pivot_longer(-date)
   %>% group_by(name)
   %>% mutate(cumval = cumsum(value))
+  %>% ungroup()
 )
 
 
 p1 <- (ggplot(vaccine_tidy,aes(x = date, y = value))
   + geom_point(alpha = 0.3)
   + facet_wrap(~ name,ncol = 1)
+  + labs(title = "daily doses")
 )
+
+print(p1)
 
 p2 <- (ggplot(vaccine_tidy,aes(x = date, y = cumval/12e6))
   + geom_point(alpha = 0.3)
   + facet_wrap(~ name,ncol = 1)
+  + labs(title = "cumulative doses")
 )
 
 print(p2)
@@ -82,12 +87,6 @@ print(p2)
 #  height = 1.3*fig.width
 #)
 
-print(p1)
-
-## Jump to fourth dose here?!? 
-
-quit()
-
 ## fit/forecast (if need be)
 
 ## final output (processed ts or params_timevar df)
@@ -95,6 +94,9 @@ quit()
 ## for the two-dose model
 params_timevar_vaccine <- (
   vaccine_tidy
+  %>% select(-cumval)
+  %>% pivot_wider(
+    id_cols = date)
   ## keep only first and second doses
   %>% select(
     date
@@ -119,9 +121,11 @@ params_timevar_vaccine <- (
   %>% rename(Date = date)
   %>% as.data.frame()
 )
+head(params_timevar_vaccine)
+tail(params_timevar_vaccine)
 
 # plot to check
-p2 <- (ggplot(
+p3 <- (ggplot(
   params_timevar_vaccine,
   aes(x = Date, y = Value, colour = Symbol)
   )
@@ -136,4 +140,4 @@ p2 <- (ggplot(
   + labs(title = "Time-varying parameters input for vaccination",
          x = "date")
 )
-
+print(p3)
