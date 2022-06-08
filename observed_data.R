@@ -16,10 +16,15 @@ observed_data <- (ontario_dat
 	%>% pivot_longer(names_to = "var", -"date")
 )
 
+## filter out ICU (don't want to fit to it)
+observed_data <- (observed_data
+  %>% filter(var != "icu_preval")
+)
+
 print(observed_data)
 
 print(ggplot(observed_data)
-  + facet_wrap(~var, nrow=3)
+  + facet_wrap(~var, nrow=3, scales = "free_y")
   + geom_line(aes(date, value))
   + labs(title = "Observed data for calibration")
 )

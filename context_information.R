@@ -2,6 +2,7 @@
 # Technical Options
 # ---------------------------
 options(MP_default_do_sim_constraint = TRUE)
+options(MP_get_bbmle_init_from_nlminb = TRUE)
 
 # ---------------------------
 # Simulation Bounds
@@ -15,12 +16,11 @@ forecast_period_days = 14   # number of days to forecast beyond calibration_end_
 # Time-Variation of Parameters in the Calibration Period
 # ---------------------------
 
-params_timevar_beta_break_dates = beta_break_dates
-
 params_timevar = (
   bind_rows(
-    params_timevar_vaccine, ## generated in inputs_vaccine.R, which is called by inputs_data.R
-    params_timevar_beta_break_dates
+    params_timevar_vaccine ## generated in inputs_vaccine.R, which is called by inputs_data.R
+    , params_timevar_beta
+    # , params_timevar_mu
   )
   %>% mutate(Type = "abs")
   %>% filter(
@@ -128,6 +128,10 @@ model_uncalibrated = (flexmodel(
     do_make_state = TRUE
   )
   %>% add_model_structure
+  %>% update_params(
+    np_disp_hosp_preval = 1000, # not fitting, assuming basically poisson error
+    np_disp_icu_preval = 1000
+  )
   %>% update_condense_map(condense_map)
   %>% add_piece_wise(params_timevar)
   %>% update_observed(
@@ -135,6 +139,11 @@ model_uncalibrated = (flexmodel(
   )
   %>% update_opt_params(log_beta0 ~ log_normal(-1.7,1)
     , log_nb_disp_report_inc ~ log_normal(10, 1)
+    , logit_mu ~ logit_normal(
+      qlogis(0.9853643)
+      , 1
+      ) ## starting value on the logit scale
+    # , logit_mu ~ logit_flat(qlogis(0.9853643))
     #, log_nb_disp_hosp_preval ~ log_flat(-1)
     #, log_nb_disp_icu_preval ~ log_flat(-1)
   )
@@ -142,6 +151,10 @@ model_uncalibrated = (flexmodel(
     , log_beta0 ~ log_flat(
       c(-1.9676436)
       )
+    # , logit_mu ~ logit_normal(
+    #   qlogis(0.9853643)
+    #   , 1
+    # ) ## starting value on the logit scale
   )
 )
 

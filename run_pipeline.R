@@ -10,6 +10,8 @@ source("break_date_estimate.R")
 source("context_information.R")
 
 source("calibration.R")
+model_calibrated$params["mu"]
+model_calibrated$timevar$piece_wise$schedule %>% filter(Symbol == "mu") %>% pull(Value)
 
 if(plot_diagnostics_modelspecific){
   source("check_vaccine_admin.R")
@@ -17,4 +19,4 @@ if(plot_diagnostics_modelspecific){
 
 source("inputs_forecast.R")
 source("forecast.R")
-	
+

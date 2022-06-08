@@ -1,4 +1,6 @@
-model_calibrated = calibrate_flexmodel(model_uncalibrated, optimizer = 'nlminb')
+model_calibrated = calibrate_flexmodel(model_uncalibrated
+                                       # , optimizer = 'nlminb'
+                                       )
 convergence_info(model_calibrated)
 
 p1 <- (model_calibrated

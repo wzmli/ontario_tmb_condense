@@ -33,9 +33,22 @@ break_date <- as.Date(c(round(refit$indexU$date)))
 gg + geom_vline(xintercept=break_date)
 
 reporting_lag <- 8
-beta_break_dates <- data.frame(Date = break_date - reporting_lag
+params_timevar_beta <- data.frame(Date = break_date - reporting_lag
 	, Symbol = "beta0"
 	, Value = NA
 )
+print(params_timevar_beta)
 
-print(beta_break_dates)
+## break dates for severity
+## (changes in severity based on variant invasion)
+params_timevar_mu <- data.frame(
+  Date = as.Date(c(
+    # "2020-12-25" ## when Alpha started taking over
+    # ,
+    "2021-02-15" ## just before Delta
+    # "2021-03-15" ## when Delta started taking over
+    # , "2021-12-01" ## when Omicron started taking over
+  ))
+  , Symbol = "mu"
+  , Value = NA
+)
