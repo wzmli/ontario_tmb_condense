@@ -20,7 +20,7 @@ params_timevar = (
   bind_rows(
     params_timevar_vaccine ## generated in inputs_vaccine.R, which is called by inputs_data.R
     , params_timevar_beta
-    # , params_timevar_mu
+    , params_timevar_mu
   )
   %>% mutate(Type = "abs")
   %>% filter(
@@ -151,10 +151,10 @@ model_uncalibrated = (flexmodel(
     , log_beta0 ~ log_flat(
       c(-1.9676436)
       )
-    # , logit_mu ~ logit_normal(
-    #   qlogis(0.9853643)
-    #   , 1
-    # ) ## starting value on the logit scale
+    , logit_mu ~ logit_normal(
+      qlogis(0.9853643)
+      , 1
+    ) ## starting value on the logit scale
   )
 )
 
