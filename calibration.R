@@ -1,7 +1,7 @@
 model_calibrated = calibrate_flexmodel(model_uncalibrated
                                        # , optimizer = 'nlminb'
                                        )
-convergence_info(model_calibrated)
+print(convergence_info(model_calibrated))
 
 p1 <- (model_calibrated
   %>% fitted
@@ -16,6 +16,7 @@ p1 <- (model_calibrated
     linetype = 'dashed',
     data = filter(params_timevar, Symbol == "beta0")
   )
+  + scale_y_continuous(trans = "log")
   + labs(title = "Calibration")
 )
 
@@ -26,9 +27,9 @@ ggsave(
   height = 1.3*fig.width
 )
 
-model_calibrated$opt_par
-model_calibrated$params
-filter(model_calibrated$timevar$piece_wise$schedule, Symbol == 'beta0')
+print(model_calibrated$opt_par)
+print(model_calibrated$params)
+print(filter(model_calibrated$timevar$piece_wise$schedule, Symbol == 'beta0'))
 
 
 # simulate_ensemble(model_calibrated, PDify = TRUE)
