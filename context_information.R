@@ -20,7 +20,7 @@ params_timevar = (
   bind_rows(
     params_timevar_vaccine ## generated in inputs_vaccine.R, which is called by inputs_data.R
     , params_timevar_beta
-    , params_timevar_mu
+    # , params_timevar_mu
   )
   %>% mutate(Type = "abs")
   %>% filter(
@@ -128,33 +128,46 @@ model_uncalibrated = (flexmodel(
     do_make_state = TRUE
   )
   %>% add_model_structure
+
   %>% update_params(
-    np_disp_hosp_preval = 1000, # not fitting, assuming basically poisson error
-    np_disp_icu_preval = 1000
+    nb_disp_report_inc = 15
+    # not fitting, assuming basically poisson error
+    , np_disp_hosp_preval = 1000
+    # , np_disp_icu_preval = 1000
   )
   %>% update_condense_map(condense_map)
   %>% add_piece_wise(params_timevar)
   %>% update_observed(
     calibration_dat
   )
-  %>% update_opt_params(log_beta0 ~ log_normal(-1.7,1)
-    , log_nb_disp_report_inc ~ log_normal(10, 1)
+  %>% update_opt_params(log_beta0 ~ log_normal(
+     ## try diff mean and  variance later on when vaccines kick in
+
+    -1.7, 1
+                                               )
+    # , log_nb_disp_report_inc ~ log_normal(2.7, 1)
     , logit_mu ~ logit_normal(
       qlogis(0.9853643)
-      , 1
+      , 0.01
       ) ## starting value on the logit scale
     # , logit_mu ~ logit_flat(qlogis(0.9853643))
     #, log_nb_disp_hosp_preval ~ log_flat(-1)
     #, log_nb_disp_icu_preval ~ log_flat(-1)
   )
   %>% update_opt_tv_params('abs'
-    , log_beta0 ~ log_flat(
-      c(-1.9676436)
+    , log_beta0 ~ log_normal(
+      ## from calibration with just base mu
+      c(-1.0563457, -2.1741484, -2.5953720,
+        -2.5761787, -2.1924082, -1.4564057,
+        -1.6901006, -2.1915752, -1.4090154,
+        -1.5156526, -1.8297348, -0.2460687,
+        -0.2818156,  0.6694880),
+        0.25
       )
-    , logit_mu ~ logit_normal(
-      qlogis(0.9853643)
-      , 1
-    ) ## starting value on the logit scale
+    # , logit_mu ~ logit_normal(
+    #   qlogis(0.9853643)
+    #   , 0.01
+    # ) ## starting value on the logit scale
   )
 )
 
