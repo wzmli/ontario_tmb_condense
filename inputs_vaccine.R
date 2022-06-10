@@ -41,7 +41,7 @@ vaccine_tidy <- (vaccine_raw
   %>% select(-ends_with("total"), -starts_with("not"))
   ## reorder
   %>% relocate(dose1_preval, .after = "date")
-  ## calculate incidence
+  ## calculate incidence and relabel cols
   %>% transmute(
     date
     , across(ends_with("preval"), ~ .x - lag(.x))
@@ -88,28 +88,22 @@ print(p2)
 
 ## final output (processed ts or params_timevar df)
 
-## for the two-dose model
+## for the four-dose model
 params_timevar_vaccine <- (
   vaccine_tidy
   %>% select(-cumval)
+  ## keep only doses 1-4
+  %>% filter(str_detect(name, "^dose(1|2|3|4)"))
+  ## rename params to match names in model definition
+  %>% mutate(name = paste0("vax_", name))
   %>% pivot_wider(
     id_cols = date)
-  ## keep only first and second doses
-  %>% select(
-    date
-    , matches("^dose(1|2)")
-  )
-  ## sum total daily doses
+  # ## sum total daily doses
   %>% mutate(doseall_inc = rowSums(across(where(is.numeric))))
-  ## drop days where no vaccines were administered
+  ## drop days where no vaccines were administered at all
   %>% filter(doseall_inc != 0)
-  ## calculate parameters for two-dose model
-  %>% transmute(
-    date
-    , vax_doses_per_day = doseall_inc
-    , vax_prop_first_dose = dose1_inc/vax_doses_per_day
-  )
   ## format as params_timevar
+  %>% select(-doseall_inc)
   %>% pivot_longer(
     -date,
     names_to = "Symbol",

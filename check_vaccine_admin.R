@@ -1,4 +1,5 @@
 ## THIS IS A MODEL-SPECIFIC SCRIPT
+## works with vaccine models as set up by irena :)
 
 ## compare vaccine administration as input
 ## to resulting vaccine admin in simulation (post-calibration)
@@ -25,26 +26,26 @@ vaccine_sim <- (sim
            ~ .x - lag(.x),
            .names = "{.col}_inc")
   )
-  ## calculate model parameter quantities
-  %>% transmute(
-    Date
-    , vax_doses_per_day = rowSums(across(ends_with("inc")))
-    , vax_prop_first_dose = V_vaxdose1_inc/vax_doses_per_day
-  )
+  ## keep only incidence
+  %>% select("Date", ends_with("_inc"))
+  ## replace NA with 0 for all numeric columns
+  %>% mutate(across(where(is.numeric),
+                      ~ ifelse((.x < 0 | is.na(.x)), 0, .x)))
   %>% pivot_longer(
     -Date
     , names_to = "Symbol"
     , values_to = "Value")
+  # convert state names to parameter names
+  %>% mutate(Symbol = str_replace(Symbol,
+                                  "V_vax",
+                                  "vax_"))
   %>% mutate(Data_Type = "simulated")
 )
 
 vaccine_check <- (bind_rows(
   vaccine_obs,
   vaccine_sim
-)
-  ## filter out days without vaccination
-  %>% filter(!(Symbol == "vax_doses_per_day" & Value == 0))
-  %>% drop_na()
+  )
 )
 
 p1 <- (ggplot(vaccine_check
@@ -63,6 +64,6 @@ ggsave(
   file.path(
     "figs", "check_vaccine_admin.png"),
   p1,
-  width = fig.width,
+  width = fig.width*1.1,
   height = fig.width
 )

@@ -19,15 +19,15 @@ non_accum = base::setdiff(epi_states, accum)
 # non-susceptible/non-accumulator states
 non_accum_non_S = base::setdiff(non_accum, "S")
 
-# asymptomatic epi-states
+# asymptomatic epi-states (for vax dosing)
 asymp_cat = c("S", "E", "Ia", "Ip", "R")
 
-# 5 vaccination categories/layers
-vax_cat = c("unvax", "vaxdose1", "vaxprotect1", "vaxdose2", "vaxprotect2")
+# vaccination categories/layers
+vax_cat = c("unvax", "vaxdose1", "vaxprotect1", "vaxdose2", "vaxprotect2", "vaxdose3", "vaxprotect3", "vaxdose4", "vaxprotect4")
 
 # dosing transitions across vaccination layers
 (dose_from = rep(asymp_cat, 2))
-(dose_to = c(asymp_cat, rep("V", 5)))
+(dose_to = c(asymp_cat, rep("V", length(asymp_cat))))
 
 # ---------------------------
 # Default Parameters
@@ -48,7 +48,7 @@ params = c(
   rho = 0.1,
   delta = 0,
   mu = 0.956,
-  N = 14e+06,
+  N = 14e+06, ## roughly pop of ontario
   E0 = 5,
   S0 = 1-14e-5,  # initial proportion of susceptible individuals
   nonhosp_mort = 0,
@@ -64,16 +64,33 @@ params = c(
   c_delay_cv = 0.25,
   proc_disp = 0,
   zeta = 0,
-  vax_doses_per_day = 0, # adjusted by params_timevar
+  ## VAX DOSING (daily incidence, a.k.a. inc)
+  # shut off initially,
+  # adjusted by params_timevar
+  vax_dose1_inc = 0,
+  vax_dose2_inc = 0,
+  vax_dose3_inc = 0,
+  vax_dose4_inc = 0,
+  ## VAX IMMUNE RESPONSE
+  vax_response_rate = 0.0714285714285714,
+  vax_response_rate_R = 0.142857142857143,
+  ## DOSE 1 PROPERTIES
   vax_efficacy_dose1 = 0.6,
   vax_alpha_dose1 = 0.5,
   vax_mu_dose1 = 1,
-  vax_response_rate = 0.0714285714285714,
-  vax_response_rate_R = 0.142857142857143,
-  vax_prop_first_dose = 1,
+  ## DOSE 2 PROPERTIES
   vax_efficacy_dose2 = 0.9,
   vax_alpha_dose2 = 0.5,
   vax_mu_dose2 = 1,
+  ## DOSE 3 PROPERTIES
+  vax_efficacy_dose3 = 0.9,
+  vax_alpha_dose3 = 0.5,
+  vax_mu_dose3 = 1,
+  ## DOSE 4 PROPERTIES
+  vax_efficacy_dose4 = 0.9,
+  vax_alpha_dose4 = 0.5,
+  vax_mu_dose4 = 1,
+  ## WANING (from disease-based immunity)
   wane_rate = 0
 )
 
@@ -108,19 +125,27 @@ add_model_structure = function(model) {
 
   # Symbolic matrix describing how transmission is reduced by
   # vaccination status. Each row and column corresponds to one
-  # of the vaccination statuses. Eaech column is identical (for some reason)
+  # of the vaccination statuses. Each column is identical (for some reason)
   vax_trans_red = struc_block(vec(
-    '1',
-    '1',
-    '(1 - vax_efficacy_dose1)',
-    '(1 - vax_efficacy_dose1)',
-    '(1 - vax_efficacy_dose2)'),
-    row_times = 1, col_times = 5
+    '1', # unvax
+    '1', # vaxdose1
+    '(1 - vax_efficacy_dose1)', # vaxprotect1
+    '(1 - vax_efficacy_dose1)', # vaxdose2
+    '(1 - vax_efficacy_dose2)', # vaxprotect2
+    '(1 - vax_efficacy_dose2)', # vaxdose3
+    '(1 - vax_efficacy_dose3)', # vaxprotect3
+    '(1 - vax_efficacy_dose3)', # vaxdose4
+    '(1 - vax_efficacy_dose4)'), # vaxprotect4
+    row_times = 1, col_times = length(vax_cat)
   )
 
-  # names of the alpha and mu parameters for each vaccination status
-  alpha = c("alpha", "alpha", "vax_alpha_dose1", "vax_alpha_dose1", "vax_alpha_dose2")
-  mu = c("mu",  "mu", "vax_mu_dose1", "vax_mu_dose1", "vax_mu_dose2")
+  # names of the alpha and mu parameters for each vaccination layer
+  alpha = c("alpha", "alpha",
+            rep(paste0("vax_alpha_dose", 1:3), each = 2),
+            "vax_alpha_dose4")
+  mu = c("mu", "mu",
+         rep(paste0("vax_mu_dose", 1:3), each = 2),
+            "vax_mu_dose4")
 
   # symbolic scalars used below
   sigma   = struc("sigma")
@@ -164,8 +189,12 @@ add_model_structure = function(model) {
     # Vaccination Response Rates
     %>% add_rate("R_vaxdose1", "R_vaxprotect1",  ~ (vax_response_rate_R))
     %>% add_rate("R_vaxdose2", "R_vaxprotect2",  ~ (vax_response_rate_R))
+    %>% add_rate("R_vaxdose3", "R_vaxprotect3",  ~ (vax_response_rate_R))
+    %>% add_rate("R_vaxdose4", "R_vaxprotect4",  ~ (vax_response_rate_R))
     %>% add_rate("S_vaxdose1", "S_vaxprotect1",  ~ (vax_response_rate))
     %>% add_rate("S_vaxdose2", "S_vaxprotect2",  ~ (vax_response_rate))
+    %>% add_rate("S_vaxdose3", "S_vaxprotect3",  ~ (vax_response_rate))
+    %>% add_rate("S_vaxdose4", "S_vaxprotect4",  ~ (vax_response_rate))
 
     # Forces of Infection
     %>% vec_rate(
@@ -178,19 +207,29 @@ add_model_structure = function(model) {
     # Sums across vaccination categories
     %>% add_state_param_sum("asymp_unvax_N",       asymp_cat %_% "unvax")
     %>% add_state_param_sum("asymp_vaxprotect1_N", asymp_cat %_% "vaxprotect1")
+    %>% add_state_param_sum("asymp_vaxprotect2_N", asymp_cat %_% "vaxprotect2")
+    %>% add_state_param_sum("asymp_vaxprotect3_N", asymp_cat %_% "vaxprotect3")
 
     # Flow among vaccination categories
     # (see dose_* above for epi states that are involved)
     %>% rep_rate(
       dose_from %_% 'unvax',
       dose_to   %_% 'vaxdose1',
-      ~ (    vax_prop_first_dose) * (vax_doses_per_day) * (1 / asymp_unvax_N))
+      ~ (vax_dose1_inc) * (1 / asymp_unvax_N))
     %>% rep_rate(
       dose_from %_% 'vaxprotect1',
       dose_to   %_% 'vaxdose2',
-      ~ (1 - vax_prop_first_dose) * (vax_doses_per_day) * (1 / asymp_vaxprotect1_N))
+      ~ (vax_dose2_inc) * (1 / asymp_vaxprotect1_N))
+    %>% rep_rate(
+      dose_from %_% 'vaxprotect2',
+      dose_to   %_% 'vaxdose3',
+      ~ (vax_dose3_inc) * (1 / asymp_vaxprotect2_N))
+    %>% rep_rate(
+      dose_from %_% 'vaxprotect3',
+      dose_to   %_% 'vaxdose4',
+      ~ (vax_dose4_inc) * (1 / asymp_vaxprotect3_N))
 
-    # waning immunity
+    # waning (disease-based) immunity
     %>% rep_rate(
       "R" %_% vax_cat,
       "S" %_% vax_cat,
@@ -205,9 +244,13 @@ add_model_structure = function(model) {
     )
 
     # Update parameters for use with the linearized model
+    ## FIXME: ASK STEVE ABOUT THIS
     %>% update_linearized_params('^N$', 1) # scale population to 1
     %>% update_linearized_params('^E0$', 1e-5)
-    %>% update_linearized_params('^vax_doses_per_day$', 0)
+    %>% update_linearized_params('^vax_dose1_inc$', 0)
+    %>% update_linearized_params('^vax_dose2_inc$', 0)
+    %>% update_linearized_params('^vax_dose3_inc$', 0)
+    %>% update_linearized_params('^vax_dose4_inc$', 0)
     %>% update_linearized_params('^vax_response_rate$', 0)
     %>% update_linearized_params('^vax_response_rate_R$', 0)
 
@@ -261,6 +304,10 @@ add_model_structure = function(model) {
     %>% add_sim_report_expr("Incidence_vaxprotect1", ~ (S_vaxprotect1_to_E_vaxprotect1) * (S_vaxprotect1))
     %>% add_sim_report_expr("Incidence_vaxdose2", ~ (S_vaxdose2_to_E_vaxdose2) * (S_vaxdose2))
     %>% add_sim_report_expr("Incidence_vaxprotect2", ~ (S_vaxprotect2_to_E_vaxprotect2) * (S_vaxprotect2))
+    %>% add_sim_report_expr("Incidence_vaxdose3", ~ (S_vaxdose3_to_E_vaxdose3) * (S_vaxdose3))
+    %>% add_sim_report_expr("Incidence_vaxprotect3", ~ (S_vaxprotect3_to_E_vaxprotect3) * (S_vaxprotect3))
+    %>% add_sim_report_expr("Incidence_vaxdose4", ~ (S_vaxdose4_to_E_vaxdose4) * (S_vaxdose4))
+    %>% add_sim_report_expr("Incidence_vaxprotect4", ~ (S_vaxprotect4_to_E_vaxprotect4) * (S_vaxprotect4))
     %>% add_sim_report_expr("Incidence", sum(foi_vec * S_vec))
     %>% add_conv("^Incidence")
     %>% add_lag_diff("^(X|D)total$")

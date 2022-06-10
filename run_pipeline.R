@@ -1,4 +1,4 @@
-plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
+plot_diagnostics_modelspecific <- TRUE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
 
 source("package_conflict_rules.R")
 source("load_libraries.R")
