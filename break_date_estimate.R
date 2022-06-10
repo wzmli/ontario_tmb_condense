@@ -1,10 +1,3 @@
-library(segmented)
-library(tidyverse)
-library(lubridate)
-library(zoo)
-library(data.table)
-
-
 ## filter on observed report time series
 ## smooth it with log 7 day moving average
 report_dat <- (observed_data
@@ -43,11 +36,11 @@ print(params_timevar_beta)
 ## (changes in severity based on variant invasion)
 params_timevar_mu <- data.frame(
   Date = as.Date(c(
-    # "2020-12-25" ## when Alpha started taking over
-    # ,
-    "2021-02-15" ## just before Delta
-    # "2021-03-15" ## when Delta started taking over
-    # , "2021-12-01" ## when Omicron started taking over
+    "2020-07-01" ## diff "severity" in first wave? people more likely to go to hospital out of panic?
+    , "2020-12-25" ## when Alpha started taking over
+    , "2021-02-15" ## just before Delta
+    , "2021-03-15" ## when Delta started taking over
+    , "2021-12-01" ## when Omicron started taking over
   ))
   , Symbol = "mu"
   , Value = NA

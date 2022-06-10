@@ -1,6 +1,3 @@
-library(tidyverse)
-library(ggplot2)
-
 ## Reading in Ontario public data
 ontario_dat <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
 
@@ -17,9 +14,9 @@ observed_data <- (ontario_dat
 )
 
 ## filter out ICU (don't want to fit to it)
-observed_data <- (observed_data
-  %>% filter(var != "icu_preval")
-)
+# observed_data <- (observed_data
+#   %>% filter(var != "icu_preval")
+# )
 
 print(observed_data)
 

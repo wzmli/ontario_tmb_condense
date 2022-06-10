@@ -1,5 +1,3 @@
-library(McMasterPandemic)
-
 spec_check("0.1.0", "model structure")
 
 # ---------------------------
