@@ -17,9 +17,9 @@ observed_data <- (ontario_dat
 )
 
 ## filter out ICU (don't want to fit to it)
-observed_data <- (observed_data
-  %>% filter(var != "icu_preval")
-)
+# observed_data <- (observed_data
+#   %>% filter(var != "icu_preval")
+# )
 
 print(observed_data)
 

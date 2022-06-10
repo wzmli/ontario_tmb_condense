@@ -9,7 +9,7 @@ options(MP_get_bbmle_init_from_nlminb = TRUE)
 # ---------------------------
 
 simulation_start_date = lubridate::ymd(20200101)   # guys ... i have no idea
-calibration_end_date = lubridate::ymd(20220301)  # TODO: should we infer this from calibration data?
+calibration_end_date = lubridate::ymd(20220610)  # TODO: should we infer this from calibration data?
 forecast_period_days = 14   # number of days to forecast beyond calibration_end_date
 
 # ---------------------------
@@ -20,7 +20,7 @@ params_timevar = (
   bind_rows(
     params_timevar_vaccine ## generated in inputs_vaccine.R, which is called by inputs_data.R
     , params_timevar_beta
-    # , params_timevar_mu
+    , params_timevar_mu
   )
   %>% mutate(Type = "abs")
   %>% filter(
@@ -128,15 +128,15 @@ model_uncalibrated = (flexmodel(
     do_make_state = TRUE
   )
   %>% add_model_structure
-
-  %>% update_params(
-    nb_disp_report_inc = 15
-    # not fitting, assuming basically poisson error
-    , np_disp_hosp_preval = 1000
-    # , np_disp_icu_preval = 1000
-  )
   %>% update_condense_map(condense_map)
   %>% add_piece_wise(params_timevar)
+  ## specify observation error distributions for
+  ## fitted variables
+  %>% update_error_dist(
+    report_inc ~ poisson()
+    , hosp_preval ~ poisson()
+    , icu_preval ~ poisson()
+  )
   %>% update_observed(
     calibration_dat
   )
@@ -164,10 +164,10 @@ model_uncalibrated = (flexmodel(
         -0.2818156,  0.6694880),
         0.25
       )
-    # , logit_mu ~ logit_normal(
-    #   qlogis(0.9853643)
-    #   , 0.01
-    # ) ## starting value on the logit scale
+    , logit_mu ~ logit_normal(
+      qlogis(0.9853643)
+      , 0.1
+    ) ## starting value on the logit scale
   )
 )
 

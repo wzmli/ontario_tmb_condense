@@ -1,6 +1,7 @@
 plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
 
 source("package_conflict_rules.R")
+source("load_libraries.R")
 source("plot_settings.R") ## global plot settings
 
 source("observed_data.R")
@@ -10,7 +11,6 @@ source("break_date_estimate.R")
 source("context_information.R")
 
 source("calibration.R")
-print(model_calibrated$params["nb_disp_report_inc"])
 print(model_calibrated$params["mu"])
 print(model_calibrated$timevar$piece_wise$schedule %>% filter(Symbol == "mu") %>% pull(Value))
 

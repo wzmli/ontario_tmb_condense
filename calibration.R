@@ -16,7 +16,7 @@ p1 <- (model_calibrated
     linetype = 'dashed',
     data = filter(params_timevar, Symbol == "beta0")
   )
-  + scale_y_continuous(trans = "log")
+  # + scale_y_continuous(trans = "log")
   + labs(title = "Calibration")
 )
 
