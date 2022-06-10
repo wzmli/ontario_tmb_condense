@@ -6,9 +6,9 @@ source("package_conflict_rules.R")
 ## MLi: want to get rid of plot settings, the goal of this repo is not to make pretty plots
 source("plot_settings.R") ## global plot settings
 
-source("observed_data.R")
-source("inputs_vaccine.R")
-
+# source("observed_data.R")
+# source("inputs_vaccine.R")
+source("inputs_variants.R")
 quit()
 
 source("inputs_data.R")
