@@ -1,6 +1,3 @@
-library(tidyverse)
-library(jsonlite)
-
 ## data inputs
 prov <- "ON"
 url <- paste0('https://api.covid19tracker.ca/reports/province/'

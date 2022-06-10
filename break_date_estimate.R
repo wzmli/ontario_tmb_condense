@@ -1,10 +1,3 @@
-library(segmented)
-library(tidyverse)
-library(lubridate)
-library(zoo)
-library(data.table)
-
-
 ## filter on observed report time series
 ## smooth it with log 7 day moving average
 report_dat <- (observed_data
