@@ -1,22 +1,24 @@
 library(shellpipes)
 
-plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
+plot_diagnostics_modelspecific <- TRUE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
 
+## Combine all three scripts? 
 source("package_conflict_rules.R")
-## MLi: want to get rid of plot settings, the goal of this repo is not to make pretty plots
+source("load_libraries.R")
 source("plot_settings.R") ## global plot settings
 
-# source("observed_data.R")
-# source("inputs_vaccine.R")
 source("inputs_variants.R")
 quit()
 
+source("observed_data.R")
 source("inputs_data.R")
 source("model_definition.R")
 source("break_date_estimate.R")
 source("context_information.R")
 
 source("calibration.R")
+print(model_calibrated$params["mu"])
+print(model_calibrated$timevar$piece_wise$schedule %>% filter(Symbol == "mu") %>% pull(Value))
 
 if(plot_diagnostics_modelspecific){
   source("check_vaccine_admin.R")
@@ -24,3 +26,4 @@ if(plot_diagnostics_modelspecific){
 
 source("inputs_forecast.R")
 source("forecast.R")
+
