@@ -21,6 +21,7 @@ params_timevar = (
     params_timevar_vaccine ## generated in inputs_vaccine.R, which is called by inputs_data.R
     , params_timevar_beta
     , params_timevar_mu
+    , params_timevar_rho
   )
   %>% mutate(Type = "abs")
   %>% filter(
@@ -95,6 +96,8 @@ calibration_dat = filter(observed_data
   # ,
   ## remove reports after date when testing became unreliable
   , !(var == "report_inc" & date > lubridate::ymd(20211215))
+  ## remove ICU prevalence
+  , !(var == "icu_preval")
 )
 
 p1 <- (ggplot(calibration_dat %>% drop_na()
@@ -135,7 +138,7 @@ model_uncalibrated = (flexmodel(
   %>% update_error_dist(
     report_inc ~ poisson()
     , hosp_preval ~ poisson()
-    , icu_preval ~ poisson()
+    # , icu_preval ~ poisson()
   )
   %>% update_observed(
     calibration_dat
@@ -145,12 +148,15 @@ model_uncalibrated = (flexmodel(
 
     -1.7, 1
                                                )
-    # , log_nb_disp_report_inc ~ log_normal(2.7, 1)
     , logit_mu ~ logit_normal(
       qlogis(0.9853643)
       , 0.01
       ) ## starting value on the logit scale
-    # , logit_mu ~ logit_flat(qlogis(0.9853643))
+    , log_rho ~ log_normal(
+      log(1/10) ## setting approx avg length of stay = 10 days
+      , 0.008 ## calculated so that 5-15 days are within 1 standard deviation of the mean
+    )
+    # , log_nb_disp_report_inc ~ log_normal(2.7, 1)
     #, log_nb_disp_hosp_preval ~ log_flat(-1)
     #, log_nb_disp_icu_preval ~ log_flat(-1)
   )
@@ -168,6 +174,10 @@ model_uncalibrated = (flexmodel(
       qlogis(0.9853643)
       , 0.1
     ) ## starting value on the logit scale
+    , log_rho ~ log_normal(
+      log(1/10) ## setting approx avg length of stay = 10 days
+      , 0.008 ## calculated so that 5-15 days are within 1 standard deviation of the mean
+    )
   )
 )
 

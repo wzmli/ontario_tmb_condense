@@ -1,10 +1,11 @@
 ## filter on observed report time series
 ## smooth it with log 7 day moving average
+report_end_date <- ymd("2022-01-01") ## when we assume the report signal stops being reliable
 report_dat <- (observed_data
 	%>% filter(var == "report_inc")
 	%>% mutate(lmavg = log(frollmean(value,n=7,align = "right")))
 	%>% filter(!is.infinite(lmavg))
-	%>% filter(date < as.Date("2022-01-01"))
+	%>% filter(date < report_end_date)
 )
 
 ## check
@@ -32,16 +33,24 @@ params_timevar_beta <- data.frame(Date = break_date - reporting_lag
 )
 print(params_timevar_beta)
 
-## break dates for severity
-## (changes in severity based on variant invasion)
+## periodically re-fit severity (mu) and hospital occupancy (rho)
+## to get better fits, especially after the reports signal drops out
+date_seq <- c(
+  ## monthly until reports become unreliable
+  seq(ymd(min(observed_data$date)), report_end_date,
+      by='months'),
+  ## every 10 days after that point
+  seq(report_end_date, ymd(max(observed_data$date)),
+      by = 10))
+
 params_timevar_mu <- data.frame(
-  Date = as.Date(c(
-    "2020-07-01" ## diff "severity" in first wave? people more likely to go to hospital out of panic?
-    , "2020-12-25" ## when Alpha started taking over
-    , "2021-02-15" ## just before Delta
-    , "2021-03-15" ## when Delta started taking over
-    , "2021-12-01" ## when Omicron started taking over
-  ))
+  Date = date_seq
   , Symbol = "mu"
+  , Value = NA
+)
+
+params_timevar_rho <- data.frame(
+  Date = date_seq
+  , Symbol = "rho"
   , Value = NA
 )

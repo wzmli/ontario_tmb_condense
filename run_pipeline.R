@@ -1,12 +1,12 @@
 plot_diagnostics_modelspecific <- TRUE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
 
-## Combine all three scripts? 
+## Combine all three scripts?
 source("package_conflict_rules.R")
 source("load_libraries.R")
 source("plot_settings.R") ## global plot settings
 
-source("inputs_variants.R")
-quit()
+# source("inputs_variants.R")
+# quit()
 
 source("observed_data.R")
 source("inputs_data.R")
