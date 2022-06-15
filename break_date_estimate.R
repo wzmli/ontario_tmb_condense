@@ -31,26 +31,52 @@ params_timevar_beta <- data.frame(Date = break_date - reporting_lag
 	, Symbol = "beta0"
 	, Value = NA
 )
+
+## add in break dates after reports drop out (changes in behaviour in jan)
+params_timevar_beta <- bind_rows(
+  params_timevar_beta,
+  data.frame(
+    Date = ymd(c("2021-12-19" ## increase in public health restrictions
+                 , "2022-01-31" ## begin easing restrictions (change in capacity limits)
+                 , "2022-02-17" ## next phase of reopening (change in capacity limits)
+                 , "2022-03-01" ## proof of vaccine mandate lifted
+                 , "2022-03-21" ## most indoor mask mandates lifted
+                 )),
+    Symbol = "beta0",
+    Value = NA
+  )
+)
+
 print(params_timevar_beta)
 
 ## periodically re-fit severity (mu) and hospital occupancy (rho)
 ## to get better fits, especially after the reports signal drops out
-date_seq <- c(
+date_seq_mu <- c(
   ## monthly until reports become unreliable
   seq(ymd(min(observed_data$date)), report_end_date,
-      by='months'),
+      by='months')
   ## every 10 days after that point
-  seq(report_end_date, ymd(max(observed_data$date)),
-      by = 10))
+  # , seq(report_end_date, ymd(max(observed_data$date)),
+  #     by = 10)
+  )
 
 params_timevar_mu <- data.frame(
-  Date = date_seq
+  Date = date_seq_mu
   , Symbol = "mu"
   , Value = NA
 )
 
+date_seq_rho <- c(
+  ## monthly until reports become unreliable
+  seq(ymd(min(observed_data$date)), report_end_date,
+      by='months')
+  ## every 10 days after that point
+  , seq(report_end_date, ymd(max(observed_data$date)),
+      by = 10)
+)
+
 params_timevar_rho <- data.frame(
-  Date = date_seq
+  Date = date_seq_rho
   , Symbol = "rho"
   , Value = NA
 )

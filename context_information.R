@@ -18,7 +18,7 @@ forecast_period_days = 14   # number of days to forecast beyond calibration_end_
 
 params_timevar = (
   bind_rows(
-    params_timevar_vaccine ## generated in inputs_vaccine.R, which is called by inputs_data.R
+    params_timevar_vaccine ## the dosing schedule, generated in inputs_vaccine.R, which is called by inputs_data.R
     , params_timevar_beta
     , params_timevar_mu
     , params_timevar_rho
@@ -167,7 +167,7 @@ model_uncalibrated = (flexmodel(
         -2.5761787, -2.1924082, -1.4564057,
         -1.6901006, -2.1915752, -1.4090154,
         -1.5156526, -1.8297348, -0.2460687,
-        -0.2818156,  0.6694880),
+        -0.2818156,  0.6694880, rep(-0.2818156, 5)),
         0.25
       )
     , logit_mu ~ logit_normal(

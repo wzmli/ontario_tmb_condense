@@ -15,8 +15,6 @@ source("break_date_estimate.R")
 source("context_information.R")
 
 source("calibration.R")
-print(model_calibrated$params["mu"])
-print(model_calibrated$timevar$piece_wise$schedule %>% filter(Symbol == "mu") %>% pull(Value))
 
 if(plot_diagnostics_modelspecific){
   source("check_vaccine_admin.R")
