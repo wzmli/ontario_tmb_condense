@@ -76,20 +76,20 @@ params = c(
   vax_response_rate_R = 0.142857142857143,
   ## DOSE 1 PROPERTIES
   vax_efficacy_dose1 = 0.6,
-  vax_alpha_dose1 = 0.5,
-  vax_mu_dose1 = 1,
+  vax_alpha_dose1 = 0.333333333333333, ## same as baseline
+  vax_mu_multiplier_dose1 = 1,
   ## DOSE 2 PROPERTIES
   vax_efficacy_dose2 = 0.9,
-  vax_alpha_dose2 = 0.5,
-  vax_mu_dose2 = 1,
+  vax_alpha_dose2 = 0.333333333333333, ## same as baseline
+  vax_mu_multiplier_dose2 = 1,
   ## DOSE 3 PROPERTIES
   vax_efficacy_dose3 = 0.9,
-  vax_alpha_dose3 = 0.5,
-  vax_mu_dose3 = 1,
+  vax_alpha_dose3 = 0.333333333333333, ## same as baseline
+  vax_mu_multiplier_dose3 = 1,
   ## DOSE 4 PROPERTIES
   vax_efficacy_dose4 = 0.9,
-  vax_alpha_dose4 = 0.5,
-  vax_mu_dose4 = 1,
+  vax_alpha_dose4 = 0.333333333333333, ## same as baseline
+  vax_mu_multiplier_dose4 = 1,
   ## WANING (from disease-based immunity)
   wane_rate = 0
 )
@@ -143,9 +143,16 @@ add_model_structure = function(model) {
   alpha = c("alpha", "alpha",
             rep(paste0("vax_alpha_dose", 1:3), each = 2),
             "vax_alpha_dose4")
-  mu = c("mu", "mu",
-         rep(paste0("vax_mu_dose", 1:3), each = 2),
-            "vax_mu_dose4")
+  # mu = c("mu", "mu",
+  #        rep(paste0("vax_mu_dose", 1:3), each = 2),
+  #           "vax_mu_dose4")
+  modified_mu = vec("1", "1",
+         paste0("(",
+                c(rep(paste0("vax_mu_multiplier_dose", 1:3),
+                      each = 2),
+                  "vax_mu_multiplier_dose4"),
+                ")")) * struc("mu")
+  modified_mu_nms = "mu" %_% 1:nrow(modified_mu)
 
   # symbolic scalars used below
   sigma   = struc("sigma")
@@ -155,8 +162,8 @@ add_model_structure = function(model) {
   # depend on vaccination status
   E_to_Ia_rates  = vec(           alpha ) * sigma
   E_to_Ip_rates  = vec(complement(alpha)) * sigma
-  Ip_to_Im_rates = vec(              mu ) * gamma_p
-  Ip_to_Is_rates = vec(complement(   mu)) * gamma_p
+  Ip_to_Im_rates = vec(              modified_mu_nms ) * gamma_p
+  Ip_to_Is_rates = vec(complement(   modified_mu_nms)) * gamma_p
 
   # Symbolic vectors of the names of FOIs and S classes
   foi_vec = vec("S" %_% vax_cat %_% "to" %_% "E" %_% vax_cat)
@@ -178,11 +185,30 @@ add_model_structure = function(model) {
     %>% rep_rate("H2",   "R",    ~                                  (    psi3))
     %>% rep_rate("H",    "R",    ~ (rho))
 
+    ## add state steps (currently need to be before vec_factr)
+    # Sums across vaccination categories
+    %>% add_state_param_sum("asymp_unvax_N",       asymp_cat %_% "unvax")
+    %>% add_state_param_sum("asymp_vaxprotect1_N", asymp_cat %_% "vaxprotect1")
+    %>% add_state_param_sum("asymp_vaxprotect2_N", asymp_cat %_% "vaxprotect2")
+    %>% add_state_param_sum("asymp_vaxprotect3_N", asymp_cat %_% "vaxprotect3")
+
+    # Condensation
+    %>% add_state_param_sum("Stotal", "^S" %_% alt_group(vax_cat))
+    %>% add_state_param_sum("Etotal", "^E" %_% alt_group(vax_cat))
+    %>% add_state_param_sum("Itotal", "^I(a|s|p|m)" %_% alt_group(vax_cat))
+    %>% add_state_param_sum("Htotal", "^H2?" %_% alt_group(vax_cat))
+    %>% add_state_param_sum("ICU", "^ICU(s|d)" %_% alt_group(vax_cat))
+    %>% add_state_param_sum("Rtotal", "^R" %_% alt_group(vax_cat))
+    %>% add_state_param_sum("Xtotal", "^X" %_% alt_group(vax_cat))
+    %>% add_state_param_sum("Dtotal", "^D" %_% alt_group(vax_cat))
+
     # Flow within vaccination categories,
     # with rates that depend on category
     # (see struc objects created above)
     %>% vec_rate("E", "Ia",  E_to_Ia_rates)
     %>% vec_rate("E", "Ip",  E_to_Ip_rates)
+    # map placeholder mu names to model params
+    %>% vec_factr(modified_mu_nms, modified_mu)
     %>% vec_rate("Ip", "Im", Ip_to_Im_rates)
     %>% vec_rate("Ip", "Is", Ip_to_Is_rates)
 
@@ -203,12 +229,6 @@ add_model_structure = function(model) {
       kronecker(vax_trans_red, t(baseline_trans_rates)) %*% Istate
       #t(baseline_trans_rates) %*% Imat %*% t(vax_trans_red)
     )
-
-    # Sums across vaccination categories
-    %>% add_state_param_sum("asymp_unvax_N",       asymp_cat %_% "unvax")
-    %>% add_state_param_sum("asymp_vaxprotect1_N", asymp_cat %_% "vaxprotect1")
-    %>% add_state_param_sum("asymp_vaxprotect2_N", asymp_cat %_% "vaxprotect2")
-    %>% add_state_param_sum("asymp_vaxprotect3_N", asymp_cat %_% "vaxprotect3")
 
     # Flow among vaccination categories
     # (see dose_* above for epi states that are involved)
@@ -290,15 +310,6 @@ add_model_structure = function(model) {
     # infected individuals in the initial state vector
     %>% initial_population(total = 'N', infected = 'E0')
 
-    # Condensation
-    %>% add_state_param_sum("Stotal", "^S" %_% alt_group(vax_cat))
-    %>% add_state_param_sum("Etotal", "^E" %_% alt_group(vax_cat))
-    %>% add_state_param_sum("Itotal", "^I(a|s|p|m)" %_% alt_group(vax_cat))
-    %>% add_state_param_sum("Htotal", "^H2?" %_% alt_group(vax_cat))
-    %>% add_state_param_sum("ICU", "^ICU(s|d)" %_% alt_group(vax_cat))
-    %>% add_state_param_sum("Rtotal", "^R" %_% alt_group(vax_cat))
-    %>% add_state_param_sum("Xtotal", "^X" %_% alt_group(vax_cat))
-    %>% add_state_param_sum("Dtotal", "^D" %_% alt_group(vax_cat))
     %>% add_sim_report_expr("Incidence_unvax", ~ (S_unvax_to_E_unvax) * (S_unvax))
     %>% add_sim_report_expr("Incidence_vaxdose1", ~ (S_vaxdose1_to_E_vaxdose1) * (S_vaxdose1))
     %>% add_sim_report_expr("Incidence_vaxprotect1", ~ (S_vaxprotect1_to_E_vaxprotect1) * (S_vaxprotect1))
