@@ -1,3 +1,5 @@
+## schedules for time-varying parameters that are being optimized in the calibration
+
 ## filter on observed report time series
 ## smooth it with log 7 day moving average
 report_end_date <- ymd("2022-01-01") ## when we assume the report signal stops being reliable
@@ -36,7 +38,9 @@ params_timevar_beta <- data.frame(Date = break_date - reporting_lag
 params_timevar_beta <- bind_rows(
   params_timevar_beta,
   data.frame(
-    Date = ymd(c("2021-12-19" ## increase in public health restrictions
+    Date = ymd(c(
+      "2021-12-19" ## increase in public health restrictions
+      # "2021-12-15" ## changes in behaviour due to surge?
                  , "2022-01-31" ## begin easing restrictions (change in capacity limits)
                  , "2022-02-17" ## next phase of reopening (change in capacity limits)
                  , "2022-03-01" ## proof of vaccine mandate lifted

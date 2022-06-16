@@ -7,7 +7,7 @@
 ## input vaccine data
 vaccine_obs <- (
   model_calibrated$timevar$piece_wise$schedule
-  %>% filter(str_detect(Symbol, "^vax_"))
+  %>% filter(str_detect(Symbol, "^vax_dose"))
   %>% select(Date, Symbol, Value)
   %>% mutate(Data_Type = "observed")
 )

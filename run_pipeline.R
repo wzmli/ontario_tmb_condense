@@ -1,4 +1,4 @@
-plot_diagnostics_modelspecific <- TRUE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
+plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
 
 ## Combine all three scripts?
 source("package_conflict_rules.R")
@@ -11,7 +11,7 @@ source("plot_settings.R") ## global plot settings
 source("observed_data.R")
 source("inputs_data.R")
 source("model_definition.R")
-source("break_date_estimate.R")
+source("opt_tv_params_schedule.R")
 source("context_information.R")
 
 source("calibration.R")

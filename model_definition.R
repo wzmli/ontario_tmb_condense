@@ -75,23 +75,23 @@ params = c(
   vax_response_rate = 0.0714285714285714,
   vax_response_rate_R = 0.142857142857143,
   ## DOSE 1 PROPERTIES
-  vax_efficacy_dose1 = 0.6,
+  vax_VE_trans_dose1 = 0.6,
   vax_alpha_dose1 = 0.333333333333333, ## same as baseline
-  vax_mu_multiplier_dose1 = 1,
+  vax_VE_hosp_dose1 = 0.4,
   ## DOSE 2 PROPERTIES
-  vax_efficacy_dose2 = 0.9,
+  vax_VE_trans_dose2 = 0.9,
   vax_alpha_dose2 = 0.333333333333333, ## same as baseline
-  vax_mu_multiplier_dose2 = 1,
+  vax_VE_hosp_dose2 = 0.7,
   ## DOSE 3 PROPERTIES
-  vax_efficacy_dose3 = 0.9,
+  vax_VE_trans_dose3 = 0.9,
   vax_alpha_dose3 = 0.333333333333333, ## same as baseline
-  vax_mu_multiplier_dose3 = 1,
+  vax_VE_hosp_dose3 = 0.9,
   ## DOSE 4 PROPERTIES
-  vax_efficacy_dose4 = 0.9,
+  vax_VE_trans_dose4 = 0.9,
   vax_alpha_dose4 = 0.333333333333333, ## same as baseline
-  vax_mu_multiplier_dose4 = 1,
+  vax_VE_hosp_dose4 = 0.9,
   ## WANING (from disease-based immunity)
-  wane_rate = 0
+  wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
 )
 
 # ---------------------------
@@ -129,13 +129,13 @@ add_model_structure = function(model) {
   vax_trans_red = struc_block(vec(
     '1', # unvax
     '1', # vaxdose1
-    '(1 - vax_efficacy_dose1)', # vaxprotect1
-    '(1 - vax_efficacy_dose1)', # vaxdose2
-    '(1 - vax_efficacy_dose2)', # vaxprotect2
-    '(1 - vax_efficacy_dose2)', # vaxdose3
-    '(1 - vax_efficacy_dose3)', # vaxprotect3
-    '(1 - vax_efficacy_dose3)', # vaxdose4
-    '(1 - vax_efficacy_dose4)'), # vaxprotect4
+    '(1 - vax_VE_trans_dose1)', # vaxprotect1
+    '(1 - vax_VE_trans_dose1)', # vaxdose2
+    '(1 - vax_VE_trans_dose2)', # vaxprotect2
+    '(1 - vax_VE_trans_dose2)', # vaxdose3
+    '(1 - vax_VE_trans_dose3)', # vaxprotect3
+    '(1 - vax_VE_trans_dose3)', # vaxdose4
+    '(1 - vax_VE_trans_dose4)'), # vaxprotect4
     row_times = 1, col_times = length(vax_cat)
   )
 
@@ -143,16 +143,13 @@ add_model_structure = function(model) {
   alpha = c("alpha", "alpha",
             rep(paste0("vax_alpha_dose", 1:3), each = 2),
             "vax_alpha_dose4")
-  # mu = c("mu", "mu",
-  #        rep(paste0("vax_mu_dose", 1:3), each = 2),
-  #           "vax_mu_dose4")
-  modified_mu = vec("1", "1",
-         paste0("(",
-                c(rep(paste0("vax_mu_multiplier_dose", 1:3),
-                      each = 2),
-                  "vax_mu_multiplier_dose4"),
-                ")")) * struc("mu")
-  modified_mu_nms = "mu" %_% 1:nrow(modified_mu)
+  severity = vec("1", "1",
+                 paste0("(",
+                            complement(c(rep(paste0("vax_VE_hosp_dose", 1:3),
+                                  each = 2),
+                              "vax_VE_hosp_dose4")),
+                            ")")) * struc(complement("mu"))
+  severity_nms = "severity" %_% 1:nrow(severity)
 
   # symbolic scalars used below
   sigma   = struc("sigma")
@@ -162,8 +159,8 @@ add_model_structure = function(model) {
   # depend on vaccination status
   E_to_Ia_rates  = vec(           alpha ) * sigma
   E_to_Ip_rates  = vec(complement(alpha)) * sigma
-  Ip_to_Im_rates = vec(              modified_mu_nms ) * gamma_p
-  Ip_to_Is_rates = vec(complement(   modified_mu_nms)) * gamma_p
+  Ip_to_Im_rates = vec(complement(severity_nms)) * gamma_p
+  Ip_to_Is_rates = vec(           severity_nms) * gamma_p
 
   # Symbolic vectors of the names of FOIs and S classes
   foi_vec = vec("S" %_% vax_cat %_% "to" %_% "E" %_% vax_cat)
@@ -207,8 +204,8 @@ add_model_structure = function(model) {
     # (see struc objects created above)
     %>% vec_rate("E", "Ia",  E_to_Ia_rates)
     %>% vec_rate("E", "Ip",  E_to_Ip_rates)
-    # map placeholder mu names to model params
-    %>% vec_factr(modified_mu_nms, modified_mu)
+    # map placeholder severity names to model params
+    %>% vec_factr(severity_nms, severity)
     %>% vec_rate("Ip", "Im", Ip_to_Im_rates)
     %>% vec_rate("Ip", "Is", Ip_to_Is_rates)
 

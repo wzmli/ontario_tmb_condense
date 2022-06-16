@@ -132,3 +132,19 @@ p3 <- (ggplot(
          x = "date")
 )
 print(p3)
+
+## change VE on a rough schedule based on variant invasion
+date_seq_VE <- ymd(c(
+  "2021-03-15" ## delta invasion
+  , "2022-12-01" ## omicron invasion
+))
+params_timevar_VE <- data.frame(
+  Date = rep(date_seq_VE, each = 4)
+  , Symbol = rep(
+    paste0("vax_VE_trans_dose", 1:4), length(date_seq_VE)
+  )
+  , Value = c(
+    0.3, 0.8, 0.9, 0.9, ## against delta infection
+    0.15, 0.4, 0.7, 0.7 ## against omicron infection
+  )
+)

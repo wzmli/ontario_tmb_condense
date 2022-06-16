@@ -22,6 +22,7 @@ params_timevar = (
     , params_timevar_beta
     , params_timevar_mu
     , params_timevar_rho
+    , params_timevar_VE ## VE changes based on variant invasion
   )
   %>% mutate(Type = "abs")
   %>% filter(
@@ -134,12 +135,17 @@ model_uncalibrated = (flexmodel(
   %>% update_condense_map(condense_map)
   %>% add_piece_wise(params_timevar)
   ## specify observation error distributions for
-  ## fitted variables
+  %>% update_params(
+    nb_disp_report_inc = 1
+    , nb_disp_hosp_preval = 100
+  )
   %>% update_error_dist(
-    report_inc ~ poisson()
-    , hosp_preval ~ poisson()
+    report_inc ~ negative_binomial("nb_disp_report_inc")
+    , hosp_preval ~ negative_binomial("nb_disp_hosp_preval")
+    # , hosp_preval ~ poisson()
     # , icu_preval ~ poisson()
   )
+  ## fitted variables
   %>% update_observed(
     calibration_dat
   )
@@ -156,8 +162,8 @@ model_uncalibrated = (flexmodel(
       log(1/10) ## setting approx avg length of stay = 10 days
       , 0.008 ## calculated so that 5-15 days are within 1 standard deviation of the mean
     )
-    # , log_nb_disp_report_inc ~ log_normal(2.7, 1)
-    #, log_nb_disp_hosp_preval ~ log_flat(-1)
+    , log_nb_disp_report_inc ~ log_normal(2.7, 1)
+    , log_nb_disp_hosp_preval ~ log_normal(10, 1)
     #, log_nb_disp_icu_preval ~ log_flat(-1)
   )
   %>% update_opt_tv_params('abs'
@@ -180,10 +186,3 @@ model_uncalibrated = (flexmodel(
     )
   )
 )
-
-# ---------------------------
-# Time-Variation of Parameters in the Forecast Period
-# i.e. -- scenarios
-# ---------------------------
-
-

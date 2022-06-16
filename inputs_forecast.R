@@ -5,6 +5,6 @@ n_days_forecast <- 30
 params_timevar_forecast <- data.frame(
   Date = model_calibrated$end_date + 1, ## start on the date after the calibration end date
   Symbol = "beta0",
-  Value = 1.2, ## increase last beta0 by 20%
+  Value = 1, ## status quo beta0 in forecast
   Type = "rel_prev"
 )
