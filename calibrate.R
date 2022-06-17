@@ -1,3 +1,7 @@
+# ---------------------------
+# Calibrate the model to observed data
+# ---------------------------
+
 model_calibrated = calibrate_flexmodel(model_uncalibrated
                                        # , optimizer = 'nlminb'
                                        )
@@ -89,5 +93,3 @@ ggsave(
   width = fig.width,
   height = 1.5*fig.width
 )
-
-# simulate_ensemble(model_calibrated, PDify = TRUE)

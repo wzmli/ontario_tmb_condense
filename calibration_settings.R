@@ -1,4 +1,8 @@
 # ---------------------------
+# Define calibration settings
+# ---------------------------
+
+# ---------------------------
 # Technical Options
 # ---------------------------
 options(MP_default_do_sim_constraint = TRUE)
@@ -8,9 +12,8 @@ options(MP_get_bbmle_init_from_nlminb = TRUE)
 # Simulation Bounds
 # ---------------------------
 
-simulation_start_date = lubridate::ymd(20200101)   # guys ... i have no idea
+simulation_start_date = lubridate::ymd(20200101)
 calibration_end_date = lubridate::ymd(20220610)  # TODO: should we infer this from calibration data?
-forecast_period_days = 14   # number of days to forecast beyond calibration_end_date
 
 # ---------------------------
 # Time-Variation of Parameters in the Calibration Period
@@ -32,20 +35,16 @@ params_timevar = (
       as.Date(calibration_end_date) - lubridate::days(1)
     )
   )
-  #%>% filter(Symbol == 'beta0', Date != min(as.Date('2020-03-28')))
 )
 
 # ---------------------------
 # Condense Map
 #
-# map variables in the simulation history of the model
-# in model_definition.R to names of variables that
-# you are interested in. the only technical requirement
-# here is that the variables that appear in observed
-# data must be present in the map
+# map internal model variables (in the simulation history of the model defined
+# in model_definition.R) to names of observed variables (named in
+# `observed_data.R`)
 # ---------------------------
 
-# TODO: mike really needs to check that these mappings are correct
 condense_map = c(
   conv_Incidence = 'report_inc',
   Htotal = 'hosp_preval',
@@ -84,7 +83,7 @@ condense_map = c(
 # )
 
 # ---------------------------
-# calibration data
+# Calibration Data
 # ---------------------------
 
 calibration_dat = filter(observed_data
@@ -120,7 +119,7 @@ ggsave(
 )
 
 # ---------------------------
-# initial uncalibrated model with context information
+# Initial uncalibrated model with context information
 # ---------------------------
 
 model_uncalibrated = (flexmodel(
@@ -133,8 +132,13 @@ model_uncalibrated = (flexmodel(
   )
   %>% add_model_structure
   %>% update_condense_map(condense_map)
+  ## attach time-varying parameters (not fitted)
   %>% add_piece_wise(params_timevar)
-  ## specify observation error distributions for
+  ## attach observed data
+  %>% update_observed(
+    calibration_dat
+  )
+  ## specify observation error distributions for observed data
   %>% update_params(
     nb_disp_report_inc = 1
     , nb_disp_hosp_preval = 100
@@ -142,13 +146,8 @@ model_uncalibrated = (flexmodel(
   %>% update_error_dist(
     report_inc ~ negative_binomial("nb_disp_report_inc")
     , hosp_preval ~ negative_binomial("nb_disp_hosp_preval")
-    # , hosp_preval ~ poisson()
-    # , icu_preval ~ poisson()
   )
-  ## fitted variables
-  %>% update_observed(
-    calibration_dat
-  )
+  ## specify priors for base parameters that are being fitted
   %>% update_opt_params(log_beta0 ~ log_normal(
      ## try diff mean and  variance later on when vaccines kick in
 
@@ -166,6 +165,7 @@ model_uncalibrated = (flexmodel(
     , log_nb_disp_hosp_preval ~ log_normal(10, 1)
     #, log_nb_disp_icu_preval ~ log_flat(-1)
   )
+  ## specify priors for time-varying parameters that are being fitted
   %>% update_opt_tv_params('abs'
     , log_beta0 ~ log_normal(
       ## from calibration with just base mu

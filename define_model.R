@@ -1,7 +1,13 @@
+# ---------------------------
+# Define model
+#
+# parameters, flows, condensation, report variables
+# ---------------------------
+
 spec_check("0.1.0", "model structure")
 
 # ---------------------------
-# problem dimensions
+# State Variables and Subcategories
 # ---------------------------
 
 # epidemiological states

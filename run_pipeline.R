@@ -1,25 +1,51 @@
-plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
+plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
 
-## Combine all three scripts?
-source("package_conflict_rules.R")
-source("load_libraries.R")
+# ---------------------------
+# Pipeline Setup
+# ---------------------------
+source("pipeline_setup.R")
 source("plot_settings.R") ## global plot settings
 
-# source("inputs_variants.R")
-# quit()
+# ---------------------------
+# Get Inputs
+# ---------------------------
+source("prep_observations.R")
+source("prep_tv_params.R")
+source("prep_variant_data.R") ## roll this inot prep_tv_params.R when it's done
 
-source("observed_data.R")
-source("inputs_data.R")
-source("model_definition.R")
-source("opt_tv_params_schedule.R")
-source("context_information.R")
+# ---------------------------
+# Define Model
+# ---------------------------
+source("define_model.R")
 
-source("calibration.R")
+# ---------------------------
+# Calibration Setup
+# ---------------------------
+source("prep_opt_tv_params_schedule.R")
+source("calibration_settings.R")
+
+# ---------------------------
+# Calibration
+# ---------------------------
+source("calibrate.R")
+
+# ---------------------------
+# Model-specific Diagnostics
+#
+# for calibration specifically
+# ---------------------------
 
 if(plot_diagnostics_modelspecific){
   source("check_vaccine_admin.R")
 }
 
-source("inputs_forecast.R")
+# ---------------------------
+# Forecast Setup
+# ---------------------------
+source("forecast_settings.R")
+
+# ---------------------------
+# Forecast
+# ---------------------------
 source("forecast.R")
 

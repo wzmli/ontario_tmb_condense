@@ -1,8 +1,0 @@
-library(McMasterPandemic)
-library(segmented)
-library(tidyverse)
-library(lubridate)
-library(zoo)
-library(data.table)
-library(jsonlite)
-library(patchwork)

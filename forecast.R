@@ -1,3 +1,7 @@
+# ---------------------------
+# Produce forecast using calibrated model
+# ---------------------------
+
 ## attach forecast settings to calibrated model
 model_to_forecast = (model_calibrated
   %>% extend_end_date(n_days_forecast)

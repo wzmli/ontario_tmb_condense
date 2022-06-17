@@ -1,3 +1,9 @@
+# ---------------------------
+# Prepare variant data
+#
+# load and tidy data on variant counts and frequencies
+# ---------------------------
+
 library(tidyverse)
 
 dd <- readRDS("metadata/covvarnet_voc.rds")
@@ -14,7 +20,7 @@ for(i in names(dd)){
 		%>% mutate(province = i
 			, dates = dates
 			)
-		%>% select(dates,province,everything()) 
+		%>% select(dates,province,everything())
 	)
 	rownames(tempdf) <- NULL
 
@@ -30,7 +36,7 @@ vardat <- data.frame(
 		, "Omicron BA.1", "Omicron BA.1.1"
 		, "Omicron BA.2"
 	)
-	, varname = c("Alpha", "Alpha" 
+	, varname = c("Alpha", "Alpha"
 		, "Delta", "Delta", "Delta"
 		, "Gamma"
 		, "Omicron1", "Omicron1"
@@ -53,7 +59,7 @@ simple_dat <- (variantLong
 	%>% group_by(dates,province,varname)
 	%>% summarise(simple_count = sum(count,na.rm=TRUE))
 	%>% group_by(dates,province)
-	%>% mutate(simple_prop = simple_count/sum(simple_count,na.rm=TRUE)) 
+	%>% mutate(simple_prop = simple_count/sum(simple_count,na.rm=TRUE))
 	%>% arrange(province,dates,varname)
 	%>% ungroup()
 )

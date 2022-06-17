@@ -1,4 +1,7 @@
-## plot settings
+# ---------------------------
+# Define shared plot settings
+# ---------------------------
+
 theme_set(theme_bw())
 theme_update(
   axis.title.y = element_blank()

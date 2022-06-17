@@ -1,4 +1,12 @@
-## schedules for time-varying parameters that are being optimized in the calibration
+# ---------------------------
+# Prepare schedules for time-varying parameters that are being optimized
+# ---------------------------
+
+# ---------------------------
+# beta0 - transmission rate
+# ---------------------------
+
+## auto-detect break dates in infection reports time-series
 
 ## filter on observed report time series
 ## smooth it with log 7 day moving average
@@ -51,7 +59,9 @@ params_timevar_beta <- bind_rows(
   )
 )
 
-print(params_timevar_beta)
+# ---------------------------
+# Mildness
+# ---------------------------
 
 ## periodically re-fit severity (mu) and hospital occupancy (rho)
 ## to get better fits, especially after the reports signal drops out
@@ -69,6 +79,10 @@ params_timevar_mu <- data.frame(
   , Symbol = "mu"
   , Value = NA
 )
+
+# ---------------------------
+# Length of stay, acute care
+# ---------------------------
 
 date_seq_rho <- c(
   ## monthly until reports become unreliable
