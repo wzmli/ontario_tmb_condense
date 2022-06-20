@@ -1,29 +1,75 @@
 library(shellpipes)
 
-plot_diagnostics_modelspecific <- TRUE ## flip this switch to make model-specific diagnostic plots (will likely break if underlying model has changed)
 
-## Combine all three scripts? 
-source("package_conflict_rules.R")
-source("load_libraries.R")
-source("plot_settings.R") ## global plot settings
+plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
 
-source("inputs_variants.R")
-quit()
+# ---------------------------
+# Pipeline Setup
+# ---------------------------
+
+source("pipeline_setup.R")
+
+# ---------------------------
+# Get Inputs
+# ---------------------------
+
+## MLi: What happened to the vaccine scripts?!?
+## MLi: Do not roll, need to rename the files as their role
+## MLi: See simple_architect.pdf
+## MLi: Separate into obs and inputs
+## MLi: Define vanilla model first, and it should be about to run with obs only
+## MLi: We should be able to add-on, if not, then we need to talk to steve
+
 
 source("observed_data.R")
-source("inputs_data.R")
-source("model_definition.R")
-source("break_date_estimate.R")
-source("context_information.R")
 
-source("calibration.R")
-print(model_calibrated$params["mu"])
-print(model_calibrated$timevar$piece_wise$schedule %>% filter(Symbol == "mu") %>% pull(Value))
+source("parameters.R")
+source("define_model.R")
+quit()
+
+source("inputs_vaccination.R")
+source("inputs_variant.R") ## roll this inot prep_tv_params.R when it's done
+
+# ---------------------------
+# Define Model
+# ---------------------------
+source("define_model.R")
+
+# ---------------------------
+# Calibration Setup
+# ---------------------------
+source("prep_opt_tv_params_schedule.R")
+source("calibration_settings.R")
+
+# ---------------------------
+# Calibration
+# ---------------------------
+source("calibrate.R")
+
+# ---------------------------
+# Model-specific Diagnostics
+#
+# for calibration specifically
+# ---------------------------
+
+
+## MLi: If you do it under the vaccination umbrella, this will go under there
 
 if(plot_diagnostics_modelspecific){
   source("check_vaccine_admin.R")
 }
 
-source("inputs_forecast.R")
+# ---------------------------
+# Forecast Setup
+# ---------------------------
+
+## MLi: Everything below is beautiful!
+
+source("forecast_settings.R")
+
+# ---------------------------
+# Forecast
+# ---------------------------
 source("forecast.R")
+
 

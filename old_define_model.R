@@ -28,6 +28,13 @@ non_accum_non_S = base::setdiff(non_accum, "S")
 # asymptomatic epi-states (for vax dosing)
 asymp_cat = c("S", "E", "Ia", "Ip", "R")
 
+# vaccination categories/layers
+vax_cat = c("unvax", "vaxdose1", "vaxprotect1", "vaxdose2", "vaxprotect2", "vaxdose3", "vaxprotect3", "vaxdose4", "vaxprotect4")
+
+# dosing transitions across vaccination layers
+(dose_from = rep(asymp_cat, 2))
+(dose_to = c(asymp_cat, rep("V", length(asymp_cat))))
+
 # ---------------------------
 # Default Parameters
 # ---------------------------
@@ -35,55 +42,65 @@ asymp_cat = c("S", "E", "Ia", "Ip", "R")
 ## MLi: This needs to go somewhere else
 ## MLi: New file call parameters.R or something
 
-params = c(beta0 = beta0
-	, Ca = Ca 
-  	, Cp = Cp
-   , Cm = Cm
-  	, Cs = Cs
-  	, alpha = alpha
-  	, sigma = sigma
-  	, gamma_a = gamma_a
-  	, gamma_m = gamma_m
-  	, gamma_s = gamma_s
-  	, gamma_p = gamma_p
-  	, rho = rho
-  	, delta = delta
-  	, mu = mu
-  	, N = N
-  	, E0 = 5
-  	, S0 = S0
-  	, nonhosp_mort = nonhosp_mort
-  	, iso_m = iso_m
-  	, iso_s = iso_s
-  	, phi1 = phi1
-  	, phi2 = phi2
-  	, psi1 = psi1
-  	, psi2 = psi2
-  	, psi3 = psi3
-  	, c_prop = c_prop
-  	, c_delay_mean = c_delay_mean
-  	, c_delay_cv = c_delay_cv
-  	, proc_disp = proc_disp
-  	, zeta = zeta
-  	, vax_dose1_inc = vax_dose1_inc
-  	, vax_dose2_inc = vax_dose2_inc
-  	, vax_dose3_inc = vax_dose3_inc
-  	, vax_dose4_inc = vax_dose4_inc
-  	, vax_response_rate = vax_response_rate
-  	, vax_response_rate_R = vax_response_rate_R
-  	, vax_VE_trans_dose1 = vax_VE_trans_dose1
-  	, vax_alpha_dose1 = vax_alpha_dose1
-  	, vax_VE_hosp_dose1 = vax_VE_hosp_dose1
-  	, vax_VE_trans_dose2 = vax_VE_trans_dose2
-  	, vax_alpha_dose2 = vax_alpha_dose2
-  	, vax_VE_hosp_dose2 = vax_VE_hosp_dose2
-  	, vax_VE_trans_dose3 = vax_VE_trans_dose3 
-  	, vax_alpha_dose3 = vax_alpha_dose3
-  	, vax_VE_hosp_dose3 = vax_VE_hosp_dose3
-  	, vax_VE_trans_dose4 = vax_VE_trans_dose4
-  	, vax_alpha_dose4 = vax_alpha_dose4
-  	, vax_VE_hosp_dose4 = vax_VE_hosp_dose4
-  	, wane_rate = wane_rate
+params = c(
+  beta0 = 0.25,  # guys ... i have no idea
+  Ca = 0.666666666666667,
+  Cp = 1,
+  Cm = 1,
+  Cs = 1,
+  alpha = 0.333333333333333,
+  sigma = 0.192307692307692,
+  gamma_a = 0.142857142857143,
+  gamma_m = 0.142857142857143,
+  gamma_s = 0.174825174825175,
+  gamma_p = 2,
+  rho = 0.1,
+  delta = 0,
+  mu = 0.956,
+  N = 14e+06, ## roughly pop of ontario
+  E0 = 5,
+  S0 = 1-14e-5,  # initial proportion of susceptible individuals
+  nonhosp_mort = 0,
+  iso_m = 0,
+  iso_s = 0,
+  phi1 = 0.76,
+  phi2 = 0.5,
+  psi1 = 0.05,
+  psi2 = 0.125,
+  psi3 = 0.2,
+  c_prop = 0.1,
+  c_delay_mean = 11,
+  c_delay_cv = 0.25,
+  proc_disp = 0,
+  zeta = 0,
+  ## VAX DOSING (daily incidence, a.k.a. inc)
+  # shut off initially,
+  # adjusted by params_timevar
+  vax_dose1_inc = 0,
+  vax_dose2_inc = 0,
+  vax_dose3_inc = 0,
+  vax_dose4_inc = 0,
+  ## VAX IMMUNE RESPONSE
+  vax_response_rate = 0.0714285714285714,
+  vax_response_rate_R = 0.142857142857143,
+  ## DOSE 1 PROPERTIES
+  vax_VE_trans_dose1 = 0.6,
+  vax_alpha_dose1 = 0.333333333333333, ## same as baseline
+  vax_VE_hosp_dose1 = 0.4,
+  ## DOSE 2 PROPERTIES
+  vax_VE_trans_dose2 = 0.9,
+  vax_alpha_dose2 = 0.333333333333333, ## same as baseline
+  vax_VE_hosp_dose2 = 0.7,
+  ## DOSE 3 PROPERTIES
+  vax_VE_trans_dose3 = 0.9,
+  vax_alpha_dose3 = 0.333333333333333, ## same as baseline
+  vax_VE_hosp_dose3 = 0.9,
+  ## DOSE 4 PROPERTIES
+  vax_VE_trans_dose4 = 0.9,
+  vax_alpha_dose4 = 0.333333333333333, ## same as baseline
+  vax_VE_hosp_dose4 = 0.9,
+  ## WANING (from disease-based immunity)
+  wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
 )
 
 # ---------------------------
@@ -96,7 +113,9 @@ state = layered_zero_state(epi_states, vax_cat)
 # Model Structure Function
 # ---------------------------
 
-## Why are we defining a function?!?
+## MLi: This seems overkill. I understand we probably need to do it this way atm.
+## MLi: Future Todo: make this MUCH simpler 
+
 
 add_model_structure = function(model) {
 

@@ -17,14 +17,13 @@ observed_data <- (observed_data_raw
 	%>% pivot_longer(names_to = "var", -"date")
 )
 
+print(observed_data)
+
 ## plot observed data
 p1 <- (ggplot(observed_data)
   + facet_wrap(~var, nrow=3, scales = "free_y")
   + geom_line(aes(date, value))
-  + labs(title = "Observed data for calibration"))
-ggsave(
-  file.path("figs", "observed_data.png"),
-  p1,
-  width = fig.width,
-  height = 1.3*fig.width
+  + labs(title = "Observed data for calibration")
 )
+
+print(p1)
