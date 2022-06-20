@@ -28,6 +28,10 @@ non_accum_non_S = base::setdiff(non_accum, "S")
 # asymptomatic epi-states (for vax dosing)
 asymp_cat = c("S", "E", "Ia", "Ip", "R")
 
+# vaccination categories/layers
+vax_cat = c("unvax", "vaxdose1", "vaxprotect1", "vaxdose2", "vaxprotect2", "vaxdose3", "vaxprotect3", "vaxdose4", "vaxprotect4"
+)
+
 # ---------------------------
 # Default Parameters
 # ---------------------------

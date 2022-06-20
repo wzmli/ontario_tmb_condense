@@ -10,8 +10,8 @@ vim_session:
 
 Sources += $(wildcard *.R)
 
-## makeflow.Rout: makeflow.R inputs_variants.R 
-makeflow.Rout: makeflow.R run_pipeline.R observed_data.R
+## makeflow.Rout: makeflow.R inputs_variant.R parameters.R 
+makeflow.Rout: makeflow.R run_pipeline.R observed_data.R inputs_variant.R time_varying_params.R
 	$(pipeR)
 
 ######################################################################

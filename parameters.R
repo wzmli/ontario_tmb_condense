@@ -1,3 +1,10 @@
+## Dates
+
+## Free to change later
+start_date <- "2020-03-01"
+end_date <- "2021-12-15"
+report_end_date <- as.Date("2022-01-01") ## when we assume the report signal stops being reliable
+
 beta0 = 0.25  # guys ... i have no idea
 Ca = 0.666666666666667
 Cp = 1
@@ -53,7 +60,7 @@ vax_alpha_dose3 = 0.333333333333333 ## same as baseline
 vax_VE_hosp_dose3 = 0.9
 ## DOSE 4 PROPERTIES
 vax_VE_trans_dose4 = 0.9
-= 0.333333333333333 ## same as baseline
+vax_alpha_dose4 = 0.333333333333333 ## same as baseline
 vax_VE_hosp_dose4 = 0.9
 ## WANING (from disease-based immunity)
 wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)

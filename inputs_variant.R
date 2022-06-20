@@ -31,17 +31,23 @@ print(names(df))
 
 vardat <- data.frame(
 	variant = c("Alpha", "B.1.438.1"
+		, "Beta", "Gamma"
 		, "Delta", "Delta AY.25", "Delta AY.27"
-		, "Gamma"
 		, "Omicron BA.1", "Omicron BA.1.1"
 		, "Omicron BA.2"
 	)
 	, varname = c("Alpha", "Alpha"
+		, "Alpha", "Alpha" ## Hack! Changing beta and gamma to alpha
 		, "Delta", "Delta", "Delta"
-		, "Gamma"
 		, "Omicron1", "Omicron1"
 		, "Omicron2"
 	)
+)
+
+invaderframe <- data.frame(
+	varname = c("Alpha", "Delta", "Omicron1", "Omicron2")
+	, start_date = as.Date(c("2020-12-07","2021-03-08","2021-11-22","2022-01-10"))
+	, end_date = as.Date(c("2021-03-07","2021-11-21","2022-01-09","2022-04-04"))
 )
 
 variantLong <- (df
@@ -52,7 +58,7 @@ variantLong <- (df
 		, dates = as.Date(dates)
 	)
 )
-
+i
 print(variantLong,n=Inf)
 
 simple_dat <- (variantLong
@@ -62,6 +68,13 @@ simple_dat <- (variantLong
 	%>% mutate(simple_prop = simple_count/sum(simple_count,na.rm=TRUE))
 	%>% arrange(province,dates,varname)
 	%>% ungroup()
+)
+
+invaderdat <- (simple_dat
+	%>% left_join(.,invaderframe)
+	%>% filter(!is.na(start_date))
+	%>% mutate(invader = between(dates,start_date,end_date))
+	%>% filter(invader)
 )
 
 print(simple_dat,n=Inf)
@@ -74,4 +87,6 @@ gg <- (ggplot(simple_dat, aes(x=dates, y=simple_prop, color=varname, group = var
 )
 
 print(gg)
+
+print(gg %+% invaderdat)
 

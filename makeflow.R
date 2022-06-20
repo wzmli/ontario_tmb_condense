@@ -23,17 +23,18 @@ source("pipeline_setup.R")
 
 source("observed_data.R")
 
+## Can we generate a bogus model without addition complexity
 source("parameters.R")
 source("define_model.R")
-quit()
 
+
+## Dealing with input data
 source("inputs_vaccination.R")
 source("inputs_variant.R") ## roll this inot prep_tv_params.R when it's done
 
-# ---------------------------
-# Define Model
-# ---------------------------
-source("define_model.R")
+source("time_varying_params.R")
+
+quit()
 
 # ---------------------------
 # Calibration Setup
