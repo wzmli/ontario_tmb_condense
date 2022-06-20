@@ -146,6 +146,10 @@ print(p3)
 # Vaccine Efficacy (against transmission)
 # ---------------------------
 
+## MLi: Why is this here?!? 
+## parameters should go somewhere else
+
+
 ## change VE on a rough schedule based on variant invasion
 date_seq_VE <- ymd(c(
   "2021-03-15" ## delta invasion

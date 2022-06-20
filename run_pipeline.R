@@ -3,12 +3,20 @@ plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specif
 # ---------------------------
 # Pipeline Setup
 # ---------------------------
+
+## MLi: combine this?!?
+
 source("pipeline_setup.R")
 source("plot_settings.R") ## global plot settings
 
 # ---------------------------
 # Get Inputs
 # ---------------------------
+
+## MLi: What happened to the vaccine scripts?!?
+## MLi: Do not roll, need to rename the files as their role
+## MLi: See simple_architect.pdf
+
 source("prep_observations.R")
 source("prep_tv_params.R")
 source("prep_variant_data.R") ## roll this inot prep_tv_params.R when it's done
@@ -35,6 +43,9 @@ source("calibrate.R")
 # for calibration specifically
 # ---------------------------
 
+
+## MLi: If you do it under the vaccination umbrella, this will go under there
+
 if(plot_diagnostics_modelspecific){
   source("check_vaccine_admin.R")
 }
@@ -42,6 +53,9 @@ if(plot_diagnostics_modelspecific){
 # ---------------------------
 # Forecast Setup
 # ---------------------------
+
+## MLi: Everything below is beautiful!
+
 source("forecast_settings.R")
 
 # ---------------------------

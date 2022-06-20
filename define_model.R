@@ -39,6 +39,9 @@ vax_cat = c("unvax", "vaxdose1", "vaxprotect1", "vaxdose2", "vaxprotect2", "vaxd
 # Default Parameters
 # ---------------------------
 
+## MLi: This needs to go somewhere else
+## MLi: New file call parameters.R or something
+
 params = c(
   beta0 = 0.25,  # guys ... i have no idea
   Ca = 0.666666666666667,
@@ -109,6 +112,10 @@ state = layered_zero_state(epi_states, vax_cat)
 # ---------------------------
 # Model Structure Function
 # ---------------------------
+
+## MLi: This seems overkill. I understand we probably need to do it this way atm.
+## MLi: Future Todo: make this MUCH simpler 
+
 
 add_model_structure = function(model) {
 

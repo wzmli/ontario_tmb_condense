@@ -7,6 +7,9 @@ model_calibrated = calibrate_flexmodel(model_uncalibrated
                                        )
 print(convergence_info(model_calibrated))
 
+## MLi: Separate calibration and plotting code
+## MLi: the two files should be (calibrate, diagnostic)
+
 ## plot fit
 fitted_var <- fitted(model_calibrated)
 

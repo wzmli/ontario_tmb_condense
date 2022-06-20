@@ -2,6 +2,8 @@
 # Prepare schedules for time-varying parameters that are being optimized
 # ---------------------------
 
+## MLi: This file is okay for now, but I would like to change it in the future
+
 # ---------------------------
 # beta0 - transmission rate
 # ---------------------------

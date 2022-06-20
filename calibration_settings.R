@@ -2,6 +2,9 @@
 # Define calibration settings
 # ---------------------------
 
+## MLi: Why are technical options here? 
+## MLi: Throw them pipeline setup
+
 # ---------------------------
 # Technical Options
 # ---------------------------
@@ -85,6 +88,8 @@ condense_map = c(
 # ---------------------------
 # Calibration Data
 # ---------------------------
+
+## Why is this here?!?
 
 calibration_dat = filter(observed_data
   ## filter to calibration period
