@@ -16,6 +16,10 @@ source("plot_settings.R") ## global plot settings
 ## MLi: What happened to the vaccine scripts?!?
 ## MLi: Do not roll, need to rename the files as their role
 ## MLi: See simple_architect.pdf
+## MLi: Separate into obs and inputs
+## MLi: Define vanilla model first, and it should be about to run with obs only
+## MLi: We should be able to add-on, if not, then we need to talk to steve
+
 
 source("prep_observations.R")
 source("prep_tv_params.R")
