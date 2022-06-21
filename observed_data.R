@@ -33,12 +33,10 @@ print(p1)
 calibration_dat = (observed_data
   ## filter to calibration period
   %>% filter(between(date, as.Date(simulation_start_date), as.Date(calibration_end_date)))
-  # ,
-  ## remove reports after date when testing became unreliable 
-  ## MLi: throw this in parameters.R
-  %>% filter(!(var == "report_inc" & date > lubridate::ymd(20211215)))
-  ## remove ICU prevalence
-  %>% filter(!(var == "icu_preval"))
+  ## keep only desired observations
+  %>% filter(var %in% calibration_vars)
+  ## remove reports after date when testing became unreliable
+  %>% filter(!(var == "report_inc" & date > report_end_date))
 )
 
 p1 <- (ggplot(calibration_dat %>% drop_na()
@@ -59,12 +57,9 @@ ggsave(
   , height = 1.3*fig.width
 )
 
-
-
-## Output
-## There must be a better way to do this
-## Ideally, repackaged an new environment and only save the final output
-
+# ---------------------------
+# Script output
+# ---------------------------
 
 parameters <- addEnvironment(parameters,c("calibration_dat"))
 

@@ -97,8 +97,9 @@ ggsave(
   height = 1.5*fig.width
 )
 
-
-## MLi: What do we want to save here?!? 
+# ---------------------------
+# Script output
+# ---------------------------
 
 parameters <- addEnvironment(parameters,c("model_calibrated"))
 

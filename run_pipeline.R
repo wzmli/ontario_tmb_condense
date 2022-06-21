@@ -1,4 +1,5 @@
 plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
+forecast <- FALSE
 
 # ---------------------------
 # Pipeline Setup
@@ -7,20 +8,23 @@ plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specif
 source("pipeline_setup.R")
 
 # ---------------------------
-# Get Inputs
+# Get Pipeline Parameters
 # ---------------------------
 
-## Parameters should be able to run stand-alone
-source("parameters.R")
+## Ideally a user would only edit this file (unless they're also editing the model...)
+source("pipeline_parameters.R")
 
+# ---------------------------
+# Get Pipeline Inputs
+# ---------------------------
+
+## Load observed data
 source("observed_data.R")
-
-## Can we generate a bogus model without addition complexity
+## MLi: can we generate a bogus model without addition complexity?
 source("define_model.R")
 
-## Dealing with input data for time varying params
-source("inputs_vaccination.R")
-source("inputs_variant.R")
+## Generate time-varying params both automatically from data
+## and manually
 source("time_varying_params.R")
 
 # ---------------------------
@@ -39,7 +43,6 @@ source("calibrate.R")
 # for calibration specifically
 # ---------------------------
 
-
 ## MLi: If you do it under the vaccination umbrella, this will go under there
 
 if(plot_diagnostics_modelspecific){
@@ -52,11 +55,15 @@ if(plot_diagnostics_modelspecific){
 
 ## MLi: Everything below is beautiful!
 
-source("forecast_settings.R")
+if(forecast) source("forecast_settings.R")
 
 # ---------------------------
 # Forecast
 # ---------------------------
-source("forecast.R")
+if(forecast) source("forecast.R")
 
+# ---------------------------
+# Save environment
+# ---------------------------
 
+# i: save environment in a time-stamped file?

@@ -30,7 +30,7 @@ non_accum = base::setdiff(epi_states, accum)
 # non-susceptible/non-accumulator states
 non_accum_non_S = base::setdiff(non_accum, "S")
 
-# asymptomatic epi-states (for vax dosing)
+# asymptomatic epi-states (those that get dosed with vaccine)
 asymp_cat = c("S", "E", "Ia", "Ip", "R")
 
 # vaccination categories/layers
@@ -45,10 +45,8 @@ dose_to = c(asymp_cat, rep("V", length(asymp_cat)))
 # Default Parameters
 # ---------------------------
 
-## MLi: I don't like this here! I want this to be right before model
-
 params = c(beta0 = beta0
-	, Ca = Ca 
+	, Ca = Ca
   	, Cp = Cp
    , Cm = Cm
   	, Cs = Cs
@@ -62,7 +60,7 @@ params = c(beta0 = beta0
   	, delta = delta
   	, mu = mu
   	, N = N
-  	, E0 = 5
+  	, E0 = E0
   	, S0 = S0
   	, nonhosp_mort = nonhosp_mort
   	, iso_m = iso_m
@@ -89,7 +87,7 @@ params = c(beta0 = beta0
   	, vax_VE_trans_dose2 = vax_VE_trans_dose2
   	, vax_alpha_dose2 = vax_alpha_dose2
   	, vax_VE_hosp_dose2 = vax_VE_hosp_dose2
-  	, vax_VE_trans_dose3 = vax_VE_trans_dose3 
+  	, vax_VE_trans_dose3 = vax_VE_trans_dose3
   	, vax_alpha_dose3 = vax_alpha_dose3
   	, vax_VE_hosp_dose3 = vax_VE_hosp_dose3
   	, vax_VE_trans_dose4 = vax_VE_trans_dose4
@@ -105,9 +103,8 @@ params = c(beta0 = beta0
 state = layered_zero_state(epi_states, vax_cat)
 
 # ---------------------------
-# Model Structure Function
+# Model symbols setup
 # ---------------------------
-
 
 # Symbolic column vector containing all of the I-states,
 # in the order Ia_unvax, Ip_unvax, ..., Ia_vaxdose1, ...
@@ -122,10 +119,10 @@ baseline_trans_rates =	(vec('Ca'
 		, 'Cp'
 		, '(1 - iso_m) * (Cm)'
 		, '(1 - iso_s) * (Cs)'
-		) 
+		)
 	* struc('(beta0) * (1/N)')
 )
-	
+
 # Symbolic matrix describing how transmission is reduced by
 # vaccination status. Each row and column corresponds to one
 # of the vaccination statuses. Each column is identical (for some reason)
@@ -144,19 +141,19 @@ vax_trans_red = struc_block(vec(
 	, col_times = length(vax_cat)
 )
 
-# names of the alpha and mu parameters for each vaccination layer
+# names of the alpha parameters for each vaccination layer
 alpha = c("alpha", "alpha"
 	, rep(paste0("vax_alpha_dose", 1:3), each = 2)
 	, "vax_alpha_dose4"
 )
-  
+# modify severity based on vax efficacy against hospitalization
 severity = (vec("1", "1"
 	, paste0("(",complement(c(rep(paste0("vax_VE_hosp_dose", 1:3),each = 2)
 		, "vax_VE_hosp_dose4")) ,")"
 		)
 	) * struc(complement("mu"))
 )
-  
+# map severity terms to names that can be used in expressions further below
 severity_nms = "severity" %_% 1:nrow(severity)
 
 # symbolic scalars used below
@@ -169,9 +166,14 @@ E_to_Ia_rates  = vec(           alpha ) * sigma
 E_to_Ip_rates  = vec(complement(alpha)) * sigma
 Ip_to_Im_rates = vec(complement(severity_nms)) * gamma_p
 Ip_to_Is_rates = vec(           severity_nms) * gamma_p
+
 # Symbolic vectors of the names of FOIs and S classes
 foi_vec = vec("S" %_% vax_cat %_% "to" %_% "E" %_% vax_cat)
 S_vec = vec("S" %_% vax_cat)
+
+# ---------------------------
+# Model initialization
+# ---------------------------
 
 model = (flexmodel(params = params
 	, state = state
@@ -331,7 +333,8 @@ model = (flexmodel(params = params
     %>% update_initial_state(silent = TRUE)
 )
 
-## Output
-## model
+# ---------------------------
+# Script output
+# ---------------------------
 
 parameters <- addEnvironment(parameters,c("model"))
