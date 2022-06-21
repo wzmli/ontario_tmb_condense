@@ -97,5 +97,7 @@ print(invaderdat)
 
 ## params_voc_timevar <- (invaderdat ...)
 
+## Adding to environment when done
+## parameters <- addEnvironment(parameters,c("model"))
 
 

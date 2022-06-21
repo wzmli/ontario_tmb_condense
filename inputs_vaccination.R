@@ -171,3 +171,7 @@ params_timevar_VE <- data.frame(Date = rep(date_seq_VE, each = 4)
 	)
 )
 
+parameters <- addEnvironment(parameters
+	, c("params_timevar_vaccine","params_timevar_VE")
+)
+

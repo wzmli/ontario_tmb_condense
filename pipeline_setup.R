@@ -34,3 +34,8 @@ fig.width <- 6 ## inches
 options(MP_default_do_sim_constraint = TRUE)
 options(MP_get_bbmle_init_from_nlminb = TRUE)
 
+addEnvironment <- function(prevs,new){
+	rm(list=setdiff(ls(), c(prevs,new)))
+	return(ls())
+}
+

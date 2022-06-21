@@ -64,6 +64,8 @@ ggsave(
 ## Output
 ## There must be a better way to do this
 ## Ideally, repackaged an new environment and only save the final output
-calibration_dat <- calibration_dat
+
+
+parameters <- addEnvironment(parameters,c("calibration_dat"))
 
 

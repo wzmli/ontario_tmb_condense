@@ -96,3 +96,9 @@ ggsave(
   width = fig.width,
   height = 1.5*fig.width
 )
+
+
+## MLi: What do we want to save here?!? 
+
+parameters <- addEnvironment(parameters,c("model_calibrated"))
+

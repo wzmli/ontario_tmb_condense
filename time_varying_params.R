@@ -115,3 +115,11 @@ params_timevar_beta <- bind_rows(auto_beta, manual_beta)
 params_timevar_mu <- manual_mu
 params_timevar_rho <- manual_rho
 
+parameters <- addEnvironment(parameters
+	, c("params_timevar_beta"
+			, "params_timevar_mu"
+			, "params_timevar_rho"
+		)
+)
+
+

@@ -1,3 +1,12 @@
+
+
+
+
+
+
+
+
+
 ## Master parameter script for model specific
 
 ## Dates
@@ -92,4 +101,9 @@ vax_omicron_VE_trans_dose4 = 0.7
 
 
 
+## Output:
+## We want to keep everything here
 
+parameters <- ls()
+
+addEnvironment(parameters,c("parameters"))

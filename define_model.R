@@ -333,3 +333,5 @@ model = (flexmodel(params = params
 
 ## Output
 ## model
+
+parameters <- addEnvironment(parameters,c("model"))
