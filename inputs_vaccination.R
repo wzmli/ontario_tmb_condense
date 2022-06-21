@@ -147,22 +147,27 @@ print(p3)
 # ---------------------------
 
 ## MLi: Why is this here?!? 
-## parameters should go somewhere else
+## please put these numbers in parameters.R
 
 
 ## change VE on a rough schedule based on variant invasion
-date_seq_VE <- ymd(c(
-  "2021-03-15" ## delta invasion
-  , "2022-12-01" ## omicron invasion
-))
-params_timevar_VE <- data.frame(
-  Date = rep(date_seq_VE, each = 4)
-  , Symbol = rep(
-    paste0("vax_VE_trans_dose", 1:4), length(date_seq_VE)
-  )
-  , Value = c(
-    0.3, 0.8, 0.9, 0.9, ## against delta infection
-    0.15, 0.4, 0.7, 0.7 ## against omicron infection
-  )
+date_seq_VE <- c(delta_invasion_date, omicron_invasion_date)
+
+## Output:
+
+params_timevar_vaccine <- params_timevar_vaccine
+
+params_timevar_VE <- data.frame(Date = rep(date_seq_VE, each = 4)
+	, Symbol = rep(paste0("vax_VE_trans_dose", 1:4), length(date_seq_VE))
+  	, Value = c(vax_delta_VE_trans_dose1
+  		, vax_delta_VE_trans_dose2
+		, vax_delta_VE_trans_dose3
+		, vax_delta_VE_trans_dose4
+
+  		, vax_omicron_VE_trans_dose1
+		, vax_omicron_VE_trans_dose2
+		, vax_omicron_VE_trans_dose3
+		, vax_omicron_VE_trans_dose4
+	)
 )
 

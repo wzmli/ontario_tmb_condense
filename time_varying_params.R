@@ -33,7 +33,9 @@ fit <- lm(lmavg ~ date,data=report_dat)
 ## refit with piecewise break dates. We can pick as many break points as we want
 ## here, we are arbitrary picking 14 (we had roughly 6 waves)
 
-n.breaks <- 11
+n.breaks <- 11 
+## MLi: TODO: I want to use 11, using 14 to match IPs manual input
+n.breaks <- 14
 refit <- segmented(fit, seg.Z = ~date, npsi=n.breaks)
 
 ## extract breakdates

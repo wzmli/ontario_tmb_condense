@@ -28,3 +28,9 @@ theme_update(
   , legend.position = "bottom"
 )
 fig.width <- 6 ## inches
+
+
+## Macpan options
+options(MP_default_do_sim_constraint = TRUE)
+options(MP_get_bbmle_init_from_nlminb = TRUE)
+

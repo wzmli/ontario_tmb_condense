@@ -9,6 +9,12 @@ end_date <- as.Date("2021-12-15")
 
 min_obs_date <- as.Date("2020-02-06")
 max_obs_date <- as.Date("2022-06-16")
+
+## MLi: I don't like this, make start and end first thing when cleaning tomorrow 
+simulation_start_date = as.Date("2020-01-01")
+calibration_end_date = as.Date("2022-06-10")
+
+
 report_end_date <- as.Date("2022-01-01") ## when we assume the report signal stops being reliable
 
 beta0 = 0.25  # guys ... i have no idea

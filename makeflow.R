@@ -20,14 +20,13 @@ source("pipeline_setup.R")
 ## MLi: Define vanilla model first, and it should be about to run with obs only
 ## MLi: We should be able to add-on, if not, then we need to talk to steve
 
+## Parameters should be able to run stand-alone
+source("parameters.R")
 
 source("observed_data.R")
 
 ## Can we generate a bogus model without addition complexity
-source("parameters.R")
 source("define_model.R")
-
-quit()
 
 ## Dealing with input data
 source("inputs_vaccination.R")
@@ -35,18 +34,17 @@ source("inputs_variant.R") ## roll this inot prep_tv_params.R when it's done
 
 source("time_varying_params.R")
 
-quit()
-
 # ---------------------------
 # Calibration Setup
 # ---------------------------
-source("prep_opt_tv_params_schedule.R")
 source("calibration_settings.R")
 
 # ---------------------------
 # Calibration
 # ---------------------------
 source("calibrate.R")
+
+quit()
 
 # ---------------------------
 # Model-specific Diagnostics

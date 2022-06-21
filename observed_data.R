@@ -28,9 +28,42 @@ p1 <- (ggplot(observed_data)
 
 print(p1)
 
+## If this is not good enough for calibration, then modify here!
+
+calibration_dat = (observed_data
+  ## filter to calibration period
+  %>% filter(between(date, as.Date(simulation_start_date), as.Date(calibration_end_date)))
+  # ,
+  ## remove reports after date when testing became unreliable 
+  ## MLi: throw this in parameters.R
+  %>% filter(!(var == "report_inc" & date > lubridate::ymd(20211215)))
+  ## remove ICU prevalence
+  %>% filter(!(var == "icu_preval"))
+)
+
+p1 <- (ggplot(calibration_dat %>% drop_na()
+        , aes(x = date, y = value, colour = var))
+  + geom_point(alpha = 0.3, size = 1.5)
+  + facet_wrap(
+    ~ var
+    , ncol = 1
+    , scales = "free_y"
+)
+  + labs(title = "Observed data used in calibration")
+  + guides(colour = "none")
+)
+ggsave(
+  file.path("figs", "context_information-observed_data.png")
+  , p1
+  , width = fig.width
+  , height = 1.3*fig.width
+)
+
+
+
 ## Output
 ## There must be a better way to do this
 ## Ideally, repackaged an new environment and only save the final output
-observed_data <- observed_data
+calibration_dat <- calibration_dat
 
 

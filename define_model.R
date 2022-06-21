@@ -45,6 +45,8 @@ dose_to = c(asymp_cat, rep("V", length(asymp_cat)))
 # Default Parameters
 # ---------------------------
 
+## MLi: I don't like this here! I want this to be right before model
+
 params = c(beta0 = beta0
 	, Ca = Ca 
   	, Cp = Cp
@@ -173,8 +175,8 @@ S_vec = vec("S" %_% vax_cat)
 
 model = (flexmodel(params = params
 	, state = state
-	, start_date = start_date
-	, end_date = end_date
+	, start_date = simulation_start_date
+	, end_date = calibration_end_date
 	, do_hazard = TRUE
 	, do_make_state = TRUE
 	)

@@ -6,21 +6,10 @@
 ## MLi: Throw them pipeline setup
 
 # ---------------------------
-# Technical Options
-# ---------------------------
-options(MP_default_do_sim_constraint = TRUE)
-options(MP_get_bbmle_init_from_nlminb = TRUE)
-
-# ---------------------------
-# Simulation Bounds
-# ---------------------------
-
-simulation_start_date = lubridate::ymd(20200101)
-calibration_end_date = lubridate::ymd(20220610)  # TODO: should we infer this from calibration data?
-
-# ---------------------------
 # Time-Variation of Parameters in the Calibration Period
 # ---------------------------
+
+## MLi:This is probably ok, optional to separate out to organize all the params_timevar
 
 params_timevar = (
   bind_rows(
@@ -39,6 +28,8 @@ params_timevar = (
     )
   )
 )
+
+## MLi: This is again setup; put the reference somewhere else?
 
 # ---------------------------
 # Condense Map
@@ -85,64 +76,19 @@ condense_map = c(
 #   conv_Incidence = 'report'
 # )
 
-# ---------------------------
-# Calibration Data
-# ---------------------------
-
-## Why is this here?!?
-
-calibration_dat = filter(observed_data
-  ## filter to calibration period
-  , between(
-    as.Date(date),
-    as.Date(simulation_start_date),
-    as.Date(calibration_end_date)
-  )
-  # ,
-  ## remove reports after date when testing became unreliable
-  , !(var == "report_inc" & date > lubridate::ymd(20211215))
-  ## remove ICU prevalence
-  , !(var == "icu_preval")
-)
-
-p1 <- (ggplot(calibration_dat %>% drop_na()
-        , aes(x = date, y = value, colour = var))
-  + geom_point(alpha = 0.3, size = 1.5)
-  + facet_wrap(
-    ~ var
-    , ncol = 1
-    , scales = "free_y"
-)
-  + labs(title = "Observed data used in calibration")
-  + guides(colour = "none")
-)
-ggsave(
-  file.path("figs", "context_information-observed_data.png")
-  , p1
-  , width = fig.width
-  , height = 1.3*fig.width
-)
 
 # ---------------------------
-# Initial uncalibrated model with context information
+# Initial uncalibrated model with context information 
 # ---------------------------
 
-model_uncalibrated = (flexmodel(
-    params = params,
-    state = state,
-    start_date = simulation_start_date,
-    end_date = calibration_end_date,
-    do_hazard = TRUE,
-    do_make_state = TRUE
-  )
-  %>% add_model_structure
+## MLi: Don't put numbers here, they go in parameters.R! 
+
+model_uncalibrated = (model
   %>% update_condense_map(condense_map)
   ## attach time-varying parameters (not fitted)
   %>% add_piece_wise(params_timevar)
   ## attach observed data
-  %>% update_observed(
-    calibration_dat
-  )
+  %>% update_observed(calibration_dat)
   ## specify observation error distributions for observed data
   %>% update_params(
     nb_disp_report_inc = 1
@@ -174,6 +120,7 @@ model_uncalibrated = (flexmodel(
   %>% update_opt_tv_params('abs'
     , log_beta0 ~ log_normal(
       ## from calibration with just base mu
+		## MLi: another reason not to do this is if you change the length of tvbetas, this part will fail
       c(-1.0563457, -2.1741484, -2.5953720,
         -2.5761787, -2.1924082, -1.4564057,
         -1.6901006, -2.1915752, -1.4090154,

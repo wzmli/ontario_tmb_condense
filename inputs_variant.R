@@ -90,3 +90,12 @@ print(gg)
 
 print(gg %+% invaderdat)
 
+print(invaderdat)
+
+## Output
+#MLi: How does the voc param timevar look?
+
+## params_voc_timevar <- (invaderdat ...)
+
+
+
