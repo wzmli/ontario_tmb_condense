@@ -4,6 +4,30 @@
 
 Simply run `source("run_pipeline.R")` from the main directory.
 
+## to change pipeline parameters
+
+All pipeline parameters are stored in `pipeline_parameters.R`. This should be the only file you need to edit to make changes to the calibration and forecast (unless you're doing something major like changing the model, in which case, see below). 
+
+Below are all the knobs currently available in `pipeline_parameters.R`, what they do, and how they can be changed
+
+### dates
+
+TODO: UPDATE AFTER DATES ARE CLEANED UP IN REPO
+
+### model parameters
+
+All model parameters used in `define_model.R` should be specified here, to keep all of the pipeline knobs in one place. Don't forget to update this list if you change the model!
+
+## to change the model definition
+
+TODO: UPDATE, BE SURE TO MENTION UPDATE OF MODEL PARAMETERS IN PIPELINE_PARAMETERS.R FILE
+
+The model is defined in `define_model.R`. This includes state variables, the list of parameter names, flow rates, condensation of state variables across subcategories, and the calculation of report variables. If you're going to modify the model definition, be sure to update the model parameters (including any time-varying parameter ones) in `pipeline_parameters.R` and potentially `time_varying_params.R`.
+
+---
+
+TODO: EVERYTHING UNDER HERE IS POTENTIALLY OUTDATED/NEEDS REVIEW
+
 ### to change data to which the model is being calibrated
 
 The observed data is initially loaded in via `prep_observations.R`. This script loads the data and processes it minimally into a standardized (long) form, but it is not filtered or trimmed here in any way. Filtering and trimming occur later, in `calibration_setup.R`, where info about the calibration is encoded. There, the data are at least trimmed to lie between the simulation start date and calibration end date (defined in `calibration_setup.R`), though the user may choose to additionally filter out some variables from the original observed data (_e.g._ ICU prevalence) as not to fit to them.
@@ -25,10 +49,6 @@ where
 - `Value` is the new value for the parameter on the given `Date`
 
 The pipeline assumes that these time-varying parameters are specified in an absolute (not relative) way.
-
-### to change the model definition
-
-The model is defined in `define_model.R`. This includes state variables, base parameters, flow rates, condensation of state variables across subcategories, and the calculation of report variables.
 
 ### to specify start and end dates for calibration
 

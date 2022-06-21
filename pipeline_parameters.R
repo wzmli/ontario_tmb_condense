@@ -32,7 +32,6 @@ report_end_date <- as.Date("2021-12-15") ## when we assume the report signal sto
 ## hosp_preval: daily acute-care occupancy (prevalence), excluding ICU
 ## icu_preval: daily ICU occupancy (prevalence)
 calibration_vars <- c("report_inc", "hosp_preval")
-# calibration_vars <- c("report_inc")
 
 # ---------------------------
 # Model parameters

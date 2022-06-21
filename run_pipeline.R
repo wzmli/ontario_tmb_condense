@@ -1,5 +1,6 @@
 plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
 forecast <- FALSE
+save_env <- FALSE
 
 # ---------------------------
 # Pipeline Setup
@@ -28,42 +29,32 @@ source("define_model.R")
 source("time_varying_params.R")
 
 # ---------------------------
-# Calibration Setup
-# ---------------------------
-source("calibration_settings.R")
-
-# ---------------------------
 # Calibration
 # ---------------------------
+source("calibration_settings.R")
 source("calibrate.R")
-
-# ---------------------------
-# Model-specific Diagnostics
-#
-# for calibration specifically
-# ---------------------------
-
-## MLi: If you do it under the vaccination umbrella, this will go under there
-
-if(plot_diagnostics_modelspecific){
-  source("check_vaccine_admin.R")
-}
-
-# ---------------------------
-# Forecast Setup
-# ---------------------------
-
-## MLi: Everything below is beautiful!
-
-if(forecast) source("forecast_settings.R")
+source("calibration_plots.R")
 
 # ---------------------------
 # Forecast
 # ---------------------------
-if(forecast) source("forecast.R")
+
+
+if(forecast){
+  source("forecast_settings.R")
+  source("forecast.R")
+  source("forecast_plots.R")
+}
 
 # ---------------------------
 # Save environment
 # ---------------------------
 
-# i: save environment in a time-stamped file?
+if(save_env){
+  save(list = parameters,
+       file = file.path("pipeline_environments",
+                        paste("env",
+                               today(),
+                               paste0(hour(now()), minute(now())),
+                               sep = "_")))
+}

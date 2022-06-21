@@ -142,41 +142,40 @@ vaccine_raw <- (
 
 ## tidy data
 ## We want everything to ending up long format
-
 vaccine_tidy <- (vaccine_raw
-                 ## convert date col to dates
-                 %>% mutate(
-                   date = as.Date(date)
-                 )
-                 ## get dose1 prevalence
-                 %>% mutate(
-                   ## count up all non-dose1 prevalence
-                   not_dose1_preval = rowSums(across(ends_with("preval"))),
-                   ## get dose1 prev by subtracting non-dose1 from total vaccines administered
-                   dose1_preval = doseall_total - not_dose1_preval
-                 )
-                 ## drop unneeded cols
-                 %>% select(-ends_with("total"), -starts_with("not"))
-                 ## reorder
-                 %>% relocate(dose1_preval, .after = "date")
-                 ## calculate incidence and relabel cols
-                 %>% transmute(
-                   date
-                   , across(ends_with("preval"), ~ .x - lag(.x))
-                 )
-                 %>% rename_with(~ str_replace(.x, "preval", "inc"),
-                                 ends_with("preval"))
-                 ## replace negative incidence or NA
-                 ## with 0 for all numeric columns
-                 %>% mutate(across(where(is.numeric),
-                                   ~ ifelse((.x < 0 | is.na(.x)), 0, .x)))
-                 %>% mutate(total = rowSums(across(ends_with("inc"))))
-                 %>% filter(total != 0)
-                 %>% select(-total)
-                 %>% pivot_longer(-date)
-                 %>% group_by(name)
-                 %>% mutate(cumval = cumsum(value))
-                 %>% ungroup()
+   ## convert date col to dates
+   %>% mutate(
+     date = as.Date(date)
+   )
+   ## get dose1 prevalence
+   %>% mutate(
+     ## count up all non-dose1 prevalence
+     not_dose1_preval = rowSums(across(ends_with("preval"))),
+     ## get dose1 prev by subtracting non-dose1 from total vaccines administered
+     dose1_preval = doseall_total - not_dose1_preval
+   )
+   ## drop unneeded cols
+   %>% select(-ends_with("total"), -starts_with("not"))
+   ## reorder
+   %>% relocate(dose1_preval, .after = "date")
+   ## calculate incidence and relabel cols
+   %>% transmute(
+     date
+     , across(ends_with("preval"), ~ .x - lag(.x))
+   )
+   %>% rename_with(~ str_replace(.x, "preval", "inc"),
+                   ends_with("preval"))
+   ## replace negative incidence or NA
+   ## with 0 for all numeric columns
+   %>% mutate(across(where(is.numeric),
+                     ~ ifelse((.x < 0 | is.na(.x)), 0, .x)))
+   %>% mutate(total = rowSums(across(ends_with("inc"))))
+   %>% filter(total != 0)
+   %>% select(-total)
+   %>% pivot_longer(-date)
+   %>% group_by(name)
+   %>% mutate(cumval = cumsum(value))
+   %>% ungroup()
 )
 
 
@@ -195,17 +194,8 @@ p2 <- (ggplot(vaccine_tidy,aes(x = date, y = cumval/12e6))
 )
 
 print(p2)
-#ggsave(
-#  file.path("figs","inputs_vaccine.png"),
-#  p1,
-#  width = fig.width,
-#  height = 1.3*fig.width
-#)
-
-## fit/forecast (if need be)
 
 ## final output (processed ts or params_timevar df)
-
 ## for the four-dose model
 params_timevar_vaxdosing <- (
   vaccine_tidy
@@ -231,7 +221,7 @@ params_timevar_vaxdosing <- (
   %>% as.data.frame()
 )
 
-# plot to check
+# plot to check dosing
 p3 <- (ggplot(
   params_timevar_vaxdosing,
   aes(x = Date, y = Value, colour = Symbol)
@@ -252,10 +242,6 @@ print(p3)
 # ---------------------------
 # Vaccine Efficacy (against transmission)
 # ---------------------------
-
-## MLi: Why is this here?!?
-## please put these numbers in parameters.R
-
 
 ## change VE on a rough schedule based on variant invasion
 date_seq_VE <- c(delta_invasion_date, omicron_invasion_date)
@@ -369,6 +355,16 @@ print(gg %+% invaderdat)
 
 print(invaderdat)
 
+## TODO: move whatever can be moved to pipeline_parameters.R
+## and generate
+## params_timevar_invaderprop
+## params_timevar_invaderVE
+##
+## after adding variant to define_model.R,
+## need to also automate switching resident and invader VE based on invaderdat
+##
+## add params_timevar_invaderprop and VE to script outputs below
+
 # ---------------------------
 # Script output
 # ---------------------------
@@ -379,11 +375,6 @@ params_timevar_rho <- manual_rho
 
 params_timevar_vaxdosing <- params_timevar_vaxdosing
 params_timevar_VE <- params_timevar_VE
-
-## TODO:
-## params_timevar_invaderprop
-## params_timevar_invaderVE
-## need to automate switching resident and invader VE based on invaderdat
 
 params_timevar <- bind_rows(
   params_timevar_beta

@@ -12,3 +12,11 @@ params_timevar_forecast <- data.frame(
   Value = 1, ## status quo beta0 in forecast
   Type = "rel_prev" ## make beta0 value relative to the last calibrated value (scalar multiply with entry in the Value column)
 )
+
+# ---------------------------
+# Script output
+# ---------------------------
+
+parameters <- addEnvironment(parameters,
+                             c("n_days_forecast",
+                               "params_timevar_forecast"))

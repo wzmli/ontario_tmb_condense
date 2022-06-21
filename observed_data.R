@@ -23,10 +23,14 @@ print(observed_data)
 p1 <- (ggplot(observed_data)
   + facet_wrap(~var, nrow=3, scales = "free_y")
   + geom_line(aes(date, value))
-  + labs(title = "Observed data for calibration")
+  + labs(title = "Observed data available for calibration")
 )
-
-print(p1)
+ggsave(
+  file.path("figs", "observed_data-available.png")
+  , p1
+  , width = fig.width
+  , height = 1.3*fig.width
+)
 
 ## If this is not good enough for calibration, then modify here!
 
@@ -51,7 +55,7 @@ p1 <- (ggplot(calibration_dat %>% drop_na()
   + guides(colour = "none")
 )
 ggsave(
-  file.path("figs", "context_information-observed_data.png")
+  file.path("figs", "observed_data-used.png")
   , p1
   , width = fig.width
   , height = 1.3*fig.width
