@@ -1,8 +1,14 @@
+## Master parameter script for model specific
+
 ## Dates
 
 ## Free to change later
-start_date <- "2020-03-01"
-end_date <- "2021-12-15"
+start_date <- as.Date("2020-03-01")
+end_date <- as.Date("2021-12-15")
+
+
+min_obs_date <- as.Date("2020-02-06")
+max_obs_date <- as.Date("2022-06-16")
 report_end_date <- as.Date("2022-01-01") ## when we assume the report signal stops being reliable
 
 beta0 = 0.25  # guys ... i have no idea

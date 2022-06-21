@@ -3,8 +3,8 @@
 # Prepare schedules for time-varying parameters that are being optimized
 # ---------------------------
 
-## Users can define manually
-## Here is an automatic way
+## Users can define manually (good to have a reason)
+## Separate out what is automatic and what is manual and then combine in the end
 
 # ---------------------------
 # beta0 - transmission rate
@@ -42,15 +42,14 @@ break_date <- as.Date(c(round(refit$indexU$date)))
 print(gg + geom_vline(xintercept=break_date))
 
 reporting_lag <- 8
-params_timevar_beta <- data.frame(Date = break_date - reporting_lag
+auto_beta <- data.frame(Date = break_date - reporting_lag
 	, Symbol = "beta0"
 	, Value = NA
 )
 
 
-## MLi: Need to think about where this belongs
-
-## add in break dates after reports drop out (changes in behaviour in jan)
+## Manual time varying parameters
+## TODO: Going to clean it in the future, will move on for now
 
 
 manual_beta <-data.frame(
@@ -65,13 +64,9 @@ manual_beta <-data.frame(
    , Value = NA
 )
 
-params_timevar_beta <- bind_rows(params_timevar_beta, manual_beta)
-
 
 # ---------------------------
 # Mildness
-# ---------------------------
-
 
 ## periodically re-fit severity (mu) and hospital occupancy (rho)
 ## to get better fits, especially after the reports signal drops out
@@ -84,7 +79,7 @@ date_seq_mu <- c(
   #     by = 10)
   )
 
-params_timevar_mu <- data.frame(
+manual_mu <- data.frame(
   Date = date_seq_mu
   , Symbol = "mu"
   , Value = NA
@@ -103,8 +98,18 @@ date_seq_rho <- c(
       by = 10)
 )
 
-params_timevar_rho <- data.frame(
+manual_rho <- data.frame(
   Date = date_seq_rho
   , Symbol = "rho"
   , Value = NA
 )
+
+
+## Combine and finalize all the pieces put the final piece at the very bottom of the script!
+## Output
+
+
+params_timevar_beta <- bind_rows(auto_beta, manual_beta)
+params_timevar_mu <- manual_mu
+params_timevar_rho <- manual_rho
+

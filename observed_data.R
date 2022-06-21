@@ -7,7 +7,7 @@
 # load raw data
 observed_data_raw <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
 
-## tidy observed data
+## tidy observed data into long form for calibration
 observed_data <- (observed_data_raw
 	%>% transmute(date = as.Date(`Reported Date`)
 		, report_inc = diff(c(0,`Total Cases`))
@@ -27,3 +27,10 @@ p1 <- (ggplot(observed_data)
 )
 
 print(p1)
+
+## Output
+## There must be a better way to do this
+## Ideally, repackaged an new environment and only save the final output
+observed_data <- observed_data
+
+

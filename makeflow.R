@@ -27,6 +27,7 @@ source("observed_data.R")
 source("parameters.R")
 source("define_model.R")
 
+quit()
 
 ## Dealing with input data
 source("inputs_vaccination.R")
