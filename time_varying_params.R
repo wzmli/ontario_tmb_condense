@@ -13,12 +13,13 @@
 
 ## filter on observed report time series
 ## smooth it with log 7 day moving average
-
-
 report_dat <- (observed_data
 	%>% filter(var == "report_inc")
 	%>% mutate(lmavg = log(frollmean(value,n=7,align = "right")))
 	%>% filter(!is.infinite(lmavg))
+	%>% filter(between(
+	  date, calib_start_date, calib_end_date
+	))
 	%>% filter(date < report_end_date)
 )
 
@@ -32,10 +33,7 @@ fit <- lm(lmavg ~ date,data=report_dat)
 ## refit with piecewise break dates. We can pick as many break points as we want
 ## here, we are arbitrary picking 14 (we had roughly 6 waves)
 
-n.breaks <- 11
-## MLi: TODO: I want to use 11, using 14 to match IPs manual input
-n.breaks <- 14
-refit <- segmented(fit, seg.Z = ~date, npsi=n.breaks)
+refit <- segmented(fit, seg.Z = ~date, npsi=n_breaks_beta0)
 
 ## extract breakdates
 break_date <- as.Date(c(round(refit$indexU$date)))
@@ -48,23 +46,12 @@ auto_beta <- data.frame(Date = break_date - reporting_lag
 	, Value = NA
 )
 
-
-## Manual time varying parameters
-## TODO: Going to clean it in the future, will move on for now
-
-
+## manual breaks (after reports drop out)
 manual_beta <-data.frame(
-	Date = ymd(c("2021-12-19" ## increase in public health restrictions
-		, "2022-01-31" ## begin easing restrictions (change in capacity limits)
-   	, "2022-02-17" ## next phase of reopening (change in capacity limits)
-   	, "2022-03-01" ## proof of vaccine mandate lifted
-   	, "2022-03-21" ## most indoor mask mandates lifted
-   	)
-	)
-	, Symbol = "beta0"
-   , Value = NA
+  Date = manual_beta0_breaks
+  , Symbol = "beta0"
+  , Value = NA
 )
-
 
 # ---------------------------
 # Mildness
@@ -376,7 +363,7 @@ params_timevar_rho <- manual_rho
 params_timevar_vaxdosing <- params_timevar_vaxdosing
 params_timevar_VE <- params_timevar_VE
 
-params_timevar <- bind_rows(
+params_timevar <- (bind_rows(
   params_timevar_beta
   , params_timevar_mu
   , params_timevar_rho
@@ -384,6 +371,9 @@ params_timevar <- bind_rows(
   , params_timevar_VE
   # , params_timevar_variantprop
 )
+  %>% filter(
+    between(Date,
+            calib_start_date, calib_end_date)))
 
 parameters <- addEnvironment(parameters
 	, c("params_timevar")

@@ -177,8 +177,8 @@ S_vec = vec("S" %_% vax_cat)
 
 model = (flexmodel(params = params
 	, state = state
-	, start_date = simulation_start_date
-	, end_date = calibration_end_date
+	, start_date = calib_start_date
+	, end_date = calib_end_date
 	, do_hazard = TRUE
 	, do_make_state = TRUE
 	)

@@ -8,17 +8,9 @@
 # Dates
 # ---------------------------
 
-## TODO: clean these up throughout the pipeline
-
-start_date <- as.Date("2020-03-01")
-end_date <- as.Date("2021-12-15")
-
-min_obs_date <- as.Date("2020-02-06")
-max_obs_date <- as.Date("2022-06-16")
-
-## MLi: I don't like this, make start and end first thing when cleaning tomorrow
-simulation_start_date = as.Date("2020-01-01")
-calibration_end_date = as.Date("2022-06-10")
+calib_start_date <- as.Date("2020-01-01") ## start date for each simulation in the calibration (may be before obs_start_date to enable a burn-in period before observations that we're calibrating to start)
+## FIXME: should be able to make this work even if calib_start_date > min(observed_data$date)
+calib_end_date <- today()
 
 report_end_date <- as.Date("2021-12-15") ## when we assume the report signal stops being reliable (can't be after calibration_end_date!)
 
@@ -127,11 +119,43 @@ vax_omicron_VE_trans_dose2 = 0.4
 vax_omicron_VE_trans_dose3 = 0.7
 vax_omicron_VE_trans_dose4 = 0.7
 
-## TODO: add all other knobs from the pipeline to this file
-
 # ---------------------------
 # Calibration settings
 # ---------------------------
+
+# Number of break dates for beta0
+# to be auto-detected from report time series
+# and corresponding priors
+# ---------------------------
+n_breaks_beta0 <- 11 ## number of breaks
+log_beta0_prior_mean <- c(
+  # -1.0563457, -2.1741484, -2.5953720,
+  -2.5761787, -2.1924082, -1.4564057,
+  -1.6901006, -2.1915752, -1.4090154,
+  -1.5156526, -1.8297348, -0.2460687,
+  -0.2818156, 0.6694880) ## these priors are based on previous calibrations with non-time-varying mu
+try(if(!(length(log_beta0_prior_mean) == 1 |
+       length(log_beta0_prior_mean) == n_breaks_beta0)) stop("either specify only one prior mean for time-varying beta0 or exactly as many as there are desired breaks"))
+
+# Manual break dates for beta0
+# after reports drop out
+# and corresponding priors
+# ---------------------------
+manual_beta0_breaks <- as.Date(
+  c("2021-12-19" ## increase in public health restrictions
+    , "2022-01-31" ## begin easing restrictions (change in capacity limits)
+    , "2022-02-17" ## next phase of reopening (change in capacity limits)
+    , "2022-03-01" ## proof of vaccine mandate lifted
+    , "2022-03-21" ## most indoor mask mandates lifted
+  ))
+manual_beta0_breaks <- manual_beta0_breaks[
+  between(
+  manual_beta0_breaks,
+  calib_start_date,
+  calib_end_date)]
+log_beta0_prior_mean <- c(log_beta0_prior_mean,
+                          rep(-0.2818156,
+                              length(manual_beta0_breaks)))
 
 # Error distributions for observations
 # ---------------------------
@@ -141,6 +165,7 @@ vax_omicron_VE_trans_dose4 = 0.7
 attach_error_dist <- function(model){
 
   ## TODO: make this more compact ("don't repeat yourself")
+  ## maybe by writing a function that uses the `as.formula(paste0())` paradigm to initializes the opt params formula and then doing something like lapply over calibration_vars?
   if("report_inc" %in% calibration_vars){
     model <- (model
       ## only need this step if we're using the negative binomial... don't need for poisson
@@ -209,6 +234,7 @@ attach_opt_params <- function(model){
 
   ## optimize dispersion params for whichever observations are being included in the calibration
   ## TODO: there is probably a cleaner way to do this...
+  ## maybe by writing a function that uses the `as.formula(paste0())` paradigm to initializes the opt params formula and then doing something like lapply over calibration_vars?
   if("report_inc" %in% calibration_vars){
     model <- (model
       ## add_ to avoid overwriting
@@ -245,18 +271,10 @@ attach_opt_tv_params <- function(model){
   model <- (model
     %>% update_opt_tv_params(
       'abs'
-      , log_beta0 ~ log_normal(
-        ## from calibration with just base mu
-        ## MLi: another reason not to do this is if you change the length of tvbetas, this part will fail
-        ## TODO: set priors for first n beta0, fill
-        ## with something general if more breakdates are specified
-        c(-1.0563457, -2.1741484, -2.5953720,
-          -2.5761787, -2.1924082, -1.4564057,
-          -1.6901006, -2.1915752, -1.4090154,
-          -1.5156526, -1.8297348, -0.2460687,
-          -0.2818156,  0.6694880,
-          rep(-0.2818156, 5)) ## mean
-        , 0.25) ## variance
+      , as.formula(
+        paste0("log_beta0 ~ log_normal(c("
+        , paste(log_beta0_prior_mean, collapse = ",") ## mean
+        , "), 0.25)")) ## variance
       , logit_mu ~ logit_normal(
         qlogis(0.9853643) ## mean
         , 0.1 ## variance

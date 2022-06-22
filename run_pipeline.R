@@ -1,5 +1,5 @@
 plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
-forecast <- FALSE
+forecast <- TRUE
 save_env <- FALSE
 
 # ---------------------------
@@ -39,7 +39,6 @@ source("calibration_plots.R")
 # Forecast
 # ---------------------------
 
-
 if(forecast){
   source("forecast_settings.R")
   source("forecast.R")
@@ -50,11 +49,15 @@ if(forecast){
 # Save environment
 # ---------------------------
 
-if(save_env){
-  save(list = parameters,
-       file = file.path("pipeline_environments",
-                        paste("env",
-                               today(),
-                               paste0(hour(now()), minute(now())),
-                               sep = "_")))
-}
+## FIXME: this is broken... not saving anything
+# if(save_env){
+#   save(list = parameters,
+#        file = file.path(
+#          "pipeline_environments",
+#          paste0("env_",
+#                today(), "_",
+#                paste0(hour(now()),
+#                       minute(now())),
+#                ".Rdata")
+#   ))
+# }

@@ -11,8 +11,8 @@ params_timevar = (
   %>% filter(
     between(
       as.Date(Date),
-      as.Date(simulation_start_date),
-      as.Date(calibration_end_date) - lubridate::days(1)
+      calib_start_date,
+      calib_end_date - lubridate::days(1)
     )
   )
 )

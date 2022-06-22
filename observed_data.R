@@ -36,7 +36,7 @@ ggsave(
 
 calibration_dat = (observed_data
   ## filter to calibration period
-  %>% filter(between(date, as.Date(simulation_start_date), as.Date(calibration_end_date)))
+  %>% filter(between(date, as.Date(calib_start_date), as.Date(calib_end_date)))
   ## keep only desired observations
   %>% filter(var %in% calibration_vars)
   ## remove reports after date when testing became unreliable
