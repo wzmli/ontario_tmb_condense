@@ -101,7 +101,7 @@ vax_VE_hosp_dose4 = 0.9
 # infection-based immunity waning
 # ---------------------------
 
-wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
+inf_imm_wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
 
 # variants
 # ---------------------------

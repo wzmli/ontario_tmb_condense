@@ -93,7 +93,7 @@ params = c(beta0 = beta0
   	, vax_VE_trans_dose4 = vax_VE_trans_dose4
   	, vax_alpha_dose4 = vax_alpha_dose4
   	, vax_VE_hosp_dose4 = vax_VE_hosp_dose4
-  	, wane_rate = wane_rate
+  	, inf_imm_wane_rate = inf_imm_wane_rate
 )
 
 # ---------------------------
@@ -261,7 +261,7 @@ model = (flexmodel(params = params
    # waning (disease-based) immunity
    %>% rep_rate("R" %_% vax_cat
 		, "S" %_% vax_cat
-		, ~ (wane_rate)
+		, ~ (inf_imm_wane_rate)
    )
 
    # handle accumulators by restricting outflow appropriately
