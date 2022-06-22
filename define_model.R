@@ -45,10 +45,12 @@ dose_to = c(asymp_cat, rep("V", length(asymp_cat)))
 # Default Parameters
 # ---------------------------
 
-params = c(beta0 = beta0
-	, Ca = Ca
+params = c(
+    ## base model parameters (epidemiological)
+    beta0 = beta0
+	  , Ca = Ca
   	, Cp = Cp
-   , Cm = Cm
+    , Cm = Cm
   	, Cs = Cs
   	, alpha = alpha
   	, sigma = sigma
@@ -75,6 +77,7 @@ params = c(beta0 = beta0
   	, c_delay_cv = c_delay_cv
   	, proc_disp = proc_disp
   	, zeta = zeta
+	  ## vax parameters
   	, vax_dose1_inc = vax_dose1_inc
   	, vax_dose2_inc = vax_dose2_inc
   	, vax_dose3_inc = vax_dose3_inc
