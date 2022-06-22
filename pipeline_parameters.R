@@ -106,18 +106,30 @@ inf_imm_wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
 # variants
 # ---------------------------
 
-delta_invasion_date <- as.Date("2021-03-15")
-omicron_invasion_date <- as.Date("2021-12-01")
+## bogus params for now, will change in params_timevar upon each invasion
+inv_prop = 0 ## invader proportion
+inv_trans_adv = 0 ## invader transmission advantage
+inv_vax_VE_trans_dose1 = vax_VE_trans_dose1 ## invader VE against transmissiondose 1
+inv_vax_VE_trans_dose2 = vax_VE_trans_dose2 ## invader VE against transmissiondose 2
+inv_vax_VE_trans_dose3 = vax_VE_trans_dose3 ## invader VE against transmissiondose 3
+inv_vax_VE_trans_dose4 = vax_VE_trans_dose4 ## invader VE against transmissiondose 4
+inv_vax_VE_hosp_dose1 = vax_VE_hosp_dose1 ## invader VE against hospitalizationdose 1
+inv_vax_VE_hosp_dose2 = vax_VE_hosp_dose2 ## invader VE against hospitalizationdose 2
+inv_vax_VE_hosp_dose3 = vax_VE_hosp_dose3 ## invader VE against hospitalizationdose 3
+inv_vax_VE_hosp_dose4 = vax_VE_hosp_dose4 ## invader VE against hospitalizationdose 4
 
-vax_delta_VE_trans_dose1 = 0.3
-vax_delta_VE_trans_dose2 = 0.8
-vax_delta_VE_trans_dose3 = 0.9
-vax_delta_VE_trans_dose4 = 0.9
-
-vax_omicron_VE_trans_dose1 = 0.15
-vax_omicron_VE_trans_dose2 = 0.4
-vax_omicron_VE_trans_dose3 = 0.7
-vax_omicron_VE_trans_dose4 = 0.7
+# delta_invasion_date <- as.Date("2021-03-15")
+# omicron_invasion_date <- as.Date("2021-12-01")
+#
+# vax_delta_VE_trans_dose1 = 0.3
+# vax_delta_VE_trans_dose2 = 0.8
+# vax_delta_VE_trans_dose3 = 0.9
+# vax_delta_VE_trans_dose4 = 0.9
+#
+# vax_omicron_VE_trans_dose1 = 0.15
+# vax_omicron_VE_trans_dose2 = 0.4
+# vax_omicron_VE_trans_dose3 = 0.7
+# vax_omicron_VE_trans_dose4 = 0.7
 
 # ---------------------------
 # Calibration settings

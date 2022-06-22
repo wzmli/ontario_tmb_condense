@@ -94,6 +94,17 @@ params = c(beta0 = beta0
   	, vax_alpha_dose4 = vax_alpha_dose4
   	, vax_VE_hosp_dose4 = vax_VE_hosp_dose4
   	, inf_imm_wane_rate = inf_imm_wane_rate
+	  ## invading variant parameters
+	  , inv_prop = inv_prop ## invader proportion
+	  , inv_trans_adv = inv_trans_adv ## invader transmission advantage
+	  , inv_vax_VE_trans_dose1 = inv_vax_VE_trans_dose1 ## invader VE against transmission, dose 1
+    , inv_vax_VE_trans_dose2 = inv_vax_VE_trans_dose2 ## invader VE against transmission, dose 2
+    , inv_vax_VE_trans_dose3 = inv_vax_VE_trans_dose3 ## invader VE against transmission, dose 3
+    , inv_vax_VE_trans_dose4 = inv_vax_VE_trans_dose4 ## invader VE against transmission, dose 4
+    , inv_vax_VE_hosp_dose1 = inv_vax_VE_hosp_dose1 ## invader VE against hospitalization, dose 1
+    , inv_vax_VE_hosp_dose2 = inv_vax_VE_hosp_dose2 ## invader VE against hospitalization, dose 2
+    , inv_vax_VE_hosp_dose3 = inv_vax_VE_hosp_dose3 ## invader VE against hospitalization, dose 3
+    , inv_vax_VE_hosp_dose4 = inv_vax_VE_hosp_dose4 ## invader VE against hospitalization, dose 4
 )
 
 # ---------------------------
