@@ -140,19 +140,20 @@ baseline_trans_rates =	(vec('Ca'
 # Symbolic matrix describing how transmission is reduced by
 # vaccination status. Each row and column corresponds to one
 # of the vaccination statuses. Each column is identical (for some reason)
-vax_trans_red = struc_block(vec(
-    	'1' # unvax
-    	, '1' # vaxdose1
-    	, '(1 - vax_VE_trans_dose1)' 	# vaxprotect1
-    	, '(1 - vax_VE_trans_dose1)'	# vaxdose2
-    	, '(1 - vax_VE_trans_dose2)' 	# vaxprotect2
-    	, '(1 - vax_VE_trans_dose2)'	# vaxdose3
-    	, '(1 - vax_VE_trans_dose3)'	# vaxprotect3
-    	, '(1 - vax_VE_trans_dose3)' 	# vaxdose4
-    	, '(1 - vax_VE_trans_dose4)'  # vaxprotect4
-	 	)
-   , row_times = 1
-	, col_times = length(vax_cat)
+base_VE <- c(
+  "1", "1"
+  , paste0("(",
+           complement(
+             c(rep(paste0("vax_VE_trans_dose",
+                          1:3), each = 2)
+               , "vax_VE_trans_dose4"))
+           , ")"
+  )
+)
+vax_trans_red = struc_block(
+  vec(base_VE)
+  , row_times = 1
+  , col_times = length(vax_cat)
 )
 
 # names of the alpha parameters for each vaccination layer
