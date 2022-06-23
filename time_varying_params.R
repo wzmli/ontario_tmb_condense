@@ -47,11 +47,13 @@ auto_beta <- data.frame(Date = break_date - reporting_lag
 )
 
 ## manual breaks (after reports drop out)
-manual_beta <-data.frame(
-  Date = manual_beta0_breaks
-  , Symbol = "beta0"
-  , Value = NA
-)
+if(length(manual_beta0_breaks) != 0){
+  manual_beta <-data.frame(
+    Date = manual_beta0_breaks
+    , Symbol = "beta0"
+    , Value = NA
+  )
+}
 
 # ---------------------------
 # Mildness
@@ -368,7 +370,7 @@ params_timevar <- (bind_rows(
   , params_timevar_mu
   , params_timevar_rho
   , params_timevar_vaxdosing
-  , params_timevar_VE
+  # , params_timevar_VE
   # , params_timevar_variantprop
 )
   %>% filter(
