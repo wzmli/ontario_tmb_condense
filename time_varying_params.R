@@ -231,109 +231,76 @@ p3 <- (ggplot(
 print(p3)
 
 # ---------------------------
-# Vaccine Efficacy (against transmission)
-# ---------------------------
-
-## change VE on a rough schedule based on variant invasion
-date_seq_VE <- c(delta_invasion_date, omicron_invasion_date)
-
-params_timevar_VE <- data.frame(
-  Date = rep(date_seq_VE, each = 4)
-  , Symbol = rep(paste0("vax_VE_trans_dose", 1:4), length(date_seq_VE))
-  , Value = c(vax_delta_VE_trans_dose1
-              , vax_delta_VE_trans_dose2
-              , vax_delta_VE_trans_dose3
-              , vax_delta_VE_trans_dose4
-
-              , vax_omicron_VE_trans_dose1
-              , vax_omicron_VE_trans_dose2
-              , vax_omicron_VE_trans_dose3
-              , vax_omicron_VE_trans_dose4
-  )
-)
-
-# ---------------------------
 # Variant proportion
 #
 # load and tidy data on variant counts and frequencies
 # ---------------------------
 
-library(tidyverse)
-
-dd <- readRDS("metadata/covvarnet_voc.rds")
+variants_raw <- readRDS("metadata/covvarnet_voc.rds")
 
 ## This repo is for Ontario Only
 ## We will make a new repo later for other pts
 major_prov = c("Ontario")
 
-df <- data.frame()
+variants_tidy <- data.frame()
 
-for(i in names(dd)){
-  dates <- rownames(dd[[i]])
-  tempdf <- (dd[[i]]
+for(i in names(variants_raw)){
+  date <- rownames(variants_raw[[i]])
+  tempdf <- (variants_raw[[i]]
              %>% mutate(province = i
-                        , dates = dates
+                        , date = date
              )
-             %>% select(dates,province,everything())
+             %>% select(date,province,everything())
   )
   rownames(tempdf) <- NULL
 
-  df <- bind_rows(df,tempdf)
+  variants_tidy <- bind_rows(variants_tidy,tempdf)
 }
 
-print(names(df))
+print(names(variants_tidy))
 
-vardat <- data.frame(
-  variant = c("Alpha", "B.1.438.1"
-              , "Beta", "Gamma"
-              , "Delta", "Delta AY.25", "Delta AY.27"
-              , "Omicron BA.1", "Omicron BA.1.1"
-              , "Omicron BA.2"
-  )
-  , varname = c("Alpha", "Alpha"
-                , "Alpha", "Alpha" ## Hack! Changing beta and gamma to alpha
-                , "Delta", "Delta", "Delta"
-                , "Omicron1", "Omicron1"
-                , "Omicron2"
+variants_long <- (variants_tidy
+   %>% filter(province %in% major_prov)
+   %>% pivot_longer(names_to = "strain",
+                    values_to= "count",
+                    -c("date","province"))
+   ## tack on lookup table for variant names
+   %>% left_join(variant_map, by = "strain")
+   %>% mutate(
+     label = ifelse(is.na(label), "other", label)
+   , date = as.Date(date)
   )
 )
 
-invaderframe <- data.frame(
-  varname = c("Alpha", "Delta", "Omicron1", "Omicron2")
-  , start_date = as.Date(c("2020-12-07","2021-03-08","2021-11-22","2022-01-10"))
-  , end_date = as.Date(c("2021-03-07","2021-11-21","2022-01-09","2022-04-04"))
+variants_ts_all <- (variants_long
+   %>% group_by(date, province, label)
+   %>% summarise(simple_count = sum(count,na.rm=TRUE), .groups = "drop")
+   %>% group_by(date,province)
+   %>% mutate(simple_sum = sum(simple_count,na.rm=TRUE))
+   %>% filter(simple_sum != 0)
+   %>% mutate(inv_prop = simple_count/simple_sum)
+   %>% arrange(province, date, label)
+   %>% ungroup()
 )
 
-variantLong <- (df
-                %>% filter(province %in% major_prov)
-                %>% pivot_longer(names_to = "variant", values_to="count",-c("dates","province"))
-                %>% left_join(.,vardat)
-                %>% mutate(varname = ifelse(is.na(varname),"other",varname)
-                           , dates = as.Date(dates)
-                )
-)
-i
-print(variantLong,n=Inf)
-
-simple_dat <- (variantLong
-               %>% group_by(dates,province,varname)
-               %>% summarise(simple_count = sum(count,na.rm=TRUE))
-               %>% group_by(dates,province)
-               %>% mutate(simple_prop = simple_count/sum(simple_count,na.rm=TRUE))
-               %>% arrange(province,dates,varname)
-               %>% ungroup()
+## filter each variant down to desired start and end dates
+variants_ts <- (
+  variants_ts_all
+  %>% left_join(
+    invader_properties %>% select(label, start_date, end_date),
+    by = "label")
+  %>% filter(!is.na(start_date))
+  %>% mutate(is_invading =
+               between(date,
+                       start_date,
+                       end_date))
+  %>% filter(is_invading)
 )
 
-invaderdat <- (simple_dat
-               %>% left_join(.,invaderframe)
-               %>% filter(!is.na(start_date))
-               %>% mutate(invader = between(dates,start_date,end_date))
-               %>% filter(invader)
-)
-
-print(simple_dat,n=Inf)
-
-gg <- (ggplot(simple_dat, aes(x=dates, y=simple_prop, color=varname, group = varname))
+gg <- (
+  ggplot(variants_ts_all,
+  aes(x = date, y = inv_prop, color = label,
+      group = label))
        + geom_line()
        + facet_wrap(~province)
        + scale_x_date(date_labels = "%Y")
@@ -342,19 +309,55 @@ gg <- (ggplot(simple_dat, aes(x=dates, y=simple_prop, color=varname, group = var
 
 print(gg)
 
-print(gg %+% invaderdat)
+print(gg %+% variants_ts)
 
-print(invaderdat)
+## make params_timevar lines for invader proportion
+## NOTE: there is no interpolation here! inv_prop will be piecewise constant
+params_timevar_inv_prop <- (
+  variants_ts
+  %>% rename(Date = date,
+             Value = inv_prop)
+  %>% mutate(Symbol = "inv_prop")
+  %>% select(Date, Symbol, Value)
+  %>% as.data.frame()
+)
 
-## TODO: move whatever can be moved to pipeline_parameters.R
-## and generate
-## params_timevar_invaderprop
-## params_timevar_invaderVE
-##
-## after adding variant to define_model.R,
-## need to also automate switching resident and invader VE based on invaderdat
-##
-## add params_timevar_invaderprop and VE to script outputs below
+# ---------------------------
+# Variant VE changes
+#
+# get schedule of VE changes for resident and invader
+# ---------------------------
+
+## params_timevar_inv_VE_changes
+
+df <- (invader_properties
+ ## attach corresponding resident VEs for each invasion
+ ## (take VE from previous variant)
+  %>% mutate(across(where(is.numeric),
+             lag,
+             .names = "not_{.col}"))
+)
+## fill in wild-type VEs for first invasion
+df[1, names(df)[grep("^not_inv",
+                     names(df))]] <- c(
+   ## VE against transmission
+   unname(params[grep("^vax_VE_trans", names(params))]),
+   ## VE against hosp
+   unname(params[grep("^vax_VE_hosp", names(params))])
+                     )
+
+params_timevar_inv_VE_changes <- (
+  df
+  %>% select(-label, -end_date)
+  %>% rename(Date = start_date)
+  %>% pivot_longer(-Date,
+                   names_to = "Symbol",
+                   values_to = "Value")
+  ## correct parameter names
+  %>% mutate(Symbol = str_replace(Symbol,
+                                  "not_inv_",
+                                  ""))
+)
 
 # ---------------------------
 # Script output
@@ -365,15 +368,17 @@ params_timevar_mu <- manual_mu
 params_timevar_rho <- manual_rho
 
 params_timevar_vaxdosing <- params_timevar_vaxdosing
-params_timevar_VE <- params_timevar_VE
+
+params_timevar_inv_prop <- params_timevar_inv_prop
+params_timevar_inv_VE_changes <- params_timevar_inv_VE_changes
 
 params_timevar <- (bind_rows(
   params_timevar_beta
   , params_timevar_mu
   , params_timevar_rho
   , params_timevar_vaxdosing
-  # , params_timevar_VE
-  # , params_timevar_variantprop
+  , params_timevar_inv_prop
+  , params_timevar_inv_VE_changes
 )
   %>% filter(
     between(Date,

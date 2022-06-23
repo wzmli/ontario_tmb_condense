@@ -10,7 +10,8 @@
 
 calib_start_date <- as.Date("2020-01-01") ## start date for each simulation in the calibration (may be before obs_start_date to enable a burn-in period before observations that we're calibrating to start)
 ## FIXME: should be able to make this work even if calib_start_date > min(observed_data$date)
-calib_end_date <- as.Date("2021-09-01")
+# calib_end_date <- as.Date("2021-09-01")
+calib_end_date <- today()
 
 report_end_date <- as.Date("2021-12-15") ## when we assume the report signal stops being reliable (can't be after calibration_end_date!)
 
@@ -78,22 +79,22 @@ vax_dose4_inc = 0
 vax_response_rate = 0.0714285714285714
 vax_response_rate_R = 0.142857142857143
 
-## dose 1 properties
+## dose 1 properties against wild type
 vax_VE_trans_dose1 = 0.6
 vax_alpha_dose1 = 0.333333333333333 ## same as baseline
 vax_VE_hosp_dose1 = 0.4
 
-## dose 2 properties
+## dose 2 properties against wild type
 vax_VE_trans_dose2 = 0.9
 vax_alpha_dose2 = 0.333333333333333 ## same as baseline
 vax_VE_hosp_dose2 = 0.7
 
-## dose 3 properties
+## dose 3 properties against wild type
 vax_VE_trans_dose3 = 0.9
 vax_alpha_dose3 = 0.333333333333333 ## same as baseline
 vax_VE_hosp_dose3 = 0.9
 
-## dose 4 properties
+## dose 4 properties against wild type
 vax_VE_trans_dose4 = 0.9
 vax_alpha_dose4 = 0.333333333333333 ## same as baseline
 vax_VE_hosp_dose4 = 0.9
@@ -118,18 +119,55 @@ inv_vax_VE_hosp_dose2 = vax_VE_hosp_dose2 ## invader VE against hospitalization 
 inv_vax_VE_hosp_dose3 = vax_VE_hosp_dose3 ## invader VE against hospitalization dose 3
 inv_vax_VE_hosp_dose4 = vax_VE_hosp_dose4 ## invader VE against hospitalization dose 4
 
-delta_invasion_date <- as.Date("2021-03-15")
-omicron_invasion_date <- as.Date("2021-12-01")
+## map to simplify variant data (bucket multiple strains under a single label)
+variant_map <- data.frame(
+  strain = c("Alpha", "B.1.438.1"
+             , "Beta", "Gamma"
+             , "Delta", "Delta AY.25", "Delta AY.27"
+             , "Omicron BA.1", "Omicron BA.1.1"
+             , "Omicron BA.2"
+  )
+  , label = c("Alpha", "Alpha"
+              , "Alpha", "Alpha" ## Hack! Changing beta and gamma to alpha
+              , "Delta", "Delta", "Delta"
+              , "Omicron1", "Omicron1"
+              , "Omicron2"
+  )
+)
 
-vax_delta_VE_trans_dose1 = 0.3
-vax_delta_VE_trans_dose2 = 0.8
-vax_delta_VE_trans_dose3 = 0.9
-vax_delta_VE_trans_dose4 = 0.9
-
-vax_omicron_VE_trans_dose1 = 0.15
-vax_omicron_VE_trans_dose2 = 0.4
-vax_omicron_VE_trans_dose3 = 0.7
-vax_omicron_VE_trans_dose4 = 0.7
+## invading variant properties, including label, corresponding start date, end date, and vaccine efficacies against each variant
+variant_labels <- c("Alpha", "Delta", "Omicron1", "Omicron2")
+invader_properties <- data.frame(
+  label = variant_labels
+  , start_date = as.Date(c("2020-12-07","2021-03-08","2021-11-22","2022-01-10"))
+  , end_date = as.Date(c("2021-03-07","2021-11-21","2022-01-09","2022-04-04"))
+  , inv_vax_VE_trans_dose1 = c(
+    0.6, 0.3, 0.15, 0.15
+  )
+  , inv_vax_VE_trans_dose2 = c(
+    0.9, 0.9, 0.4, 0.4
+  )
+  , inv_vax_VE_trans_dose3 = c(
+    0.9, 0.9, 0.7, 0.7
+  )
+  , inv_vax_VE_trans_dose4 = c(
+    0.9, 0.9, 0.7, 0.7
+  )
+  ## no change in VE against severe outcomes by variant
+  ## TODO: ACTUALLY IMPLEMENT THIS MECHANISM IN THE MODEL DEFINITION
+  , inv_vax_VE_hosp_dose1 = rep(
+    vax_VE_hosp_dose1, length(variant_labels)
+  )
+  , inv_vax_VE_hosp_dose2 = rep(
+    vax_VE_hosp_dose2, length(variant_labels)
+  )
+  , inv_vax_VE_hosp_dose3 = rep(
+    vax_VE_hosp_dose3, length(variant_labels)
+  )
+  , inv_vax_VE_hosp_dose4 = rep(
+    vax_VE_hosp_dose4, length(variant_labels)
+  )
+)
 
 # ---------------------------
 # Calibration settings
