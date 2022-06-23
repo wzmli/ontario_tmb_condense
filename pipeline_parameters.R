@@ -10,7 +10,7 @@
 
 calib_start_date <- as.Date("2020-01-01") ## start date for each simulation in the calibration (may be before obs_start_date to enable a burn-in period before observations that we're calibrating to start)
 ## FIXME: should be able to make this work even if calib_start_date > min(observed_data$date)
-calib_end_date <- today()
+calib_end_date <- as.Date("2021-09-01")
 
 report_end_date <- as.Date("2021-12-15") ## when we assume the report signal stops being reliable (can't be after calibration_end_date!)
 
@@ -108,15 +108,15 @@ inf_imm_wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
 
 ## bogus params for now, will change in params_timevar upon each invasion
 inv_prop = 0 ## invader proportion
-inv_trans_adv = 0 ## invader transmission advantage
-inv_vax_VE_trans_dose1 = vax_VE_trans_dose1 ## invader VE against transmissiondose 1
-inv_vax_VE_trans_dose2 = vax_VE_trans_dose2 ## invader VE against transmissiondose 2
-inv_vax_VE_trans_dose3 = vax_VE_trans_dose3 ## invader VE against transmissiondose 3
-inv_vax_VE_trans_dose4 = vax_VE_trans_dose4 ## invader VE against transmissiondose 4
-inv_vax_VE_hosp_dose1 = vax_VE_hosp_dose1 ## invader VE against hospitalizationdose 1
-inv_vax_VE_hosp_dose2 = vax_VE_hosp_dose2 ## invader VE against hospitalizationdose 2
-inv_vax_VE_hosp_dose3 = vax_VE_hosp_dose3 ## invader VE against hospitalizationdose 3
-inv_vax_VE_hosp_dose4 = vax_VE_hosp_dose4 ## invader VE against hospitalizationdose 4
+inv_trans_adv = 1 ## invader transmission advantage (1 = no chnage from resident)
+inv_vax_VE_trans_dose1 = vax_VE_trans_dose1 ## invader VE against transmission dose 1
+inv_vax_VE_trans_dose2 = vax_VE_trans_dose2 ## invader VE against transmission dose 2
+inv_vax_VE_trans_dose3 = vax_VE_trans_dose3 ## invader VE against transmission dose 3
+inv_vax_VE_trans_dose4 = vax_VE_trans_dose4 ## invader VE against transmission dose 4
+inv_vax_VE_hosp_dose1 = vax_VE_hosp_dose1 ## invader VE against hospitalization dose 1
+inv_vax_VE_hosp_dose2 = vax_VE_hosp_dose2 ## invader VE against hospitalization dose 2
+inv_vax_VE_hosp_dose3 = vax_VE_hosp_dose3 ## invader VE against hospitalization dose 3
+inv_vax_VE_hosp_dose4 = vax_VE_hosp_dose4 ## invader VE against hospitalization dose 4
 
 delta_invasion_date <- as.Date("2021-03-15")
 omicron_invasion_date <- as.Date("2021-12-01")

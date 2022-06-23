@@ -96,18 +96,17 @@ params = c(
   	, vax_VE_trans_dose4 = vax_VE_trans_dose4
   	, vax_alpha_dose4 = vax_alpha_dose4
   	, vax_VE_hosp_dose4 = vax_VE_hosp_dose4
-  	, inf_imm_wane_rate = inf_imm_wane_rate
-	  ## invading variant parameters
-	  , inv_prop = inv_prop ## invader proportion
-	  , inv_trans_adv = inv_trans_adv ## invader transmission advantage
-	  , inv_vax_VE_trans_dose1 = inv_vax_VE_trans_dose1 ## invader VE against transmission, dose 1
-    , inv_vax_VE_trans_dose2 = inv_vax_VE_trans_dose2 ## invader VE against transmission, dose 2
-    , inv_vax_VE_trans_dose3 = inv_vax_VE_trans_dose3 ## invader VE against transmission, dose 3
-    , inv_vax_VE_trans_dose4 = inv_vax_VE_trans_dose4 ## invader VE against transmission, dose 4
-    , inv_vax_VE_hosp_dose1 = inv_vax_VE_hosp_dose1 ## invader VE against hospitalization, dose 1
-    , inv_vax_VE_hosp_dose2 = inv_vax_VE_hosp_dose2 ## invader VE against hospitalization, dose 2
-    , inv_vax_VE_hosp_dose3 = inv_vax_VE_hosp_dose3 ## invader VE against hospitalization, dose 3
-    , inv_vax_VE_hosp_dose4 = inv_vax_VE_hosp_dose4 ## invader VE against hospitalization, dose 4
+  	, wane_rate = wane_rate
+	  , inv_prop = inv_prop
+	  , inv_trans_adv = inv_trans_adv
+	  , inv_vax_VE_trans_dose1 = inv_vax_VE_trans_dose1
+	  , inv_vax_VE_trans_dose2 = inv_vax_VE_trans_dose2
+	  , inv_vax_VE_trans_dose3 = inv_vax_VE_trans_dose3
+	  , inv_vax_VE_trans_dose4 = inv_vax_VE_trans_dose4
+	  , inv_vax_VE_hosp_dose1 = inv_vax_VE_hosp_dose1
+	  , inv_vax_VE_hosp_dose2 = inv_vax_VE_hosp_dose2
+	  , inv_vax_VE_hosp_dose3 = inv_vax_VE_hosp_dose3
+	  , inv_vax_VE_hosp_dose4 = inv_vax_VE_hosp_dose4
 )
 
 # ---------------------------
@@ -140,8 +139,10 @@ baseline_trans_rates =	(vec('Ca'
 # Symbolic matrix describing how transmission is reduced by
 # vaccination status. Each row and column corresponds to one
 # of the vaccination statuses. Each column is identical (for some reason)
-base_VE <- c(
-  "1", "1"
+
+## VE reduction based on resident strain
+res_trans_factor <- c(
+  "(1)", "(1)"
   , paste0("(",
            complement(
              c(rep(paste0("vax_VE_trans_dose",
@@ -150,8 +151,35 @@ base_VE <- c(
            , ")"
   )
 )
-vax_trans_red = struc_block(
-  vec(base_VE)
+## VE reduction based on invader strain
+## times invader transmission advantage
+inv_trans_factor <- c(
+  "(inv_trans_adv)", "(inv_trans_adv)"
+  , paste0(c(paste0("(",
+           complement(
+             c(rep(paste0("inv_vax_VE_trans_dose",
+                          1:3), each = 2)
+               , "inv_vax_VE_trans_dose4"))
+           , ")"
+  )), " * (inv_trans_adv)")
+)
+
+## function to take weighted avg based on invader proportion
+weighted_avg <- function(
+    res_param_vec, ## character vector of resident parameter names
+    inv_param_vec, ## character vector of invader parameter names
+    inv_prop ## invader proportion parameter name
+){
+  return(vec(res_param_vec) * struc(complement(inv_prop)) + vec(inv_param_vec) * struc(inv_prop))
+}
+
+## average transmission pre-factor based on
+## including vaccine-based transmission reduction
+## and an invading variant
+avg_trans_factor = struc_block(
+  weighted_avg(res_trans_factor,
+               inv_trans_factor,
+               "inv_prop")
   , row_times = 1
   , col_times = length(vax_cat)
 )
@@ -251,7 +279,7 @@ model = (flexmodel(params = params
    # Forces of Infection
    %>% vec_rate("S" %_% vax_cat
 		, "E" %_% vax_cat
-		, kronecker(vax_trans_red, t(baseline_trans_rates)) %*% Istate
+		, kronecker(avg_trans_factor, t(baseline_trans_rates)) %*% Istate
    )
 
    # Flow among vaccination categories
