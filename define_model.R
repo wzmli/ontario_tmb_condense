@@ -94,6 +94,16 @@ params = c(beta0 = beta0
   	, vax_alpha_dose4 = vax_alpha_dose4
   	, vax_VE_hosp_dose4 = vax_VE_hosp_dose4
   	, wane_rate = wane_rate
+	  , inv_prop = inv_prop
+	  , inv_trans_adv = inv_trans_adv
+	  , inv_vax_VE_trans_dose1 = inv_vax_VE_trans_dose1
+	  , inv_vax_VE_trans_dose2 = inv_vax_VE_trans_dose2
+	  , inv_vax_VE_trans_dose3 = inv_vax_VE_trans_dose3
+	  , inv_vax_VE_trans_dose4 = inv_vax_VE_trans_dose4
+	  , inv_vax_VE_hosp_dose1 = inv_vax_VE_hosp_dose1
+	  , inv_vax_VE_hosp_dose2 = inv_vax_VE_hosp_dose2
+	  , inv_vax_VE_hosp_dose3 = inv_vax_VE_hosp_dose3
+	  , inv_vax_VE_hosp_dose4 = inv_vax_VE_hosp_dose4
 )
 
 # ---------------------------

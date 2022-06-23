@@ -53,6 +53,8 @@ if(length(manual_beta0_breaks) != 0){
     , Symbol = "beta0"
     , Value = NA
   )
+} else {
+  manual_beta <- NULL
 }
 
 # ---------------------------
