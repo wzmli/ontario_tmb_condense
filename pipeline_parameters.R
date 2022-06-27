@@ -33,7 +33,7 @@ calibration_vars <- c("report_inc", "hosp_preval")
 # base model parameters
 # ---------------------------
 
-beta0 = 0.25  # guys ... i have no idea
+beta0 = 0.25
 Ca = 0.666666666666667
 Cp = 1
 Cm = 1
@@ -107,9 +107,12 @@ inf_imm_wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
 # variants
 # ---------------------------
 
-## bogus params for now, will change in params_timevar upon each invasion
+## these need to be set as is (used in time-varying script to get invader and resident propreties set correctly)
 inv_prop = 0 ## invader proportion
-inv_trans_adv = 1 ## invader transmission advantage (1 = no chnage from resident)
+trans_adv = 1 ## resident transmission advantage relative to wild type (should be 1!)
+
+## the following are all bogus params for now, will change in params_timevar upon each invasion
+inv_trans_adv = 1 ## invader transmission advantage relative to wild-type
 inv_vax_VE_trans_dose1 = vax_VE_trans_dose1 ## invader VE against transmission dose 1
 inv_vax_VE_trans_dose2 = vax_VE_trans_dose2 ## invader VE against transmission dose 2
 inv_vax_VE_trans_dose3 = vax_VE_trans_dose3 ## invader VE against transmission dose 3
@@ -135,14 +138,18 @@ variant_map <- data.frame(
   )
 )
 
-## invading variant properties, including label, corresponding start date, end date, and vaccine efficacies against each variant
+## invading variant properties, including label, corresponding start date, end date, transmission avantage relative to resident strain at the time of invasion, and vaccine efficacies against each variant
 variant_labels <- c("Alpha", "Delta", "Omicron1", "Omicron2")
 invader_properties <- data.frame(
   label = variant_labels
   , start_date = as.Date(c("2020-12-07","2021-03-08","2021-11-22","2022-01-10"))
   , end_date = as.Date(c("2021-03-07","2021-11-21","2022-01-09","2022-04-04"))
+  ## vax efficacy
   , inv_vax_VE_trans_dose1 = c(
-    0.6, 0.3, 0.15, 0.15
+    0.6 ## alpha
+    , 0.3 ## delta
+    , 0.15 ## BA.1
+    , 0.15 ## BA.2
   )
   , inv_vax_VE_trans_dose2 = c(
     0.9, 0.9, 0.4, 0.4
@@ -153,9 +160,13 @@ invader_properties <- data.frame(
   , inv_vax_VE_trans_dose4 = c(
     0.9, 0.9, 0.7, 0.7
   )
-  ## no change in VE against severe outcomes by variant
-  ## TODO: ACTUALLY IMPLEMENT THIS MECHANISM IN THE MODEL DEFINITION
-  , inv_vax_VE_hosp_dose1 = rep(
+  ## transmission advantage (relative to wild type!)
+  , inv_trans_adv = c(
+    1.5, ## alpha relative to wt (need to find source, PHE?)
+    1.5*1.8, ## delta relative to alpha (https://www.yalemedicine.org/news/covid-19-variants-of-concern-omicron)
+    1.5*1.8*2.5, ## BA.1 relative to delta (no source yet)
+    1.5*1.8*2.5*1.2 ## BA.2 relative to BA.1
+  )
     vax_VE_hosp_dose1, length(variant_labels)
   )
   , inv_vax_VE_hosp_dose2 = rep(

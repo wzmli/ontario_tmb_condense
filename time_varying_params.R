@@ -323,40 +323,62 @@ params_timevar_inv_prop <- (
 )
 
 # ---------------------------
-# Variant VE changes
+# Variant parameter changes
 #
-# get schedule of VE changes for resident and invader
+# For each invasion, there is a resident and invader
+# Several parameters have to change roles from invader to resident upon a new invasion
+# That gets taken care of here
 # ---------------------------
 
-## params_timevar_inv_VE_changes
+#' Prepare time-varying invasion parameters
+#'
+#' Subset the invader_properties df defined in pipeline_parameters.R to pull out a specific set of parameters, then attach resident parameters for each invasion and put in standard params_timevar format
+#'
+#' @param params_prefix prefix for a set of parameters (the non-invader version)
+#'
+#' @return a `data.frame` of time-varying parameter changes
+#'
+#' @examples params_prefix("vax_VE_trans")
 
-df <- (invader_properties
- ## attach corresponding resident VEs for each invasion
- ## (take VE from previous variant)
-  %>% mutate(across(where(is.numeric),
-             lag,
-             .names = "not_{.col}"))
-)
-## fill in wild-type VEs for first invasion
-df[1, names(df)[grep("^not_inv",
-                     names(df))]] <- c(
-   ## VE against transmission
-   unname(params[grep("^vax_VE_trans", names(params))]),
-   ## VE against hosp
-   unname(params[grep("^vax_VE_hosp", names(params))])
-                     )
+prep_invasion_params <- function(
+    params_prefix
+    ){
+  df <- (invader_properties
+         %>% select(start_date, contains(params_prefix))
+         ## attach corresponding resident VEs for each invasion
+         ## (take VE from previous variant)
+         %>% mutate(across(contains(params_prefix),
+                           lag,
+                           .names = "not_{.col}"))
+  )
+  ## fill in wild-type parameter values for first invasion (get from base parameters list)
+  df[1, names(df)[grep("^not_inv",
+                       names(df))]] <- c(
+                         unname(params[grep(paste0("^", params_prefix), names(params))]))
 
-params_timevar_inv_VE_changes <- (
-  df
-  %>% select(-label, -end_date)
-  %>% rename(Date = start_date)
-  %>% pivot_longer(-Date,
-                   names_to = "Symbol",
-                   values_to = "Value")
-  ## correct parameter names
-  %>% mutate(Symbol = str_replace(Symbol,
-                                  "not_inv_",
-                                  ""))
+  df <- (
+    df
+    %>% rename(Date = start_date)
+    %>% pivot_longer(-Date,
+                     names_to = "Symbol",
+                     values_to = "Value")
+    ## correct parameter names
+    %>% mutate(Symbol = str_replace(Symbol,
+                                    "not_inv_",
+                                    ""))
+  )
+
+  return(df)
+}
+
+## prep all parameters that need to change upon an invasion
+
+inv_params_list <- c("vax_VE_trans", "vax_VE_hosp",
+                     "trans_adv")
+
+params_timevar_inv_params <- bind_rows(
+  lapply(inv_params_list,
+         prep_invasion_params)
 )
 
 # ---------------------------
@@ -370,7 +392,7 @@ params_timevar_rho <- manual_rho
 params_timevar_vaxdosing <- params_timevar_vaxdosing
 
 params_timevar_inv_prop <- params_timevar_inv_prop
-params_timevar_inv_VE_changes <- params_timevar_inv_VE_changes
+params_timevar_inv_params <- params_timevar_inv_params
 
 params_timevar <- (bind_rows(
   params_timevar_beta
@@ -378,7 +400,7 @@ params_timevar <- (bind_rows(
   , params_timevar_rho
   , params_timevar_vaxdosing
   , params_timevar_inv_prop
-  , params_timevar_inv_VE_changes
+  , params_timevar_inv_params
 )
   %>% filter(
     between(Date,
