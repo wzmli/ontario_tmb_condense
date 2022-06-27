@@ -24,9 +24,8 @@ source("observed_data.R")
 ## MLi: can we generate a bogus model without addition complexity?
 source("define_model.R")
 
-## Generate time-varying params both automatically from data
-## and manually
-source("time_varying_params.R")
+## Generate time-varying params
+source("params_timevar.R")
 
 # ---------------------------
 # Calibration
