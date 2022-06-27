@@ -140,6 +140,17 @@ variant_map <- data.frame(
 
 ## invading variant properties, including label, corresponding start date, end date, transmission avantage relative to resident strain at the time of invasion, and vaccine efficacies against each variant
 variant_labels <- c("Alpha", "Delta", "Omicron1", "Omicron2")
+
+## multipliers on VE against hospitalization by variant (no sources, just placeholders for now)
+## since these are relative, be careful that they dont end up resulting in a VE above 1!
+VE_hosp_by_variant <- c(
+  1, ## alpha, same as baseline
+  0.8, ## delta, 20% reduction
+  1.05, ## BA.1, 20% increase--a little midler
+  1.05 ## BA.2, same as BA.1
+)
+## set to all 1s to recover the model without variant-based changes in severity
+
 invader_properties <- data.frame(
   label = variant_labels
   , start_date = as.Date(c("2020-12-07","2021-03-08","2021-11-22","2022-01-10"))
@@ -167,15 +178,16 @@ invader_properties <- data.frame(
     1.5*1.8*2.5, ## BA.1 relative to delta (no source yet)
     1.5*1.8*2.5*1.2 ## BA.2 relative to BA.1
   )
+  , inv_vax_VE_hosp_dose1 = VE_hosp_by_variant*rep(
     vax_VE_hosp_dose1, length(variant_labels)
   )
-  , inv_vax_VE_hosp_dose2 = rep(
+  , inv_vax_VE_hosp_dose2 = VE_hosp_by_variant*rep(
     vax_VE_hosp_dose2, length(variant_labels)
   )
-  , inv_vax_VE_hosp_dose3 = rep(
+  , inv_vax_VE_hosp_dose3 = VE_hosp_by_variant*rep(
     vax_VE_hosp_dose3, length(variant_labels)
   )
-  , inv_vax_VE_hosp_dose4 = rep(
+  , inv_vax_VE_hosp_dose4 = VE_hosp_by_variant*rep(
     vax_VE_hosp_dose4, length(variant_labels)
   )
 )

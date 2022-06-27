@@ -194,12 +194,43 @@ alpha = c("alpha", "alpha"
 	, "vax_alpha_dose4"
 )
 # modify severity based on vax efficacy against hospitalization
-severity = (vec("1", "1"
-	, paste0("(",complement(c(rep(paste0("vax_VE_hosp_dose", 1:3),each = 2)
-		, "vax_VE_hosp_dose4")) ,")"
-		)
-	) * struc(complement("mu"))
+
+## VE reduction based on resident strain
+res_hosp_factor <- paste0("(",
+                    complement(
+                      c(rep(paste0("vax_VE_hosp_dose",
+                                   1:3), each = 2)
+                        , "vax_VE_hosp_dose4"))
+                    , ")"
 )
+
+## VE reduction based on invader strain
+inv_hosp_factor <- paste0("(",
+           complement(
+             c(rep(paste0("inv_vax_VE_hosp_dose",
+                          1:3), each = 2)
+               , "inv_vax_VE_hosp_dose4"))
+           , ")"
+)
+
+## average severity pre-factor based on
+## including vaccine-based hospitalization reduction
+## and an invading variant
+severity = (vec(c("1", "1",
+                  as.character(weighted_avg(
+                    res_hosp_factor,
+                    inv_hosp_factor,
+                    "inv_prop"))
+)) * struc(complement("mu"))
+)
+
+# severity = (vec("1", "1"
+# 	, paste0("(",complement(c(rep(paste0("vax_VE_hosp_dose", 1:3),each = 2)
+# 		, "vax_VE_hosp_dose4")) ,")"
+# 		)
+# 	) * struc(complement("mu"))
+# )
+
 # map severity terms to names that can be used in expressions further below
 severity_nms = "severity" %_% 1:nrow(severity)
 
