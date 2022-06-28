@@ -59,7 +59,6 @@ params = c(
   	, gamma_s = gamma_s
   	, gamma_p = gamma_p
   	, rho = rho
-  	, delta = delta
   	, mu = mu
   	, N = N
   	, E0 = E0
@@ -75,8 +74,6 @@ params = c(
   	, c_prop = c_prop
   	, c_delay_mean = c_delay_mean
   	, c_delay_cv = c_delay_cv
-  	, proc_disp = proc_disp
-  	, zeta = zeta
 	  ## vax parameters
   	, vax_dose1_inc = vax_dose1_inc
   	, vax_dose2_inc = vax_dose2_inc
