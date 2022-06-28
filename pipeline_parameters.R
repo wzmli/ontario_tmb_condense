@@ -30,15 +30,97 @@ calibration_vars <- c("report_inc", "hosp_preval")
 # Model parameters
 # ---------------------------
 
-params_url <- "https://docs.google.com/spreadsheets/d/13GBes6A2PMXITwfkyYw7E3Lt3odpb3tbiFznpVy8VhU/edit?usp=sharing"
-params_sheets <- sheet_names(params_url)
-
-## regex for base parameter sheets
-## which are input into params list for flexmodel() intialization
-base_sheets_regex <- "^tv_|^settings_"
-
-# variant-invasion parameters
+# base model parameters
 # ---------------------------
+
+beta0 = 0.25
+Ca = 0.666666666666667
+Cp = 1
+Cm = 1
+Cs = 1
+alpha = 0.333333333333333
+sigma = 0.192307692307692
+gamma_a = 0.142857142857143
+gamma_m = 0.142857142857143
+gamma_s = 0.174825174825175
+gamma_p = 2
+rho = 0.1
+delta = 0
+mu = 0.956
+N = 14e+06 ## roughly pop of ontario
+E0 = 5
+S0 = 1-14e-5  # initial proportion of susceptible individuals
+nonhosp_mort = 0
+iso_m = 0
+iso_s = 0
+phi1 = 0.76
+phi2 = 0.5
+psi1 = 0.05
+psi2 = 0.125
+psi3 = 0.2
+c_prop = 0.1
+c_delay_mean = 11
+c_delay_cv = 0.25
+proc_disp = 0
+zeta = 0
+
+# vaccination
+# ---------------------------
+
+## vax dosing (daily incidence a.k.a. inc)
+# shut off initially
+# adjusted by params_timevar
+vax_dose1_inc = 0
+vax_dose2_inc = 0
+vax_dose3_inc = 0
+vax_dose4_inc = 0
+
+## vax immune response rates
+vax_response_rate = 0.0714285714285714
+vax_response_rate_R = 0.142857142857143
+
+## dose 1 properties against wild type
+vax_VE_trans_dose1 = 0.6
+vax_alpha_dose1 = 0.333333333333333 ## same as baseline
+vax_VE_hosp_dose1 = 0.4
+
+## dose 2 properties against wild type
+vax_VE_trans_dose2 = 0.9
+vax_alpha_dose2 = 0.333333333333333 ## same as baseline
+vax_VE_hosp_dose2 = 0.7
+
+## dose 3 properties against wild type
+vax_VE_trans_dose3 = 0.9
+vax_alpha_dose3 = 0.333333333333333 ## same as baseline
+vax_VE_hosp_dose3 = 0.9
+
+## dose 4 properties against wild type
+vax_VE_trans_dose4 = 0.9
+vax_alpha_dose4 = 0.333333333333333 ## same as baseline
+vax_VE_hosp_dose4 = 0.9
+
+# infection-based immunity waning
+# ---------------------------
+
+inf_imm_wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
+
+# variants
+# ---------------------------
+
+## these need to be set as is (used in time-varying script to get invader and resident propreties set correctly)
+inv_prop = 0 ## invader proportion
+trans_adv = 1 ## resident transmission advantage relative to wild type (should be 1!)
+
+## the following are all bogus params for now, will change in params_timevar upon each invasion
+inv_trans_adv = 1 ## invader transmission advantage relative to wild-type
+inv_vax_VE_trans_dose1 = vax_VE_trans_dose1 ## invader VE against transmission dose 1
+inv_vax_VE_trans_dose2 = vax_VE_trans_dose2 ## invader VE against transmission dose 2
+inv_vax_VE_trans_dose3 = vax_VE_trans_dose3 ## invader VE against transmission dose 3
+inv_vax_VE_trans_dose4 = vax_VE_trans_dose4 ## invader VE against transmission dose 4
+inv_vax_VE_hosp_dose1 = vax_VE_hosp_dose1 ## invader VE against hospitalization dose 1
+inv_vax_VE_hosp_dose2 = vax_VE_hosp_dose2 ## invader VE against hospitalization dose 2
+inv_vax_VE_hosp_dose3 = vax_VE_hosp_dose3 ## invader VE against hospitalization dose 3
+inv_vax_VE_hosp_dose4 = vax_VE_hosp_dose4 ## invader VE against hospitalization dose 4
 
 ## map to simplify variant data (bucket multiple strains under a single label)
 variant_map <- data.frame(
@@ -96,10 +178,18 @@ invader_properties <- data.frame(
     1.5*1.8*2.5, ## BA.1 relative to delta (no source yet)
     1.5*1.8*2.5*1.2 ## BA.2 relative to BA.1
   )
-  , inv_vax_VE_hosp_dose1 = 0.6
-  , inv_vax_VE_hosp_dose2 = 0.9
-  , inv_vax_VE_hosp_dose3 = 0.9
-  , inv_vax_VE_hosp_dose4 = 0.9
+  , inv_vax_VE_hosp_dose1 = VE_hosp_by_variant*rep(
+    vax_VE_hosp_dose1, length(variant_labels)
+  )
+  , inv_vax_VE_hosp_dose2 = VE_hosp_by_variant*rep(
+    vax_VE_hosp_dose2, length(variant_labels)
+  )
+  , inv_vax_VE_hosp_dose3 = VE_hosp_by_variant*rep(
+    vax_VE_hosp_dose3, length(variant_labels)
+  )
+  , inv_vax_VE_hosp_dose4 = VE_hosp_by_variant*rep(
+    vax_VE_hosp_dose4, length(variant_labels)
+  )
 )
 
 # ---------------------------
@@ -110,15 +200,15 @@ invader_properties <- data.frame(
 # to be auto-detected from report time series
 # and corresponding priors
 # ---------------------------
-n_auto_beta0_breaks <- 11 ## number of breaks
-log_beta0_tv_prior_mean <- c(
+n_breaks_beta0 <- 11 ## number of breaks
+log_beta0_prior_mean <- c(
   # -1.0563457, -2.1741484, -2.5953720,
   -2.5761787, -2.1924082, -1.4564057,
   -1.6901006, -2.1915752, -1.4090154,
   -1.5156526, -1.8297348, -0.2460687,
   -0.2818156, 0.6694880) ## these priors are based on previous calibrations with non-time-varying mu
-try(if(!(length(log_beta0_tv_prior_mean) == 1 |
-       length(log_beta0_tv_prior_mean) == n_auto_beta0_breaks)) stop("either specify only one prior mean for time-varying beta0 or exactly as many as there are desired breaks"))
+try(if(!(length(log_beta0_prior_mean) == 1 |
+       length(log_beta0_prior_mean) == n_breaks_beta0)) stop("either specify only one prior mean for time-varying beta0 or exactly as many as there are desired breaks"))
 
 # Manual break dates for beta0
 # after reports drop out
@@ -136,7 +226,7 @@ manual_beta0_breaks <- manual_beta0_breaks[
   manual_beta0_breaks,
   calib_start_date,
   calib_end_date)]
-log_beta0_tv_prior_mean <- c(log_beta0_tv_prior_mean,
+log_beta0_prior_mean <- c(log_beta0_prior_mean,
                           rep(-0.2818156,
                               length(manual_beta0_breaks)))
 
@@ -256,7 +346,7 @@ attach_opt_tv_params <- function(model){
       'abs'
       , as.formula(
         paste0("log_beta0 ~ log_normal(c("
-        , paste(log_beta0_tv_prior_mean, collapse = ",") ## mean
+        , paste(log_beta0_prior_mean, collapse = ",") ## mean
         , "), 0.25)")) ## variance
       , logit_mu ~ logit_normal(
         qlogis(0.9853643) ## mean

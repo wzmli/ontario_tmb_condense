@@ -26,7 +26,7 @@ fit <- lm(lmavg ~ date,data=report_dat)
 ## refit with piecewise break dates. We can pick as many break points as we want
 ## here, we are arbitrary picking 14 (we had roughly 6 waves)
 
-refit <- segmented(fit, seg.Z = ~date, npsi=n_auto_beta0_breaks)
+refit <- segmented(fit, seg.Z = ~date, npsi=n_breaks_beta0)
 
 ## extract breakdates
 break_date <- as.Date(c(round(refit$indexU$date)))

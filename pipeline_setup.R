@@ -14,7 +14,6 @@ library(zoo)
 library(data.table)
 library(jsonlite)
 library(patchwork)
-library(googlesheets4)
 
 # ---------------------------
 # Define shared plot settings
