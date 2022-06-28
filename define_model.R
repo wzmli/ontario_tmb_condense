@@ -45,72 +45,88 @@ dose_to = c(asymp_cat, rep("V", length(asymp_cat)))
 # Default Parameters
 # ---------------------------
 
-params = c(
-    ## base model parameters (epidemiological)
-    beta0 = beta0
-	  , Ca = Ca
-  	, Cp = Cp
-    , Cm = Cm
-  	, Cs = Cs
-  	, alpha = alpha
-  	, sigma = sigma
-  	, gamma_a = gamma_a
-  	, gamma_m = gamma_m
-  	, gamma_s = gamma_s
-  	, gamma_p = gamma_p
-  	, rho = rho
-  	, delta = delta
-  	, mu = mu
-  	, N = N
-  	, E0 = E0
-  	, S0 = S0
-  	, nonhosp_mort = nonhosp_mort
-  	, iso_m = iso_m
-  	, iso_s = iso_s
-  	, phi1 = phi1
-  	, phi2 = phi2
-  	, psi1 = psi1
-  	, psi2 = psi2
-  	, psi3 = psi3
-  	, c_prop = c_prop
-  	, c_delay_mean = c_delay_mean
-  	, c_delay_cv = c_delay_cv
-  	, proc_disp = proc_disp
-  	, zeta = zeta
-	  ## vax parameters
-  	, vax_dose1_inc = vax_dose1_inc
-  	, vax_dose2_inc = vax_dose2_inc
-  	, vax_dose3_inc = vax_dose3_inc
-  	, vax_dose4_inc = vax_dose4_inc
-  	, vax_response_rate = vax_response_rate
-  	, vax_response_rate_R = vax_response_rate_R
-  	, vax_VE_trans_dose1 = vax_VE_trans_dose1
-  	, vax_alpha_dose1 = vax_alpha_dose1
-  	, vax_VE_hosp_dose1 = vax_VE_hosp_dose1
-  	, vax_VE_trans_dose2 = vax_VE_trans_dose2
-  	, vax_alpha_dose2 = vax_alpha_dose2
-  	, vax_VE_hosp_dose2 = vax_VE_hosp_dose2
-  	, vax_VE_trans_dose3 = vax_VE_trans_dose3
-  	, vax_alpha_dose3 = vax_alpha_dose3
-  	, vax_VE_hosp_dose3 = vax_VE_hosp_dose3
-  	, vax_VE_trans_dose4 = vax_VE_trans_dose4
-  	, vax_alpha_dose4 = vax_alpha_dose4
-  	, vax_VE_hosp_dose4 = vax_VE_hosp_dose4
-    ## waning parameters
-  	, inf_imm_wane_rate = inf_imm_wane_rate
-    ## variant parameters
-	  , inv_prop = inv_prop
-    , trans_adv = trans_adv
-	  , inv_trans_adv = inv_trans_adv
-	  , inv_vax_VE_trans_dose1 = inv_vax_VE_trans_dose1
-	  , inv_vax_VE_trans_dose2 = inv_vax_VE_trans_dose2
-	  , inv_vax_VE_trans_dose3 = inv_vax_VE_trans_dose3
-	  , inv_vax_VE_trans_dose4 = inv_vax_VE_trans_dose4
-	  , inv_vax_VE_hosp_dose1 = inv_vax_VE_hosp_dose1
-	  , inv_vax_VE_hosp_dose2 = inv_vax_VE_hosp_dose2
-	  , inv_vax_VE_hosp_dose3 = inv_vax_VE_hosp_dose3
-	  , inv_vax_VE_hosp_dose4 = inv_vax_VE_hosp_dose4
-)
+## get sheets for base parameters (excluding those that start with tv_ and settings_)
+base_sheets <- grep(base_sheets_regex,
+                    params_sheets,
+                    value = TRUE, invert = TRUE)
+
+## initialize parameters list
+params <- c()
+
+## iterate over base sheets to load in params
+for(this_sheet in base_sheets){
+  dd <- read_sheet(params_url, this_sheet)
+  old_names <- names(params)
+  params <- c(params, dd$value)
+  names(params) <- c(old_names, dd$symbol)
+}
+
+## tack on initial proportion of susceptible individuals
+params["S0"] <- 1-params["E0"]/params["N"]
+
+# params2 = c(
+#     ## base model parameters (epidemiological)
+#     beta0 = beta0
+# 	  , Ca = Ca
+#   	, Cp = Cp
+#     , Cm = Cm
+#   	, Cs = Cs
+#   	, alpha = alpha
+#   	, sigma = sigma
+#   	, gamma_a = gamma_a
+#   	, gamma_m = gamma_m
+#   	, gamma_s = gamma_s
+#   	, gamma_p = gamma_p
+#   	, rho = rho
+#   	, mu = mu
+#   	, N = N
+#   	, E0 = E0
+#   	, S0 = S0
+#   	, nonhosp_mort = nonhosp_mort
+#   	, iso_m = iso_m
+#   	, iso_s = iso_s
+#   	, phi1 = phi1
+#   	, phi2 = phi2
+#   	, psi1 = psi1
+#   	, psi2 = psi2
+#   	, psi3 = psi3
+#   	, c_prop = c_prop
+#   	, c_delay_mean = c_delay_mean
+#   	, c_delay_cv = c_delay_cv
+# 	  ## vax parameters
+#   	, vax_dose1_inc = vax_dose1_inc
+#   	, vax_dose2_inc = vax_dose2_inc
+#   	, vax_dose3_inc = vax_dose3_inc
+#   	, vax_dose4_inc = vax_dose4_inc
+#   	, vax_response_rate = vax_response_rate
+#   	, vax_response_rate_R = vax_response_rate_R
+#   	, vax_VE_trans_dose1 = vax_VE_trans_dose1
+#   	, vax_alpha_dose1 = vax_alpha_dose1
+#   	, vax_VE_hosp_dose1 = vax_VE_hosp_dose1
+#   	, vax_VE_trans_dose2 = vax_VE_trans_dose2
+#   	, vax_alpha_dose2 = vax_alpha_dose2
+#   	, vax_VE_hosp_dose2 = vax_VE_hosp_dose2
+#   	, vax_VE_trans_dose3 = vax_VE_trans_dose3
+#   	, vax_alpha_dose3 = vax_alpha_dose3
+#   	, vax_VE_hosp_dose3 = vax_VE_hosp_dose3
+#   	, vax_VE_trans_dose4 = vax_VE_trans_dose4
+#   	, vax_alpha_dose4 = vax_alpha_dose4
+#   	, vax_VE_hosp_dose4 = vax_VE_hosp_dose4
+#     ## waning parameters
+#   	, inf_imm_wane_rate = inf_imm_wane_rate
+#     ## variant parameters
+# 	  , inv_prop = inv_prop
+#     , trans_adv = trans_adv
+# 	  , inv_trans_adv = inv_trans_adv
+# 	  , inv_vax_VE_trans_dose1 = inv_vax_VE_trans_dose1
+# 	  , inv_vax_VE_trans_dose2 = inv_vax_VE_trans_dose2
+# 	  , inv_vax_VE_trans_dose3 = inv_vax_VE_trans_dose3
+# 	  , inv_vax_VE_trans_dose4 = inv_vax_VE_trans_dose4
+# 	  , inv_vax_VE_hosp_dose1 = inv_vax_VE_hosp_dose1
+# 	  , inv_vax_VE_hosp_dose2 = inv_vax_VE_hosp_dose2
+# 	  , inv_vax_VE_hosp_dose3 = inv_vax_VE_hosp_dose3
+# 	  , inv_vax_VE_hosp_dose4 = inv_vax_VE_hosp_dose4
+# )
 
 # ---------------------------
 # Zero State Vector
