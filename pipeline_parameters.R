@@ -8,6 +8,10 @@
 # Dates
 # ---------------------------
 
+## TODO: make it so
+## - NA for calib_end_date fills with today()
+## - NA for report_end_date doesn't trim
+
 calib_start_date <- as.Date("2020-01-01") ## start date for each simulation in the calibration (may be before obs_start_date to enable a burn-in period before observations that we're calibrating to start)
 ## FIXME: should be able to make this work even if calib_start_date > min(observed_data$date)
 # calib_end_date <- as.Date("2021-09-01")
