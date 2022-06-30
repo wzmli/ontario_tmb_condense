@@ -30,6 +30,8 @@ calibration_vars <- c("report_inc", "hosp_preval")
 # Model parameters
 # ---------------------------
 
+## google sheet: https://docs.google.com/spreadsheets/d/13GBes6A2PMXITwfkyYw7E3Lt3odpb3tbiFznpVy8VhU/edit?usp=sharing
+
 # base model parameters
 # ---------------------------
 
