@@ -288,11 +288,13 @@ attach_opt_tv_params <- function(model){
 # `observed_data.R`)
 # ---------------------------
 
-condense_map = c(
-  conv_Incidence = 'report_inc',
-  Htotal = 'hosp_preval',
-  ICU = 'icu_preval'
+dd <- read_sheet(
+  params_url,
+  sheet = "map_condense"
 )
+
+condense_map <- dd$label
+names(condense_map) <- dd$symbol
 
 # default map for reference:
 # condense_map = c(
