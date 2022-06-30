@@ -36,7 +36,11 @@ params_sheets <- sheet_names(params_url)
 
 ## regex for base parameter sheets
 ## which are input into params list for flexmodel() intialization
-base_sheets_regex <- "^tv_|^settings_"
+base_sheets_regex <- "^params_"
+
+## regex for sheets with variant-specific invasion parameters for each invasion
+## these get incorporated through time-varying (tv) parameters
+variant_tv_regex <- "^tv_variant"
 
 # base model parameters
 # ---------------------------
@@ -46,7 +50,7 @@ base_sheets_regex <- "^tv_|^settings_"
 ## get sheets for base parameters (excluding those that start with tv_ and settings_)
 base_sheets <- grep(base_sheets_regex,
                     params_sheets,
-                    value = TRUE, invert = TRUE)
+                    value = TRUE)
 
 ## initialize parameters list
 params<- c()
@@ -54,12 +58,16 @@ params<- c()
 ## iterate over base sheets to load in params
 for(this_sheet in base_sheets){
   dd <- read_sheet(params_url, this_sheet)
+  print(dd)
   old_names <- names(params)
+  print(old_names)
   params <- c(params, dd$value)
   names(params) <- c(old_names, dd$symbol)
 }
 
 for(i in 1:length(params)){
+  print(names(params)[i])
+  print(unname(params[i]))
   assign(names(params)[i], unname(params[i]))
 }
 
@@ -67,73 +75,37 @@ for(i in 1:length(params)){
 # ---------------------------
 
 ## map to simplify variant data (bucket multiple strains under a single label)
-variant_map <- data.frame(
-  strain = c("Alpha", "B.1.438.1"
-             , "Beta", "Gamma"
-             , "Delta", "Delta AY.25", "Delta AY.27"
-             , "Omicron BA.1", "Omicron BA.1.1"
-             , "Omicron BA.2"
-  )
-  , label = c("Alpha", "Alpha"
-              , "Alpha", "Alpha" ## Hack! Changing beta and gamma to alpha
-              , "Delta", "Delta", "Delta"
-              , "Omicron1", "Omicron1"
-              , "Omicron2"
-  )
+variant_map <- (
+  read_sheet(params_url, "map_variant")
+  %>% select(strain, label)
+  %>% as.data.frame()
 )
 
 ## invading variant properties, including label, corresponding start date, end date, transmission avantage relative to resident strain at the time of invasion, and vaccine efficacies against each variant
-variant_labels <- c("Alpha", "Delta", "Omicron1", "Omicron2")
+variant_sheets <- grep(variant_tv_regex,
+                       params_sheets,
+                       value = TRUE)
 
-## multipliers on VE against hospitalization by variant (no sources, just placeholders for now)
-## since these are relative, be careful that they dont end up resulting in a VE above 1!
-VE_hosp_by_variant <- c(
-  1, ## alpha, same as baseline
-  0.8, ## delta, 20% reduction
-  1.05, ## BA.1, 20% increase--a little midler
-  1.05 ## BA.2, same as BA.1
-)
-## set to all 1s to recover the model without variant-based changes in severity
+variant_labels <- str_replace(variant_sheets, "tv_variant_", "")
 
-invader_properties <- data.frame(
-  label = variant_labels
-  , start_date = as.Date(c("2020-12-07","2021-03-08","2021-11-22","2022-01-10"))
-  , end_date = as.Date(c("2021-03-07","2021-11-21","2022-01-09","2022-04-04"))
-  ## vax efficacy
-  , inv_vax_VE_trans_dose1 = c(
-    0.6 ## alpha
-    , 0.3 ## delta
-    , 0.15 ## BA.1
-    , 0.15 ## BA.2
-  )
-  , inv_vax_VE_trans_dose2 = c(
-    0.9, 0.9, 0.4, 0.4
-  )
-  , inv_vax_VE_trans_dose3 = c(
-    0.9, 0.9, 0.7, 0.7
-  )
-  , inv_vax_VE_trans_dose4 = c(
-    0.9, 0.9, 0.7, 0.7
-  )
-  ## transmission advantage (relative to wild type!)
-  , inv_trans_adv = c(
-    1.5, ## alpha relative to wt (need to find source, PHE?)
-    1.5*1.8, ## delta relative to alpha (https://www.yalemedicine.org/news/covid-19-variants-of-concern-omicron)
-    1.5*1.8*2.5, ## BA.1 relative to delta (no source yet)
-    1.5*1.8*2.5*1.2 ## BA.2 relative to BA.1
-  )
-  , inv_vax_VE_hosp_dose1 = VE_hosp_by_variant*rep(
-    vax_VE_hosp_dose1, length(variant_labels)
-  )
-  , inv_vax_VE_hosp_dose2 = VE_hosp_by_variant*rep(
-    vax_VE_hosp_dose2, length(variant_labels)
-  )
-  , inv_vax_VE_hosp_dose3 = VE_hosp_by_variant*rep(
-    vax_VE_hosp_dose3, length(variant_labels)
-  )
-  , inv_vax_VE_hosp_dose4 = VE_hosp_by_variant*rep(
-    vax_VE_hosp_dose4, length(variant_labels)
-  )
+invader_properties <- ((lapply(variant_labels,
+       function(this_label){
+         (read_sheet(params_url,
+              sheet = paste0("tv_variant_", this_label),
+              col_types = 'c' ## value column has mixed types... keep as character at first
+              )
+   %>% select(symbol, value)
+   %>% pivot_wider(names_from = "symbol")
+   %>% mutate(
+     ## fix column types
+     across(ends_with("date"), as.Date),
+     across(!ends_with("date"),
+            as.numeric),
+     ## attach variant label
+     label = this_label)
+)}))
+  %>% bind_rows()
+  %>% as.data.frame()
 )
 
 # ---------------------------
