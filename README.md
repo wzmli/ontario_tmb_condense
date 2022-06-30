@@ -6,27 +6,30 @@ Simply run `source("run_pipeline.R")` from the main directory.
 
 ## to change pipeline parameters
 
-All pipeline parameters are stored in `pipeline_parameters.R`. This should be the only file you need to edit to make changes to the calibration and forecast (unless you're doing something major like changing the model, in which case, see below). 
+All pipeline parameters should be stored in a Google Sheet, e.g. [this one](https://docs.google.com/spreadsheets/d/13GBes6A2PMXITwfkyYw7E3Lt3odpb3tbiFznpVy8VhU/edit?usp=sharing). This is the only file you need to edit to make changes to the calibration and forecast (unless you're doing something major like changing the model, in which case, see below). 
 
-Below are all the knobs currently available in `pipeline_parameters.R`, what they do, and how they can be changed
-
-### dates
-
-TODO: UPDATE AFTER DATES ARE CLEANED UP IN REPO
-
-### model parameters
-
-All model parameters used in `define_model.R` should be specified here, to keep all of the pipeline knobs in one place. Don't forget to update this list if you change the model!
-
-## to change the model definition
-
-TODO: UPDATE, BE SURE TO MENTION UPDATE OF MODEL PARAMETERS IN PIPELINE_PARAMETERS.R FILE
-
-The model is defined in `define_model.R`. This includes state variables, the list of parameter names, flow rates, condensation of state variables across subcategories, and the calculation of report variables. If you're going to modify the model definition, be sure to update the model parameters (including any time-varying parameter ones) in `pipeline_parameters.R` and potentially `time_varying_params.R`.
+There are several sheets in the file, which follow a naming convention:
+- `params_*`: these sheets should have every parameter actually used in the model definition. There must be a value specified for each symbol, even if the value is only ever calibrated from data. Any symbol and value specified in the eponymous columns will be pulled into the `params` list used to initialize the `flexmodel()`. A value specified in these sheets will be used throughout each simulation, unless it is either calibrated instead or changed with a time-varying parameter specification. Currently, we have the following `params_*` sheets:
+  - `params_base`: parameters for the base model (without vaccines and variants)
+  - `params_vax`: vaccine-related parameters (for the wild-type; variant-based changes in vaccine parameters will be handled via a different spreadsheet)
+  - `params_waning`: parameters related to the waning of infection-related immunity
+  - `params_variant`: parameters related to the invasion of a variant. The values specified here are just placeholders, provided `inv_prop` (the invading variant proportion) is also initially set to 0; parameters for each variant's invasion are specified in the `tv_variant_*` sheets (described below).
+- `map_*`: these sheets give lookup tables for various purposes.
+  - `map_variant` maps strain names (as in the variant incidence data) to labels we use internally in our pipeline
+  - `map_condense` maps labels used for different types of observations to the model symbol name associated (e.g. a state or accumulator variable name)
+- (COMING SOON) `tv_variant_*`: each one of these sheets contains the parameters associated with each variant invasion. The pipeline will detect all sheets named in this way, so if you want to include a new invasion, simply name it `tv_variant_label`, where `label` is the label associated with the new invading variant (must match at least one entry in the `map_variant` table in order to pull in the frequency series associated with the invasion). There must be one `tv_variant_*` sheet for each variant label in the `map_variant` sheet.
+- (COMING SOON) `settings_*`: these sheets contain the settings for calibration and forecast.
+  - `settings_calibration`: all things calibration, including the number of break dates for beta0 to autodetect from the report data, manual beta0 breaks for after reports drop out, priors for calibrated parameters, etc
+  - `settings_forecast`: all things forecast, including the number of days for which to forecast
+- (COMING SOON) `tv_forecast`: a table of time-varying parameter schedules for the forecast period. These can encode assumptions on beta0, booster schedules, and/or a timeseries of new invading variant frequency.
 
 ---
 
 TODO: EVERYTHING UNDER HERE IS POTENTIALLY OUTDATED/NEEDS REVIEW
+
+## to change the model definition
+
+The model is defined in `define_model.R`. This includes state variables, the list of parameter names, flow rates, condensation of state variables across subcategories, and the calculation of report variables. If you're going to modify the model definition, be sure to update the model parameters (including any time-varying parameter ones) in `pipeline_parameters.R` and potentially `time_varying_params.R`.
 
 ### to change data to which the model is being calibrated
 
