@@ -36,6 +36,8 @@ calib_vars <- c("report_inc", "hosp_preval")
 # base model parameters
 # ---------------------------
 
+# (SOME OF THESE ARE PLACEHOLDERS!)
+
 beta0 = 0.25
 Ca = 0.666666666666667
 Cp = 1
@@ -112,8 +114,6 @@ inf_imm_wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
 
 ## these need to be set as is (used in time-varying script to get invader and resident propreties set correctly)
 inv_prop = 0 ## invader proportion
-trans_adv = 1 ## resident transmission advantage relative to wild type (should be 1!)
-
 ## the following are all bogus params for now, will change in params_timevar upon each invasion
 inv_trans_adv = 1 ## invader transmission advantage relative to wild-type
 inv_vax_VE_trans_dose1 = vax_VE_trans_dose1 ## invader VE against transmission dose 1
@@ -163,13 +163,6 @@ invader_properties <- data.frame(
   )
   , inv_vax_VE_trans_dose4 = c(
     0.9, 0.9, 0.7, 0.7
-  )
-  ## transmission advantage (relative to wild type!)
-  , inv_trans_adv = c(
-    1.5, ## alpha relative to wt (need to find source, PHE?)
-    1.5*1.8, ## delta relative to alpha (https://www.yalemedicine.org/news/covid-19-variants-of-concern-omicron)
-    1.5*1.8*2.5, ## BA.1 relative to delta (no source yet)
-    1.5*1.8*2.5*1.2 ## BA.2 relative to BA.1
   )
   ## keep hosp VEs the same as against wild-type for now
   , inv_vax_VE_hosp_dose1 = rep(

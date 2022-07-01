@@ -141,8 +141,7 @@ prep_invasion_params <- function(
 
 ## prep all parameters that need to change upon an invasion
 
-inv_params_list <- c("vax_VE_trans", "vax_VE_hosp",
-                     "trans_adv")
+inv_params_list <- c("vax_VE_trans", "vax_VE_hosp")
 
 params_timevar_inv_params <- bind_rows(
   lapply(inv_params_list,

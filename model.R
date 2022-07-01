@@ -100,7 +100,6 @@ params = c(
   	, inf_imm_wane_rate = inf_imm_wane_rate
     ## variant parameters
 	  , inv_prop = inv_prop
-    , trans_adv = trans_adv
 	  , inv_trans_adv = inv_trans_adv
 	  , inv_vax_VE_trans_dose1 = inv_vax_VE_trans_dose1
 	  , inv_vax_VE_trans_dose2 = inv_vax_VE_trans_dose2
@@ -145,14 +144,14 @@ baseline_trans_rates =	(vec('Ca'
 
 ## VE reduction based on resident strain
 res_trans_factor <- c(
-  "(trans_adv)", "(trans_adv)"
-  , paste0(c(paste0("(",
+  "1", "1"
+  , c(paste0("(",
                     complement(
                       c(rep(paste0("vax_VE_trans_dose",
                                    1:3), each = 2)
                         , "vax_VE_trans_dose4"))
                     , ")"
-  )), " * (trans_adv)")
+  ))
 )
 
 ## VE reduction based on invader strain
