@@ -6,7 +6,7 @@ save_env <- FALSE
 # Pipeline Setup
 # ---------------------------
 
-source("pipeline_setup.R")
+source("pipeline_setup.R") ## EDIT RARELY
 
 # ---------------------------
 # Get Pipeline Parameters
