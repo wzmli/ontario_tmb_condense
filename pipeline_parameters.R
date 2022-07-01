@@ -38,22 +38,27 @@ load_params <- function(sheet){
   pp <- (
     read_sheet(
       params_url,
-      sheet = sheet
+      sheet = sheet,
+      col_types = 'c' ## in order to parse fractional values later
     )
     %>% select(symbol, value)
   )
 
   invisible(map2(pp$symbol,
        pp$value,
-       assign,
-       envir = .GlobalEnv))
+       function(sym,val){
+         assign(sym,
+                eval(parse(text = val)),
+                envir = .GlobalEnv)}))
 }
 
 ## get default params
 load_params("default")
-
+glue::glue("N = {N}")
+glue::glue("alpha = {alpha}")
 ## province-specific overwrites
 load_params("overwrite_ON")
+glue::glue("N = {N}")
 
 # for (i in 1:nrow(params_default)){
 #   assign(params_default$symbol[i],
