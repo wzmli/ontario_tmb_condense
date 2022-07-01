@@ -4,10 +4,13 @@
 # load and tidy data to which the model is being calibrated
 # ---------------------------
 
+# Load and tidy minimally
+# ----------------------------
+
 # load raw data
 observed_data_raw <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
 
-## tidy observed data into long form for calibration
+## tidy all observed data into long form for calibration
 observed_data <- (observed_data_raw
 	%>% transmute(date = as.Date(`Reported Date`)
 		, report_inc = diff(c(0,`Total Cases`))
@@ -32,8 +35,26 @@ ggsave(
   , height = 1.3*fig.width
 )
 
-## If this is not good enough for calibration, then modify here!
+# ---------------------------
+# Condense Map
+#
+# map internal model variables (in the simulation history of the model defined
+# in define_model.R) to names of tidied observed variables (defined above)
+#
+# vector names = internal model variables
+# vector values = tidied obs variable names
+# ---------------------------
 
+condense_map = c(
+  conv_Incidence = 'report_inc',
+  Htotal = 'hosp_preval',
+  ICU = 'icu_preval'
+)
+
+# Filter obs for calibration
+# ----------------------------
+
+## make calibration data
 calibration_dat = (observed_data
   ## filter to calibration period
   %>% filter(between(date, as.Date(calib_start_date), as.Date(calib_end_date)))
@@ -65,6 +86,6 @@ ggsave(
 # Script output
 # ---------------------------
 
-parameters <- addEnvironment(parameters,c("calibration_dat"))
+parameters <- addEnvironment(parameters,c("calibration_dat", "condense_map"))
 
 

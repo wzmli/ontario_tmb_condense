@@ -355,53 +355,6 @@ attach_opt_tv_params <- function(model){
   return(model)
 }
 
-## MLi: This is again setup; put the reference somewhere else?
-
-# ---------------------------
-# Condense Map
-#
-# map internal model variables (in the simulation history of the model defined
-# in define_model.R) to names of observed variables (named in
-# `observed_data.R`)
-# ---------------------------
-
-condense_map = c(
-  conv_Incidence = 'report_inc',
-  Htotal = 'hosp_preval',
-  ICU = 'icu_preval'
-)
-
-# default map for reference:
-# condense_map = c(
-#   Stotal = "S",
-#   Etotal = "E",
-#   Itotal = "I",
-#   Htotal = 'H',
-#   ICU = 'ICU',
-#   Rtotal = "R",
-#   lag_1_diff_Xtotal = 'hosp',
-#   Xtotal = "X",
-#   lag_1_diff_Dtotal = 'death',
-#   Dtotal = "D",
-#   S_unvax_to_E_unvax = "foi_unvax",
-#   S_vaxdose1_to_E_vaxdose1 = "foi_vaxdose1",
-#   S_vaxprotect1_to_E_vaxprotect1 = "foi_vaxprotect1",
-#   S_vaxdose2_to_E_vaxdose2 = "foi_vaxdose2",
-#   S_vaxprotect2_to_E_vaxprotect2 = "foi_vaxprotect2",
-#   Incidence_unvax = "incidence_unvax",
-#   Incidence_vaxdose1 = "incidence_vaxdose1",
-#   Incidence_vaxprotect1 = "incidence_vaxprotect1",
-#   Incidence_vaxdose2 = "incidence_vaxdose2",
-#   Incidence_vaxprotect2 = "incidence_vaxprotect2",
-#   Incidence = 'incidence',
-#   conv_Incidence_unvax = 'report_unvax',
-#   conv_Incidence_vaxdose1 = 'report_vaxdose1',
-#   conv_Incidence_vaxprotect1 = 'report_vaxprotect1',
-#   conv_Incidence_vaxdose2 = 'report_vaxdose2',
-#   conv_Incidence_vaxprotect2 = 'report_vaxprotect2',
-#   conv_Incidence = 'report'
-# )
-
 # ---------------------------
 # Script output
 # ---------------------------
