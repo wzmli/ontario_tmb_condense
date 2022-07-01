@@ -18,14 +18,14 @@ source("pipeline_parameters.R") ## EDIT OFTEN
 # Get Pipeline Inputs
 # ---------------------------
 
-## Generate time-varying params
-source("params_timevar.R") ## EDIT SOMETIMES
-
 ## Load observed data
 source("observed_data.R") ## EDIT RARELY
 
 ## Define model
 source("model.R") ## EDIT RARELY
+
+## Generate time-varying params
+source("params_timevar.R") ## EDIT SOMETIMES
 
 ## Set up optimization parameters and priors
 source("opt_pars.R") ## EDIT RARELY
