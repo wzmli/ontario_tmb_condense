@@ -12,26 +12,28 @@ source("pipeline_setup.R")
 # Get Pipeline Parameters
 # ---------------------------
 
-## Ideally a user would only edit this file (unless they're also editing the model...)
-source("pipeline_parameters.R")
+source("pipeline_parameters.R") ## EDIT OFTEN
 
 # ---------------------------
 # Get Pipeline Inputs
 # ---------------------------
 
-## Load observed data
-source("observed_data.R")
-## MLi: can we generate a bogus model without addition complexity?
-source("define_model.R")
-
 ## Generate time-varying params
-source("params_timevar.R")
+source("params_timevar.R") ## EDIT SOMETIMES
+
+## Load observed data
+source("observed_data.R") ## EDIT RARELY
+
+## Define model
+source("model.R") ## EDIT RARELY
+
+## Set up optimization parameters and priors
+source("opt_pars.R") ## EDIT RARELY
 
 # ---------------------------
 # Calibration
 # ---------------------------
-source("calibration_settings.R")
-source("calibrate.R")
+source("calibrate.R") ## EDIT NEVER
 source("calibration_plots.R")
 
 # ---------------------------
@@ -39,8 +41,8 @@ source("calibration_plots.R")
 # ---------------------------
 
 if(forecast){
-  source("forecast_settings.R")
-  source("forecast.R")
+  source("forecast_settings.R") ## EDIT OFTEN
+  source("forecast.R") ## EDIT NEVER
   source("forecast_plots.R")
 }
 
