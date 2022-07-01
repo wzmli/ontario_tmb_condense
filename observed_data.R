@@ -20,6 +20,9 @@ observed_data <- (observed_data_raw
 	%>% pivot_longer(names_to = "var", -"date")
 )
 
+## if user sets calib_vars to NULL, use all available observation variables in calibration
+if(is.null(calib_vars)) calib_vars <- unique(observed_data$var)
+
 # Filter obs for calibration
 # ----------------------------
 
@@ -28,7 +31,7 @@ calibration_dat = (observed_data
   ## filter to calibration period
   %>% filter(between(date, as.Date(calib_start_date), as.Date(calib_end_date)))
   ## keep only desired observations
-  %>% filter(var %in% calibration_vars)
+  %>% filter(var %in% calib_vars)
   ## remove reports after date when testing became unreliable
   %>% filter(!(var == "report_inc" & date > report_end_date))
 )

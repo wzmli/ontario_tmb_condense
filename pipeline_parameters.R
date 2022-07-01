@@ -16,7 +16,7 @@ calib_end_date <- today()
 report_end_date <- as.Date("2021-12-15") ## when we assume the report signal stops being reliable (can't be after calibration_end_date!)
 
 # ---------------------------
-# Obervations for calibration
+# Observations for calibration
 # ---------------------------
 
 ## vector of observation names to calibrate to
@@ -24,7 +24,8 @@ report_end_date <- as.Date("2021-12-15") ## when we assume the report signal sto
 ## report_inc: daily infection report incidence via PCR testing
 ## hosp_preval: daily acute-care occupancy (prevalence), excluding ICU
 ## icu_preval: daily ICU occupancy (prevalence)
-calibration_vars <- c("report_inc", "hosp_preval")
+## if NULL, use all available
+calib_vars <- c("report_inc", "hosp_preval")
 
 # ---------------------------
 # Model parameters
@@ -231,8 +232,8 @@ log_beta0_prior_mean <- c(log_beta0_prior_mean,
 attach_error_dist <- function(model){
 
   ## TODO: make this more compact ("don't repeat yourself")
-  ## maybe by writing a function that uses the `as.formula(paste0())` paradigm to initializes the opt params formula and then doing something like lapply over calibration_vars?
-  if("report_inc" %in% calibration_vars){
+  ## maybe by writing a function that uses the `as.formula(paste0())` paradigm to initializes the opt params formula and then doing something like lapply over calib_vars?
+  if("report_inc" %in% calib_vars){
     model <- (model
       ## only need this step if we're using the negative binomial... don't need for poisson
       %>% update_params(
@@ -244,7 +245,7 @@ attach_error_dist <- function(model){
     )
   }
 
-  if("hosp_preval" %in% calibration_vars){
+  if("hosp_preval" %in% calib_vars){
     model <- (model
     ## only need this step if we're using the negative binomial... don't need for poisson
       %>% update_params(
@@ -256,7 +257,7 @@ attach_error_dist <- function(model){
     )
   }
 
-  if("icu_preval" %in% calibration_vars){
+  if("icu_preval" %in% calib_vars){
     model <- (model
     ## only need this step if we're using the negative binomial... don't need for poisson
       %>% update_params(
@@ -300,8 +301,8 @@ attach_opt_params <- function(model){
 
   ## optimize dispersion params for whichever observations are being included in the calibration
   ## TODO: there is probably a cleaner way to do this...
-  ## maybe by writing a function that uses the `as.formula(paste0())` paradigm to initializes the opt params formula and then doing something like lapply over calibration_vars?
-  if("report_inc" %in% calibration_vars){
+  ## maybe by writing a function that uses the `as.formula(paste0())` paradigm to initializes the opt params formula and then doing something like lapply over calib_vars?
+  if("report_inc" %in% calib_vars){
     model <- (model
       ## add_ to avoid overwriting
       %>% add_opt_params(
@@ -310,7 +311,7 @@ attach_opt_params <- function(model){
     )
   }
 
-  if("hosp_preval" %in% calibration_vars){
+  if("hosp_preval" %in% calib_vars){
     model <- (model
       ## add_ to avoid overwriting
       %>% add_opt_params(
@@ -319,7 +320,7 @@ attach_opt_params <- function(model){
     )
   }
 
-  if("icu_preval" %in% calibration_vars){
+  if("icu_preval" %in% calib_vars){
     model <- (model
       ## add_ to avoid overwriting
       %>% add_opt_params(
