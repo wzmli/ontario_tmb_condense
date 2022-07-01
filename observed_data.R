@@ -20,19 +20,17 @@ observed_data <- (observed_data_raw
 	%>% pivot_longer(names_to = "var", -"date")
 )
 
-print(observed_data)
+# Filter obs for calibration
+# ----------------------------
 
-## plot observed data
-p1 <- (ggplot(observed_data)
-  + facet_wrap(~var, nrow=3, scales = "free_y")
-  + geom_line(aes(date, value))
-  + labs(title = "Observed data available for calibration")
-)
-ggsave(
-  file.path("figs", "observed_data-available.png")
-  , p1
-  , width = fig.width
-  , height = 1.3*fig.width
+## make calibration data
+calibration_dat = (observed_data
+  ## filter to calibration period
+  %>% filter(between(date, as.Date(calib_start_date), as.Date(calib_end_date)))
+  ## keep only desired observations
+  %>% filter(var %in% calibration_vars)
+  ## remove reports after date when testing became unreliable
+  %>% filter(!(var == "report_inc" & date > report_end_date))
 )
 
 # ---------------------------
@@ -51,17 +49,23 @@ condense_map = c(
   ICU = 'icu_preval'
 )
 
-# Filter obs for calibration
-# ----------------------------
+# ---------------------------
+# Diagnostics
+# ---------------------------
 
-## make calibration data
-calibration_dat = (observed_data
-  ## filter to calibration period
-  %>% filter(between(date, as.Date(calib_start_date), as.Date(calib_end_date)))
-  ## keep only desired observations
-  %>% filter(var %in% calibration_vars)
-  ## remove reports after date when testing became unreliable
-  %>% filter(!(var == "report_inc" & date > report_end_date))
+print(observed_data)
+
+## plot observed data
+p1 <- (ggplot(observed_data)
+       + facet_wrap(~var, nrow=3, scales = "free_y")
+       + geom_line(aes(date, value))
+       + labs(title = "Observed data available for calibration")
+)
+ggsave(
+  file.path("figs", "observed_data-available.png")
+  , p1
+  , width = fig.width
+  , height = 1.3*fig.width
 )
 
 p1 <- (ggplot(calibration_dat %>% drop_na()
