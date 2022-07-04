@@ -54,18 +54,14 @@ load_params <- function(sheet){
 
 ## get default params
 load_params("default")
-glue::glue("N = {N}")
-glue::glue("alpha = {alpha}")
+
 ## province-specific overwrites
 load_params("overwrite_ON")
-glue::glue("N = {N}")
 
 # for (i in 1:nrow(params_default)){
 #   assign(params_default$symbol[i],
 #          params_default$value[i], envir = .GlobalEnv)
 # }
-
-## FIXME: allow for fractional inputs to value using val(parse(text="1/3"))
 
 # base model parameters
 # ---------------------------
