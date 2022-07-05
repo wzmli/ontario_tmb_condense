@@ -17,6 +17,14 @@ library(patchwork)
 library(googlesheets4)
 
 # ---------------------------
+# Make output directories (not tracked by git)
+# ---------------------------
+
+if(!file.exists("figs")) dir.create("figs")
+if(!file.exists("results")) dir.create("results")
+if(!file.exists("pipeline_environments")) dir.create("pipeline_environments")
+
+# ---------------------------
 # Define shared plot settings
 # ---------------------------
 
