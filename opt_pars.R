@@ -1,10 +1,10 @@
 # Optimization variables + priors
 # ---------------------------
 
-## these are encoded in functions because of pipeline that gets done to set up
-## the uncalibrated model in init_calibration.R
-
 # constant params (not time-varying)
+# ---------------------------
+
+# encoded as a function to pipe it into the initialization of the uncalibrated model object
 attach_opt_params <- function(model){
 
   model <- (model
@@ -58,7 +58,22 @@ attach_opt_params <- function(model){
   return(model)
 }
 
-# tv params
+# time-varying parameters
+# ---------------------------
+
+# set up
+# schedules for time-varying parameters
+# to be optimized
+
+params_timevar_opt <- NULL ## initialize variable name
+
+## schedules for time-varying parameters that are being fitted
+## add rows for each time-varying parameter
+source("scripts/params_timevar_beta.R")
+source("scripts/params_timevar_mu.R")
+source("scripts/params_timevar_rho.R")
+
+# time-varying params to optimize and priors
 attach_opt_tv_params <- function(model){
 
   model <- (model

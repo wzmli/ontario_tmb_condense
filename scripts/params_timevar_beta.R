@@ -54,7 +54,7 @@ if(length(manual_beta0_breaks) != 0){
 # Script output
 # ---------------------------
 
-params_timevar <- bind_rows(
-  params_timevar,
+params_timevar_opt <- bind_rows(
+  params_timevar_opt,
   auto_beta,
   manual_beta)

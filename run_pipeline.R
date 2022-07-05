@@ -24,11 +24,11 @@ source("observed_data.R") ## EDIT RARELY
 ## Define model
 source("model.R") ## EDIT RARELY
 
-## Generate time-varying params
-source("params_timevar.R") ## EDIT SOMETIMES
+## Generate time-varying params from data
+source("params_timevar_data.R") ## EDIT RARELY
 
-## Set up optimization parameters and priors
-source("opt_pars.R") ## EDIT RARELY
+## Set up optimization parameters, schedules for time-varying ones, and priors
+source("opt_pars.R") ## EDIT SOMETIMES
 
 # ---------------------------
 # Calibration

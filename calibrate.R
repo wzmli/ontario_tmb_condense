@@ -6,7 +6,10 @@
 # ---------------------------
 
 params_timevar = (
-  params_timevar
+  bind_rows(
+    params_timevar_opt # schedules for optimizing time-varying parameters
+    , params_timevar_data # time-varying parameters from data (e.g. vaccine dosing)
+  )
   %>% mutate(Type = "abs")
   %>% filter(
     between(

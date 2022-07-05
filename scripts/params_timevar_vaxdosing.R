@@ -136,7 +136,7 @@ print(p3)
 # Script output
 # ---------------------------
 
-params_timevar <- bind_rows(
-  params_timevar,
+params_timevar_data <- bind_rows(
+  params_timevar_data,
   params_timevar_vaxdosing
 )

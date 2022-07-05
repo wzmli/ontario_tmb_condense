@@ -24,7 +24,7 @@ manual_mu <- data.frame(
 # Script output
 # ---------------------------
 
-params_timevar <- bind_rows(
-  params_timevar,
+params_timevar_opt <- bind_rows(
+  params_timevar_opt,
   manual_mu
 )

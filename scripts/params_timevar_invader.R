@@ -157,7 +157,7 @@ params_timevar_invader <- bind_rows(
   params_timevar_inv_params
 )
 
-params_timevar <- bind_rows(
-  params_timevar,
+params_timevar_data <- bind_rows(
+  params_timevar_data,
   params_timevar_invader
 )
