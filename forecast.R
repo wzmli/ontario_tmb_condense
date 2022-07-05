@@ -22,3 +22,9 @@ env <- clean_env(
   env,
   c("model_to_forecast",
     "forecast_ensemble"))
+
+saveRDS(forecast_ensemble,
+        file = file.path("results",
+                         paste0("forecast_ensemble_",
+                                today(),
+                                ".RDS")))

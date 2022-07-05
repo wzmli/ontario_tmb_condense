@@ -1,12 +1,20 @@
-# ontario_tmb_condense (MLi refactor)
+# ontario_tmb_condense
 
-## to run the pipeline
+## to calibrate the model
 
-Simply run `source("run_pipeline.R")` from the main directory.
+Simply run `source("run_calibration.R")` from the main directory.
+
+## to forecast from a calibrated model
+
+Simply run `source("run_forecast.R")` from the main directory.
+
+---
+
+TODO: EVERYTHING UNDER HERE IS POTENTIALLY OUTDATED/NEEDS REVIEW
 
 ## to change pipeline parameters
 
-All pipeline parameters are stored in `pipeline_parameters.R`. This should be the only file you need to edit to make changes to the calibration and forecast (unless you're doing something major like changing the model, in which case, see below). 
+All pipeline parameters are stored in `pipeline_parameters.R`. This should be the only file you need to edit to make changes to the calibration and forecast (unless you're doing something major like changing the model, in which case, see below).
 
 Below are all the knobs currently available in `pipeline_parameters.R`, what they do, and how they can be changed
 
@@ -23,10 +31,6 @@ All model parameters used in `define_model.R` should be specified here, to keep 
 TODO: UPDATE, BE SURE TO MENTION UPDATE OF MODEL PARAMETERS IN PIPELINE_PARAMETERS.R FILE
 
 The model is defined in `define_model.R`. This includes state variables, the list of parameter names, flow rates, condensation of state variables across subcategories, and the calculation of report variables. If you're going to modify the model definition, be sure to update the model parameters (including any time-varying parameter ones) in `pipeline_parameters.R` and potentially `time_varying_params.R`.
-
----
-
-TODO: EVERYTHING UNDER HERE IS POTENTIALLY OUTDATED/NEEDS REVIEW
 
 ### to change data to which the model is being calibrated
 

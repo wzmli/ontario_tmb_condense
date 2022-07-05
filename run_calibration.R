@@ -1,7 +1,6 @@
-rm(list =)
+rm(list = ls()) ## start fresh
 plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
-forecast <- TRUE
-save_env <- TRUE
+
 
 # ---------------------------
 # Pipeline Setup
@@ -38,16 +37,6 @@ source("calibrate.R") ## EDIT NEVER
 source("calibration_plots.R")
 
 # ---------------------------
-# Forecast
-# ---------------------------
-
-if(forecast){
-  source("forecast_settings.R") ## EDIT OFTEN
-  source("forecast.R") ## EDIT NEVER
-  source("forecast_plots.R")
-}
-
-# ---------------------------
 # Save environment
 # ---------------------------
 
@@ -55,7 +44,7 @@ if(save_env){
   save(list = env,
        file = file.path(
          "pipeline_environments",
-         paste0("env_",
+         paste0("calibration_env_",
                today(),
                ".Rdata")
   ))
