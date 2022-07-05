@@ -122,7 +122,7 @@ prep_invasion_params <- function(
   ## fill in wild-type parameter values for first invasion (get from base parameters list)
   df[1, names(df)[grep("^not_inv",
                        names(df))]] <- c(
-                         unname(params[grep(paste0("^", params_prefix), names(params))]))
+                         unname(model$params[grep(paste0("^", params_prefix), names(model$params))]))
 
   df <- (
     df

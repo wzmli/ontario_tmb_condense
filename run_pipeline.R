@@ -1,6 +1,7 @@
+rm(list =)
 plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
-forecast <- FALSE
-save_env <- FALSE
+forecast <- TRUE
+save_env <- TRUE
 
 # ---------------------------
 # Pipeline Setup
@@ -50,15 +51,12 @@ if(forecast){
 # Save environment
 # ---------------------------
 
-## FIXME: this is broken... not saving anything
-# if(save_env){
-#   save(list = parameters,
-#        file = file.path(
-#          "pipeline_environments",
-#          paste0("env_",
-#                today(), "_",
-#                paste0(hour(now()),
-#                       minute(now())),
-#                ".Rdata")
-#   ))
-# }
+if(save_env){
+  save(list = env,
+       file = file.path(
+         "pipeline_environments",
+         paste0("env_",
+               today(),
+               ".Rdata")
+  ))
+}

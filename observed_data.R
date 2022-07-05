@@ -71,7 +71,7 @@ ggsave(
   , height = 1.3*fig.width
 )
 
-p1 <- (ggplot(calibration_dat %>% drop_na()
+p2 <- (ggplot(calibration_dat %>% drop_na()
         , aes(x = date, y = value, colour = var))
   + geom_point(alpha = 0.3, size = 1.5)
   + facet_wrap(
@@ -84,7 +84,7 @@ p1 <- (ggplot(calibration_dat %>% drop_na()
 )
 ggsave(
   file.path("figs", "observed_data-used.png")
-  , p1
+  , p2
   , width = fig.width
   , height = 1.3*fig.width
 )
@@ -93,6 +93,10 @@ ggsave(
 # Script output
 # ---------------------------
 
-parameters <- addEnvironment(parameters,c("calibration_dat", "condense_map"))
+env <- clean_env(
+  env,
+  c("observed_data",
+    "calibration_dat",
+    "condense_map"))
 
 

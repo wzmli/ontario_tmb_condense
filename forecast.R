@@ -9,7 +9,7 @@ model_to_forecast = (model_calibrated
 )
 
 ## simulate ensemble
-forecast_intervals = (model_to_forecast
+forecast_ensemble = (model_to_forecast
   %>% simulate_ensemble(PDify = TRUE)
   %>% filter(var %in% unique(model_calibrated$observed$data$var))
 )
@@ -18,6 +18,7 @@ forecast_intervals = (model_to_forecast
 # Script output
 # ---------------------------
 
-parameters <- addEnvironment(parameters,
-                             c("model_to_forecast",
-                               "forecast_intervals"))
+env <- clean_env(
+  env,
+  c("model_to_forecast",
+    "forecast_ensemble"))

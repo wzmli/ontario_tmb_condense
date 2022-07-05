@@ -1,8 +1,11 @@
-## function to selectively update environment
-## to keep the working environment clean
-addEnvironment <- function(prevs,new){
-  rm(list=setdiff(ls(), c(prevs,new)))
-  return(ls())
+#' Clean up environment
+#'
+#' @param env existing environment list
+#' @param vars_to_add new variables to add to environment list
+clean_env <- function(env, vars_to_add){
+  rm(list=setdiff(ls(envir = .GlobalEnv), c(env, vars_to_add)),
+     envir = .GlobalEnv)
+  return(ls(envir = .GlobalEnv))
 }
 
 #' Load parameters into global environment

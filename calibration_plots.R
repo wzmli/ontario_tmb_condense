@@ -98,3 +98,11 @@ ggsave(
 if(plot_diagnostics_modelspecific){
   source("check_vaccine_admin.R")
 }
+
+# ---------------------------
+# Script output
+# ---------------------------
+
+env <- clean_env(
+  env,
+  c(""))

@@ -3,7 +3,7 @@
 # ---------------------------
 
 ## plot forecast
-p1 <- (ggplot(forecast_intervals)
+p1 <- (ggplot(forecast_ensemble)
        + geom_point(aes(date, value),
                     data = model_calibrated$observed$data,
                     size = 1.5, alpha = 0.2)
@@ -25,3 +25,7 @@ ggsave(
   width = fig.width,
   height = 1.3*fig.width
 )
+
+env <- clean_env(
+  env,
+  c(""))

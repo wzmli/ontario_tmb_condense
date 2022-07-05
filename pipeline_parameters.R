@@ -117,5 +117,6 @@ log_beta0_prior_mean <- c(log_beta0_prior_mean,
 # Script output
 # ---------------------------
 
-parameters <- ls()
-addEnvironment(parameters,c("parameters"))
+## save names of initialized parameters in a list
+env <- ls()
+env <- clean_env(env, "env")

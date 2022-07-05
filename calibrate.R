@@ -98,5 +98,15 @@ model_calibrated = calibrate_flexmodel(model_uncalibrated
 # Script output
 # ---------------------------
 
-parameters <- addEnvironment(parameters,c("model_uncalibrated", "model_calibrated"))
+env <- clean_env(
+  env,
+  c("params_timevar",
+    "model_uncalibrated",
+    "model_calibrated"))
+
+saveRDS(model_calibrated,
+        file = file.path("results",
+                         paste0("model_calibrated_",
+                                today(),
+                                ".RDS")))
 

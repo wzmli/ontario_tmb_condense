@@ -13,6 +13,6 @@ source("scripts/params_timevar_invader.R")
 # Script output
 # ---------------------------
 
-parameters <- addEnvironment(parameters
-	, c("params_timevar_data")
-)
+env <- clean_env(
+  env,
+  c("params_timevar_data"))

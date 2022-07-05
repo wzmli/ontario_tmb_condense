@@ -17,6 +17,7 @@ params_timevar_forecast <- data.frame(
 # Script output
 # ---------------------------
 
-parameters <- addEnvironment(parameters,
-                             c("n_days_forecast",
-                               "params_timevar_forecast"))
+env <- clean_env(
+  env,
+  c("n_days_forecast",
+    "params_timevar_forecast"))

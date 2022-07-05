@@ -5,3 +5,5 @@
 *.Rproj
 README.html
 figs/*
+pipeline_environments/*
+results/*
