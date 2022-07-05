@@ -28,7 +28,7 @@ source("model.R") ## EDIT RARELY
 source("params_timevar_data.R") ## EDIT RARELY
 
 ## Set up optimization parameters, schedules for time-varying ones, and priors
-source("opt_pars.R") ## EDIT SOMETIMES
+source("opt_settings.R") ## EDIT SOMETIMES
 
 # ---------------------------
 # Calibration
