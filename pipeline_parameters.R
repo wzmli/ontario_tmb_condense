@@ -33,127 +33,11 @@ calib_vars <- c("report_inc", "hosp_preval")
 
 params_url <- "https://docs.google.com/spreadsheets/d/13GBes6A2PMXITwfkyYw7E3Lt3odpb3tbiFznpVy8VhU/edit?usp=sharing"
 
-## function to load params from sheet into global environment
-load_params <- function(sheet){
-  pp <- (
-    read_sheet(
-      params_url,
-      sheet = sheet,
-      col_types = 'c' ## in order to parse fractional values later
-    )
-    %>% select(symbol, value)
-  )
-
-  invisible(map2(pp$symbol,
-       pp$value,
-       function(sym,val){
-         assign(sym,
-                eval(parse(text = val)),
-                envir = .GlobalEnv)}))
-}
-
 ## get default params
-load_params("default")
+load_params("default", params_url)
 
 ## province-specific overwrites
-load_params("overwrite_ON")
-
-# for (i in 1:nrow(params_default)){
-#   assign(params_default$symbol[i],
-#          params_default$value[i], envir = .GlobalEnv)
-# }
-
-# base model parameters
-# ---------------------------
-
-# (SOME OF THESE ARE PLACEHOLDERS!)
-
-# beta0 = 0.25
-# Ca = 0.666666666666667
-# Cp = 1
-# Cm = 1
-# Cs = 1
-# alpha = 0.333333333333333
-# sigma = 0.192307692307692
-# gamma_a = 0.142857142857143
-# gamma_m = 0.142857142857143
-# gamma_s = 0.174825174825175
-# gamma_p = 2
-# rho = 0.1
-# delta = 0
-# mu = 0.956
-# N = 14e+06 ## roughly pop of ontario
-# E0 = 5
-# S0 = 1-14e-5  # initial proportion of susceptible individuals
-# nonhosp_mort = 0
-# iso_m = 0
-# iso_s = 0
-# phi1 = 0.76
-# phi2 = 0.5
-# psi1 = 0.05
-# psi2 = 0.125
-# psi3 = 0.2
-# c_prop = 0.1
-# c_delay_mean = 11
-# c_delay_cv = 0.25
-# proc_disp = 0
-# zeta = 0
-#
-# # vaccination
-# # ---------------------------
-#
-# ## vax dosing (daily incidence a.k.a. inc)
-# # shut off initially
-# # adjusted by params_timevar
-# vax_dose1_inc = 0
-# vax_dose2_inc = 0
-# vax_dose3_inc = 0
-# vax_dose4_inc = 0
-#
-# ## vax immune response rates
-# vax_response_rate = 0.0714285714285714
-# vax_response_rate_R = 0.142857142857143
-#
-# ## dose 1 properties against wild type
-# vax_VE_trans_dose1 = 0.6
-# vax_alpha_dose1 = 0.333333333333333 ## same as baseline
-# vax_VE_hosp_dose1 = 0.4
-#
-# ## dose 2 properties against wild type
-# vax_VE_trans_dose2 = 0.9
-# vax_alpha_dose2 = 0.333333333333333 ## same as baseline
-# vax_VE_hosp_dose2 = 0.7
-#
-# ## dose 3 properties against wild type
-# vax_VE_trans_dose3 = 0.9
-# vax_alpha_dose3 = 0.333333333333333 ## same as baseline
-# vax_VE_hosp_dose3 = 0.9
-#
-# ## dose 4 properties against wild type
-# vax_VE_trans_dose4 = 0.9
-# vax_alpha_dose4 = 0.333333333333333 ## same as baseline
-# vax_VE_hosp_dose4 = 0.9
-#
-# # infection-based immunity waning
-# # ---------------------------
-#
-# inf_imm_wane_rate = 0.005555556 ## 1/(180 days ~ 6 months)
-#
-# # variants
-# # ---------------------------
-#
-# ## these need to be set as is (used in time-varying script to get invader and resident propreties set correctly)
-# inv_prop = 0 ## invader proportion
-# ## the following are all bogus params for now, will change in params_timevar upon each invasion
-# inv_trans_adv = 1 ## invader transmission advantage relative to wild-type
-# inv_vax_VE_trans_dose1 = vax_VE_trans_dose1 ## invader VE against transmission dose 1
-# inv_vax_VE_trans_dose2 = vax_VE_trans_dose2 ## invader VE against transmission dose 2
-# inv_vax_VE_trans_dose3 = vax_VE_trans_dose3 ## invader VE against transmission dose 3
-# inv_vax_VE_trans_dose4 = vax_VE_trans_dose4 ## invader VE against transmission dose 4
-# inv_vax_VE_hosp_dose1 = vax_VE_hosp_dose1 ## invader VE against hospitalization dose 1
-# inv_vax_VE_hosp_dose2 = vax_VE_hosp_dose2 ## invader VE against hospitalization dose 2
-# inv_vax_VE_hosp_dose3 = vax_VE_hosp_dose3 ## invader VE against hospitalization dose 3
-# inv_vax_VE_hosp_dose4 = vax_VE_hosp_dose4 ## invader VE against hospitalization dose 4
+load_params("overwrite_ON", params_url)
 
 ## map to simplify variant data (bucket multiple strains under a single label)
 variant_map <- data.frame(
@@ -163,6 +47,7 @@ variant_map <- data.frame(
              , "Omicron BA.1", "Omicron BA.1.1"
              , "Omicron BA.2"
   )
+  ## these labels should match those used in "variant_*" sheet loaded below
   , label = c("Alpha", "Alpha"
               , "Alpha", "Alpha" ## Hack! Changing beta and gamma to alpha
               , "Delta", "Delta", "Delta"
@@ -171,42 +56,21 @@ variant_map <- data.frame(
   )
 )
 
-## invading variant properties, including label, corresponding start date, end date, transmission avantage relative to resident strain at the time of invasion, and vaccine efficacies against each variant
-variant_labels <- c("Alpha", "Delta", "Omicron1", "Omicron2")
-
-invader_properties <- data.frame(
-  label = variant_labels
-  , start_date = as.Date(c("2020-12-07","2021-03-08","2021-11-22","2022-01-10"))
-  , end_date = as.Date(c("2021-03-07","2021-11-21","2022-01-09","2022-04-04"))
-  ## vax efficacy
-  , inv_vax_VE_trans_dose1 = c(
-    0.6 ## alpha
-    , 0.3 ## delta
-    , 0.15 ## BA.1
-    , 0.15 ## BA.2
+## load invading variant properties, including label, corresponding start date, end date, and vaccine efficacies against each variant
+invader_properties <- (
+  read_sheet(
+    params_url,
+    sheet = "variant_ON",
+    col_types = 'c' ## in order to parse fractional values later
   )
-  , inv_vax_VE_trans_dose2 = c(
-    0.9, 0.9, 0.4, 0.4
-  )
-  , inv_vax_VE_trans_dose3 = c(
-    0.9, 0.9, 0.7, 0.7
-  )
-  , inv_vax_VE_trans_dose4 = c(
-    0.9, 0.9, 0.7, 0.7
-  )
-  ## keep hosp VEs the same as against wild-type for now
-  , inv_vax_VE_hosp_dose1 = rep(
-    vax_VE_hosp_dose1, length(variant_labels)
-  )
-  , inv_vax_VE_hosp_dose2 = rep(
-    vax_VE_hosp_dose2, length(variant_labels)
-  )
-  , inv_vax_VE_hosp_dose3 = rep(
-    vax_VE_hosp_dose3, length(variant_labels)
-  )
-  , inv_vax_VE_hosp_dose4 = rep(
-    vax_VE_hosp_dose4, length(variant_labels)
-  )
+  %>% select(label, symbol, value)
+  %>% pivot_wider(id_cols = "label",
+                  names_from = "symbol")
+  ## convert columns to appropriate types
+  %>% mutate(across(ends_with("date"), as.Date),
+             across(starts_with("inv_"), as.numeric))
+  ## convert to data frame
+  %>% as.data.frame()
 )
 
 # ---------------------------
