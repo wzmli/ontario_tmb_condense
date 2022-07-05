@@ -7,6 +7,8 @@ date_seq_mu <- c(
   ## monthly until reports become unreliable
   seq(min(observed_data$date), report_end_date,
       by='months')
+  ## and once more on the start date of BA.2
+  , invader_properties %>% filter(label == "Omicron2") %>% pull(start_date)
   ## every 10 days after that point
   # , seq(report_end_date, ymd(max(observed_data$date)),
   #     by = 10)

@@ -96,9 +96,11 @@ try(if(!(length(log_beta0_prior_mean) == 1 |
 # and corresponding priors
 # ---------------------------
 manual_beta0_breaks <- as.Date(
-  c("2021-12-19" ## increase in public health restrictions
-    , "2022-01-31" ## begin easing restrictions (change in capacity limits)
-    , "2022-02-17" ## next phase of reopening (change in capacity limits)
+  c(
+    # "2021-12-19" ## increase in public health restrictions
+    # , "2022-01-31" ## begin easing restrictions (change in capacity limits)
+    # ,
+    "2022-02-17" ## next phase of reopening (change in capacity limits)
     , "2022-03-01" ## proof of vaccine mandate lifted
     , "2022-03-21" ## most indoor mask mandates lifted
   ))
