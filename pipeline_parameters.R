@@ -32,9 +32,10 @@ calib_vars <- c("report_inc", "hosp_preval")
 ## if so, need to define a data frame stipulating these changes
 ## set this variable to NULL if you want to use observations as is
 ## can do this for multiple variables and multiple time intervals!
+## if end_date is NA, will continue scaling indefinitely
 obs_scaling <- data.frame(
   start_date = as.Date(c("2021-12-25")),
-  end_date = as.Date(c("2022-03-10")),
+  end_date = as.Date(c(NA)),
   var = c("hosp_preval"),
   scale_factor = c(0.5)
 )
@@ -109,10 +110,9 @@ try(if(!(length(log_beta0_prior_mean) == 1 |
 # ---------------------------
 manual_beta0_breaks <- as.Date(
   c(
-    # "2021-12-19" ## increase in public health restrictions
-    # , "2022-01-31" ## begin easing restrictions (change in capacity limits)
-    # ,
-    "2022-02-17" ## next phase of reopening (change in capacity limits)
+    "2021-12-19" ## increase in public health restrictions
+    , "2022-01-31" ## begin easing restrictions (change in capacity limits)
+    , "2022-02-17" ## next phase of reopening (change in capacity limits)
     , "2022-03-01" ## proof of vaccine mandate lifted
     , "2022-03-21" ## most indoor mask mandates lifted
   ))

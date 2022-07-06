@@ -43,7 +43,8 @@ if(!is.null(obs_scaling)){
   ## convert to long form
   ## (one value per day in range specified
   ## by start_date and end_date)
-  obs_scaling_long <- pmap_dfr(obs_scaling, function(...){
+  obs_scaling_long <- pmap_dfr((obs_scaling %>% replace_na(list(end_date = calib_end_date))),
+                               function(...){
     data.frame(
       date = seq.Date(..1, ..2, by = 1),
       var = ..3,

@@ -20,11 +20,50 @@ load(
             paste0("calibration_env_",
                    calib_date,
                    ".Rdata"))
-)
+) ## need this to retrieve obs_scaling df
 if("scale_factor" %in% names(calibration_dat)){
-  forecast_ensemble <- (forecast_ensemble
+  ## handle scaling past calibration date (if end_date was specified as NA)
+  fc_scaling <- obs_scaling %>% filter(is.na(end_date))
+  keep_scaling <- nrow(fc_scaling) != 0
+  if(keep_scaling){
+    max_calib_dates <- (calibration_dat
+                        %>% group_by(var)
+                        %>% summarise(start_date = max(date) + days(1)))
+
+    fc_scaling <- (data.frame(
+      end_date = rep(
+        calib_end_date + days(n_days_forecast),
+        times = nrow(fc_scaling)
+        ),
+      var = fc_scaling$var,
+      scale_factor = fc_scaling$scale_factor
+    ) %>% left_join(max_calib_dates,
+                    by = "var")
+    %>% relocate(start_date, .before = end_date)
+    )
+
+    ## convert to long form
+    ## (one value per day in range specified
+    ## by start_date and end_date)
+    fc_scaling_long <- pmap_dfr(fc_scaling,
+                                 function(...){
+                                   data.frame(
+                                     date = seq.Date(..1, ..2, by = 1),
+                                     var = ..3,
+                                     scale_factor = ..4
+                                   )
+                                 })
+  } else {
+    fc_scaling_long <- NULL
+  }
+
+  forecast_ensemble <-
+    (forecast_ensemble
      %>% rename(date = Date)
-     %>% left_join(calibration_dat %>% select(-value), by = c("date", "var"))
+     %>% left_join(
+       bind_rows(calibration_dat %>% select(-value),
+                 fc_scaling_long),
+       by = c("date", "var"))
      %>% replace_na(list(scale_factor = 1))
      %>% mutate(
        value = value/scale_factor,
@@ -49,3 +88,4 @@ saveRDS(forecast_ensemble,
                          paste0("forecast_ensemble_",
                                 today(),
                                 ".RDS")))
+
