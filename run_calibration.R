@@ -40,12 +40,10 @@ source("calibration_plots.R")
 # Save environment
 # ---------------------------
 
-if(save_env){
-  save(list = env,
+save(list = env,
        file = file.path(
          "pipeline_environments",
          paste0("calibration_env_",
                today(),
                ".Rdata")
-  ))
-}
+))
