@@ -5,7 +5,7 @@
 ## plot forecast
 p1 <- (ggplot(forecast_ensemble)
        + geom_point(aes(date, value),
-                    data = model_calibrated$observed$data,
+                    data = observed_data %>% filter(var %in% calib_vars),
                     size = 1.5, alpha = 0.2)
        + geom_ribbon(aes(Date, ymax = upr, ymin = lwr),
                      alpha = 0.2, fill = 'grey30')
