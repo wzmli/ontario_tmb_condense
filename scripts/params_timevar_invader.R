@@ -119,10 +119,6 @@ prep_invasion_params <- function(
                            lag,
                            .names = "not_{.col}"))
   )
-  ## fill in wild-type parameter values for first invasion (get from base parameters list)
-  df[1, names(df)[grep("^not_inv",
-                       names(df))]] <- c(
-                         unname(model$params[grep(paste0("^", params_prefix), names(model$params))]))
 
   df <- (
     df
@@ -134,12 +130,19 @@ prep_invasion_params <- function(
     %>% mutate(Symbol = str_replace(Symbol,
                                     "not_inv_",
                                     ""))
+    ## drop NA from the lag operation
+    ## (wild-type values will be being used
+    ## regardless for the first invasion because
+    ## they're in the default parameters list)
+    %>% drop_na()
   )
 
   return(df)
 }
 
 ## prep all parameters that need to change upon an invasion
+
+prep_invasion_params("vax_VE_trans")
 
 inv_params_list <- c("vax_VE_trans", "vax_VE_hosp")
 
