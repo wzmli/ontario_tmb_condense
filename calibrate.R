@@ -95,6 +95,12 @@ model_calibrated = calibrate_flexmodel(model_uncalibrated
                                        )
 
 # ---------------------------
+# Get predictions
+# ---------------------------
+
+fitted_var <- fitted(model_calibrated)
+
+# ---------------------------
 # Script output
 # ---------------------------
 
@@ -102,11 +108,20 @@ env <- clean_env(
   env,
   c("params_timevar",
     "model_uncalibrated",
-    "model_calibrated"))
+    "model_calibrated",
+    "fitted_var"))
 
+## save calibrated model
 saveRDS(model_calibrated,
         file = file.path("results",
                          paste0("model_calibrated_",
+                                today(),
+                                ".RDS")))
+
+## save predicted values
+saveRDS(fitted_var,
+        file = file.path("results",
+                         paste0("fitted_var_",
                                 today(),
                                 ".RDS")))
 

@@ -5,7 +5,6 @@
 print(convergence_info(model_calibrated))
 
 ## plot fit
-fitted_var <- fitted(model_calibrated)
 
 p1 <- (fitted_var
        %>% ggplot
