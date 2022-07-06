@@ -27,6 +27,18 @@ report_end_date <- as.Date("2021-12-15") ## when we assume the report signal sto
 ## if NULL, use all available
 calib_vars <- c("report_inc", "hosp_preval")
 
+## should the observations be adjusted (scaled)?
+## (e.g., want to halve hospital occupancy during the omicron wave to adjust for incidental hospitalizations)
+## if so, need to define a data frame stipulating these changes
+## set this variable to NULL if you want to use observations as is
+## can do this for multiple variables and multiple time intervals!
+obs_scaling <- data.frame(
+  start_date = as.Date(c("2021-12-25")),
+  end_date = as.Date(c("2022-03-10")),
+  var = c("hosp_preval"),
+  scale_factor = c(0.5)
+)
+
 # ---------------------------
 # Model parameters
 # ---------------------------

@@ -75,7 +75,7 @@ model_uncalibrated = (model
                       ## attach time-varying parameters (not fitted)
                       %>% add_piece_wise(params_timevar)
                       ## attach observed data
-                      %>% update_observed(calibration_dat)
+                      %>% update_observed(calibration_dat %>% select(date, var, value))
                       ## specify observation error distributions for observed data
                       ## distributions, specifications for parameters to optimize over for
                       ## calibration, and priors
@@ -99,6 +99,15 @@ model_calibrated = calibrate_flexmodel(model_uncalibrated
 # ---------------------------
 
 fitted_var <- fitted(model_calibrated)
+
+## invert scaling in fitted_var if present
+if("scale_factor" %in% names(calibration_dat)){
+  fitted_var <- (fitted_var
+    %>% left_join(calibration_dat %>% select(-value), by = c("date", "var"))
+    %>% mutate(value = value/scale_factor,
+               value_fitted = value_fitted/scale_factor)
+  )
+}
 
 # ---------------------------
 # Script output
