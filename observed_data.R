@@ -7,18 +7,20 @@
 # Load and tidy minimally
 # ----------------------------
 
-# load raw data
-observed_data_raw <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
+# # load raw data
+# observed_data_raw <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
+#
+# ## tidy all observed data into long form for calibration
+# observed_data <- (observed_data_raw
+# 	%>% transmute(date = as.Date(`Reported Date`)
+# 		, report_inc = diff(c(0,`Total Cases`))
+# 		, hosp_preval = `Number of patients hospitalized with COVID-19`
+# 		, icu_preval = `Number of patients in ICU due to COVID-19`
+# 	)
+# 	%>% pivot_longer(names_to = "var", -"date")
+# )
 
-## tidy all observed data into long form for calibration
-observed_data <- (observed_data_raw
-	%>% transmute(date = as.Date(`Reported Date`)
-		, report_inc = diff(c(0,`Total Cases`))
-		, hosp_preval = `Number of patients hospitalized with COVID-19`
-		, icu_preval = `Number of patients in ICU due to COVID-19`
-	)
-	%>% pivot_longer(names_to = "var", -"date")
-)
+observed_data <- readRDS("pipeline_environments/observed_data_2022-07-07.RDS")
 
 ## if user sets calib_vars to NULL, use all available observation variables in calibration
 if(is.null(calib_vars)) calib_vars <- unique(observed_data$var)

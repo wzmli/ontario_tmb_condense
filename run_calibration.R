@@ -1,4 +1,5 @@
 rm(list = ls()) ## start fresh
+start_time <- Sys.time()
 plot_diagnostics_modelspecific <- FALSE ## flip this switch to make model-specific diagnostic plots (currently will only work if there are vax_dose params in the model)
 
 

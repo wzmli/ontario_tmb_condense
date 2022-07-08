@@ -3,7 +3,7 @@
 # ---------------------------
 
 ## number of days to forecast past the calibration end date
-n_days_forecast <- 30
+n_days_forecast <- 60
 
 ## time-varying parameters in the forecast period
 params_timevar_forecast <- data.frame(

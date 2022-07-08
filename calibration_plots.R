@@ -18,8 +18,8 @@ p1 <- (fitted_var
          linetype = 'dashed',
          data = filter(params_timevar, Symbol == "beta0")
        )
-       # + scale_y_continuous(trans = "log")
        + labs(title = "Calibration")
+       + coord_cartesian(xlim = date_range)
 )
 
 ggsave(
@@ -75,6 +75,7 @@ p2 <- (
     data = filter(params_timevar, Symbol == "beta0")
   )
   + guides(colour = "none")
+  + coord_cartesian(xlim = date_range)
 )
 
 p3 <- ((p1 + theme(

@@ -34,7 +34,7 @@ calib_vars <- c("report_inc", "hosp_preval")
 ## can do this for multiple variables and multiple time intervals!
 ## if end_date is NA, will continue scaling indefinitely
 obs_scaling <- data.frame(
-  start_date = as.Date(c("2021-12-25")),
+  start_date = as.Date(c("2021-12-01")), ## need this to start where prevalence is low so that the transition looks smooth (unless you want to be fancy and implement a smoother scaling!)
   end_date = as.Date(c(NA)),
   var = c("hosp_preval"),
   scale_factor = c(0.5)
@@ -108,14 +108,28 @@ try(if(!(length(log_beta0_prior_mean) == 1 |
 # after reports drop out
 # and corresponding priors
 # ---------------------------
-manual_beta0_breaks <- as.Date(
-  c(
-    "2021-12-19" ## increase in public health restrictions
-    , "2022-01-31" ## begin easing restrictions (change in capacity limits)
-    , "2022-02-17" ## next phase of reopening (change in capacity limits)
-    , "2022-03-01" ## proof of vaccine mandate lifted
-    , "2022-03-21" ## most indoor mask mandates lifted
-  ))
+manual_beta0_breaks <- c(
+  as.Date("2021-12-05"),
+  seq(
+  as.Date("2022-01-05")
+  , today(), by = 14)
+  )
+
+  # seq(invader_properties %>% filter(label == "Omicron1") %>% pull(start_date), today(), by = 21) ## every three weeks starting from omicron invasion
+
+  # as.Date(
+  # c(
+  #   invader_properties %>% filter(label == "Omicron1") %>% pull(start_date) ## takeoff of omicron1
+  #   , "2021-12-30" ## behaviour changes in response to omicron?
+  #   # , "2022-01-21"
+  #   # , invader_properties %>% filter(label == "Omicron2") %>% pull(start_date) ## takeoff of omicron1
+  #   # , "2022-01-31" ## begin easing restrictions (change in capacity limits)
+  #   , "2022-01-28" ## next phase of reopening (change in capacity limits)
+  #   # , "2022-03-01" ## proof of vaccine mandate lifted
+  #   , "2022-02-28"## behaviour changes?
+  #   # , "2022-03-21" ## most indoor mask mandates lifted
+  #   , "2022-03-28"
+  # ))
 manual_beta0_breaks <- manual_beta0_breaks[
   between(
   manual_beta0_breaks,
