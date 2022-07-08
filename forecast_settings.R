@@ -13,6 +13,9 @@ params_timevar_forecast <- data.frame(
   Type = "rel_prev" ## make beta0 value relative to the last calibrated value (scalar multiply with entry in the Value column)
 )
 
+## number of simulations for the ensemble
+n_sim <- 500 ### 5e4 produces a nice smooth median and confidence band
+
 # ---------------------------
 # Script output
 # ---------------------------
@@ -20,4 +23,5 @@ params_timevar_forecast <- data.frame(
 env <- clean_env(
   env,
   c("n_days_forecast",
-    "params_timevar_forecast"))
+    "params_timevar_forecast",
+    "n_sim"))

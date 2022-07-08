@@ -10,7 +10,8 @@ model_to_forecast = (model_calibrated
 
 ## simulate ensemble
 forecast_ensemble = (model_to_forecast
-  %>% simulate_ensemble(PDify = TRUE)
+  %>% simulate_ensemble(PDify = TRUE,
+                        n = n_sim)
   %>% filter(var %in% unique(model_calibrated$observed$data$var))
 )
 
