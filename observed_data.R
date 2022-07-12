@@ -74,12 +74,15 @@ if(!is.null(obs_scaling)){
 # vector values = tidied obs variable names
 # ---------------------------
 
+## default observations that get fed in
 condense_map = c(
   conv_Incidence = 'report_inc',
   Htotal = 'hosp_preval',
   ICU = 'icu_preval'
 )
 
+## filter only the obs we want to calibrate to
+condense_map <- condense_map[condense_map %in% calib_vars]
 # ---------------------------
 # Diagnostics
 # ---------------------------

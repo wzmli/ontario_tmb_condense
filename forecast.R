@@ -12,7 +12,6 @@ model_to_forecast = (model_calibrated
 forecast_ensemble = (model_to_forecast
   %>% simulate_ensemble(PDify = TRUE,
                         n = n_sim)
-  %>% filter(var %in% unique(model_calibrated$observed$data$var))
 )
 
 ## invert scaling in forecast_ensemble if present
