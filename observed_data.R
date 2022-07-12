@@ -83,6 +83,14 @@ condense_map = c(
 
 ## filter only the obs we want to calibrate to
 condense_map <- condense_map[condense_map %in% calib_vars]
+
+## additional calculated values
+condense_map = c(
+  condense_map,
+  lag_1_diff_Xtotal = 'hosp_inc',
+  Rtotal = 'recov_preval'
+)
+
 # ---------------------------
 # Diagnostics
 # ---------------------------
