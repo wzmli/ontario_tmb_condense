@@ -31,9 +31,9 @@ ggsave(
 
 ## plot fitted time-varying parameters
 ## get fitted time-varying parameters
-fitted_tv_params <- (
-  ## pull just fitted params with their schedule
-  model_uncalibrated$timevar$piece_wise$schedule
+fitted_tv_params <- bind_rows(
+  ## pull just fitted time-varying params with their schedule
+  (model_uncalibrated$timevar$piece_wise$schedule
   %>% filter(is.na(Value))
   %>% select(Date, Symbol)
   ## get fitted values values
@@ -42,24 +42,35 @@ fitted_tv_params <- (
      %>% select(Date, Symbol, Value)),
     by = c("Date", "Symbol"))
   ## lowercase names
-  %>% janitor::clean_names()
+  %>% janitor::clean_names())
+)
+
+## attach first fitted value (before first breakpoint)
+param_names <- (fitted_tv_params$symbol %>% unique())
+
+fitted_tv_params <- (bind_rows(
+  fitted_tv_params,
+  data.frame(
+    date = calib_start_date,
+    symbol = param_names,
+    value = unname(model_calibrated$params[param_names])
+  )
+) %>% arrange(symbol, date)
+  %>% mutate(plot_vline = TRUE)
 )
 
 prep_piecewise_df <- function(var, df){
   df <- df %>% filter(symbol == var)
   df2 <- (df
-          %>% mutate(date = lead(date - 1))
+          %>% mutate(date = lead(date - 1),
+                     plot_vline = FALSE)
           %>% replace_na(list(date = model_calibrated$end_date))
   )
   return(bind_rows(df, df2) %>% arrange(date))
 }
 
-fitted_tv_param_names <- (model_uncalibrated$timevar$piece_wise$schedule
-                          %>% filter(is.na(Value))
-                          %>% pull(Symbol)
-                          %>% unique())
 fitted_tv_params <- bind_rows(map(
-  fitted_tv_param_names,
+  param_names,
   prep_piecewise_df,
   df = fitted_tv_params
 )) %>% arrange(symbol, date)
@@ -70,9 +81,9 @@ p2 <- (
   + geom_line()
   + facet_wrap( ~ symbol, ncol = 1, scales = "free_y")
   + geom_vline(
-    aes(xintercept = Date),
+    aes(xintercept = date, colour = symbol),
     linetype = 'dashed',
-    data = filter(params_timevar, Symbol == "beta0")
+    data = fitted_tv_params %>% filter(plot_vline)
   )
   + guides(colour = "none")
   + coord_cartesian(xlim = date_range)
