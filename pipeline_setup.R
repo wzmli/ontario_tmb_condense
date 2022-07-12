@@ -35,9 +35,8 @@ theme_update(
   , legend.position = "bottom"
 )
 fig.width <- 6 ## inches
-date_range <- c(as.Date("2021-12-01"),
-                as.Date("2022-09-01")
-                ) ## x-scale for plots
+date_range <- c(as.Date("2022-01-01"),
+                today()) ## x-scale for plots
 
 
 ## Macpan technical options (see manual for details)
