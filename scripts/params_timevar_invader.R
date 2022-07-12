@@ -8,7 +8,7 @@ variants_raw <- readRDS("metadata/covvarnet_voc.rds")
 
 ## This repo is for Ontario Only
 ## We will make a new repo later for other pts
-major_prov = c("Ontario")
+region_name_long = c("Ontario")
 
 variants_tidy <- data.frame()
 
@@ -28,7 +28,7 @@ for(i in names(variants_raw)){
 print(names(variants_tidy))
 
 variants_long <- (variants_tidy
-                  %>% filter(province %in% major_prov)
+                  %>% filter(province %in% region_name_long)
                   %>% pivot_longer(names_to = "strain",
                                    values_to= "count",
                                    -c("date","province"))
