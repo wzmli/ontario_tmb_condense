@@ -29,8 +29,77 @@ ggsave(
   file.path("figs", "forecast.png"),
   p1,
   width = fig.width,
-  height = 1.3*fig.width
+  height = 1.5*fig.width
 )
+
+# ---------------------------
+# Implied seroprevalence
+#
+# A diagnostic plot that looks at seroprevalence as implied by the model vs estimates from blood donor data
+# ---------------------------
+calib_date <- "2022-07-12"
+## get model output
+pop_size <- unname(readRDS(
+  file.path("results",
+            paste0("model_calibrated_",
+                   calib_date, ".RDS")))$params["N"])
+
+ens <- (readRDS(
+  file.path("results",
+            paste0("forecast_ensemble_",
+                   calib_date, ".RDS")))
+  %>% ungroup()
+  %>% filter(var == 'recov_preval')
+  %>% rename(date = Date)
+  %>% select(-var, -scale_factor)
+  ## rescale to seroprev scale (% of the pop)
+  %>% mutate(
+    population = pop_size,
+    value = value/population*100,
+    lwr = lwr/population*100,
+    upr = upr/population*100)
+  %>% select(-population)
+)
+
+## pull seroprev data
+obs <- (read_csv("https://github.com/wzmli/COVID19-Canada/raw/master/seroprevalence.csv")
+        %>% rename(date = Date)
+        %>% filter(Province == "ON")
+        %>% select(-Province)
+        %>% mutate(across(-date, as.numeric))
+        %>% pivot_longer(-date)
+        %>% separate(name,
+                     into = c("trash", "assay", "value_type"))
+        %>% select(-trash)
+)
+
+p2 <- (ggplot(ens, aes(x = date))
+       + geom_ribbon(
+         aes(ymin = lwr, ymax = upr),
+         alpha = 0.2, fill = 'grey30')
+       + geom_line(aes(y = value), colour = 'red')
+       + geom_errorbar(
+         data = obs %>% filter(value_type != 'est') %>% pivot_wider(id_cols = c('date', 'assay'),
+                                                                    names_from = 'value_type'),
+         aes(x = date, ymin = lwr, ymax = upr, colour = assay))
+       + geom_point(
+         data = obs %>% filter(value_type == 'est'),
+         aes(y = value, colour = assay)
+       )
+       + scale_colour_manual(values = c('dodgerblue', 'forestgreen'))
+       + labs(title = 'Seroprevalence (%) over time as implied by model')
+       + theme(axis.title = element_blank(),
+               legend.position = 'bottom')
+)
+
+ggsave(
+  file.path('figs',
+            'seroprev.png'),
+  p2,
+  width = 6,
+  height = 0.75*6
+)
+
 
 env <- clean_env(
   env,
