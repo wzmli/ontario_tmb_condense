@@ -39,6 +39,7 @@ obs_scaling <- data.frame(
   var = c("hosp_preval"),
   scale_factor = c(0.5)
 )
+save_obj("obs_scaling", calib_end_date)
 
 # ---------------------------
 # Calibration settings
@@ -66,7 +67,7 @@ manual_beta0_breaks <- c(
   as.Date("2021-12-12"),
   seq(
   as.Date("2022-01-01")
-  , today(), by = 14)
+  , calib_end_date-days(1), by = 14)
   )
 
   # seq(invader_properties %>% filter(label == "Omicron1") %>% pull(start_date), today(), by = 21) ## every three weeks starting from omicron invasion

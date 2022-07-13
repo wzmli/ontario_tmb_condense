@@ -411,6 +411,6 @@ model = (flexmodel(params = params
 # Script output
 # ---------------------------
 
-env <- clean_env(
-  env,
-  c("model"))
+# env <- clean_env(
+#   env,
+#   c("model"))

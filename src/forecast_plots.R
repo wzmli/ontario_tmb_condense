@@ -1,7 +1,8 @@
 # ---------------------------
 # Produce forecast plots
 # ---------------------------
-
+get_obj("observed_data", calib_date)
+calib_vars <- calibration_dat %>% pull(var) %>% unique()
 ## plot forecast
 p1 <- (ggplot(forecast_ensemble)
        + geom_point(aes(date, value),
@@ -38,15 +39,10 @@ ggsave(
 # A diagnostic plot that looks at seroprevalence as implied by the model vs estimates from blood donor data
 # ---------------------------
 ## get model output
-pop_size <- unname(readRDS(
-  file.path("results",
-            paste0("model_calibrated_",
-                   calib_date, ".RDS")))$params["N"])
+pop_size <- unname(get_obj("model_calibrated",
+                   calib_date)$params["N"])
 
-ens <- (readRDS(
-  file.path("results",
-            paste0("forecast_ensemble_",
-                   calib_date, ".RDS")))
+ens <- (get_obj("forecast_ensemble", calib_date)
   %>% ungroup()
   %>% filter(var == 'recov_preval')
   %>% rename(date = Date)
@@ -85,10 +81,15 @@ p2 <- (ggplot(ens, aes(x = date))
          data = obs %>% filter(value_type == 'est'),
          aes(y = value, colour = assay)
        )
+       + scale_x_date(expand = expansion(mult = 0))
+       + scale_y_continuous(minor_breaks = seq(2.5, 48.5, by = 2.5),
+                            expand = expansion(mult = 0))
        + scale_colour_manual(values = c('dodgerblue', 'forestgreen'))
        + labs(title = 'Seroprevalence (%) over time as implied by model')
        + theme(axis.title = element_blank(),
-               legend.position = 'bottom')
+               legend.position = c(0,1),
+               legend.justification = c(0.01,1),
+               legend.background = element_rect(fill = NA))
 )
 
 ggsave(
@@ -100,6 +101,6 @@ ggsave(
 )
 
 
-env <- clean_env(
-  env,
-  c(""))
+# env <- clean_env(
+#   env,
+#   c(""))

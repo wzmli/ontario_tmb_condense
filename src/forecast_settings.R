@@ -20,8 +20,8 @@ n_sim <- 100 ### 5e4 produces a nice smooth median and confidence band
 # Script output
 # ---------------------------
 
-env <- clean_env(
-  env,
-  c("n_days_forecast",
-    "params_timevar_forecast",
-    "n_sim"))
+# env <- clean_env(
+#   env,
+#   c("n_days_forecast",
+#     "params_timevar_forecast",
+#     "n_sim"))

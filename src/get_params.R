@@ -56,6 +56,6 @@ invader_properties <- (bind_rows(
 # Script output
 # ---------------------------
 
-## save names of initialized parameters in a list
-env <- ls()
-env <- clean_env(env, "env")
+# ## save names of initialized parameters in a list
+# env <- ls()
+# env <- clean_env(env, "env")

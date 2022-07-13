@@ -7,20 +7,21 @@
 # Load and tidy minimally
 # ----------------------------
 
-# # load raw data
-# observed_data_raw <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
-#
-# ## tidy all observed data into long form for calibration
-# observed_data <- (observed_data_raw
-# 	%>% transmute(date = as.Date(`Reported Date`)
-# 		, report_inc = diff(c(0,`Total Cases`))
-# 		, hosp_preval = `Number of patients hospitalized with COVID-19`
-# 		, icu_preval = `Number of patients in ICU due to COVID-19`
-# 	)
-# 	%>% pivot_longer(names_to = "var", -"date")
-# )
+# load raw data
+observed_data_raw <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
 
-observed_data <- readRDS("pipeline_environments/observed_data_2022-07-07.RDS")
+## tidy all observed data into long form for calibration
+observed_data <- (observed_data_raw
+	%>% transmute(date = as.Date(`Reported Date`)
+		, report_inc = diff(c(0,`Total Cases`))
+		, hosp_preval = `Number of patients hospitalized with COVID-19`
+		, icu_preval = `Number of patients in ICU due to COVID-19`
+	)
+	%>% pivot_longer(names_to = "var", -"date")
+)
+
+## save for later
+save_obj("observed_data", calib_end_date)
 
 ## if user sets calib_vars to NULL, use all available observation variables in calibration
 if(is.null(calib_vars)) calib_vars <- unique(observed_data$var)
@@ -57,11 +58,14 @@ if(!is.null(obs_scaling)){
   calibration_dat <- (calibration_dat
     %>% left_join(obs_scaling_long,
                   by = c("date", "var"))
-    # %>% select(date, var, scale_factor)
     %>% replace_na(list(scale_factor = 1))
-    # %>% filter(date == "2022-01-01")
     %>% mutate(value = value * scale_factor)
     )
+}
+
+## save to invert scaling later, if it was done
+if("scale_factor" %in% names(calibration_dat)){
+ save_obj("calibration_dat", calib_end_date)
 }
 
 # ---------------------------
@@ -132,10 +136,10 @@ ggsave(
 # Script output
 # ---------------------------
 
-env <- clean_env(
-  env,
-  c("observed_data",
-    "calibration_dat",
-    "condense_map"))
+# env <- clean_env(
+#   env,
+#   c("observed_data",
+#     "calibration_dat",
+#     "condense_map"))
 
 

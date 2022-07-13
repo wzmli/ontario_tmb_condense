@@ -21,8 +21,7 @@ library(googlesheets4)
 # ---------------------------
 
 if(!file.exists("figs")) dir.create("figs")
-if(!file.exists("results")) dir.create("results")
-if(!file.exists("pipeline_environments")) dir.create("pipeline_environments")
+if(!file.exists("obj")) dir.create("obj")
 
 # ---------------------------
 # Define shared plot settings

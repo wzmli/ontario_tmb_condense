@@ -15,12 +15,10 @@ forecast_ensemble = (model_to_forecast
 )
 
 ## invert scaling in forecast_ensemble if present
-load(
-  file.path("pipeline_environments",
-            paste0("calibration_env_",
-                   calib_date,
-                   ".Rdata"))
-) ## need this to retrieve obs_scaling df
+get_obj("obs_scaling", calib_date)
+get_obj("calibration_dat", calib_date)
+
+## need this to retrieve obs_scaling df
 if("scale_factor" %in% names(calibration_dat)){
   ## handle scaling past calibration date (if end_date was specified as NA)
   fc_scaling <- obs_scaling %>% filter(is.na(end_date))
@@ -31,15 +29,13 @@ if("scale_factor" %in% names(calibration_dat)){
                         %>% summarise(start_date = max(date) + days(1)))
 
     fc_scaling <- (data.frame(
-      end_date = rep(
-        calib_end_date + days(n_days_forecast),
-        times = nrow(fc_scaling)
-        ),
       var = fc_scaling$var,
       scale_factor = fc_scaling$scale_factor
     ) %>% left_join(max_calib_dates,
                     by = "var")
-    %>% relocate(start_date, .before = end_date)
+    %>% mutate(end_date = start_date + days(n_days_forecast))
+    ## ORDER OF COLS MATTERS FOR pmap_dfr BELOW!
+    %>% relocate(start_date, end_date, .before = "var")
     )
 
     ## convert to long form
@@ -78,15 +74,15 @@ if("scale_factor" %in% names(calibration_dat)){
 # Script output
 # ---------------------------
 
-env <- clean_env(
-  env,
-  c("model_to_forecast",
-    "forecast_ensemble",
-    "calib_date"))
+# env <- clean_env(
+  # env,
+  # c("model_to_forecast",
+  #   "forecast_ensemble",
+  #   "calib_date"))
 
 saveRDS(forecast_ensemble,
-        file = file.path("results",
+        file = file.path("obj",
                          paste0("forecast_ensemble_",
-                                today(),
+                                calib_date,
                                 ".RDS")))
 

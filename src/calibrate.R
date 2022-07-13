@@ -113,24 +113,24 @@ if("scale_factor" %in% names(calibration_dat)){
 # Script output
 # ---------------------------
 
-env <- clean_env(
-  env,
-  c("params_timevar",
-    "model_uncalibrated",
-    "model_calibrated",
-    "fitted_var"))
+# env <- clean_env(
+#   env,
+#   c("params_timevar",
+#     "model_uncalibrated",
+#     "model_calibrated",
+#     "fitted_var"))
 
 ## save calibrated model
 saveRDS(model_calibrated,
-        file = file.path("results",
+        file = file.path("obj",
                          paste0("model_calibrated_",
-                                today(),
+                                calib_end_date,
                                 ".RDS")))
 
 ## save predicted values
 saveRDS(fitted_var,
-        file = file.path("results",
+        file = file.path("obj",
                          paste0("fitted_var_",
-                                today(),
+                                calib_end_date,
                                 ".RDS")))
 

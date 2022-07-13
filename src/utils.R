@@ -30,3 +30,28 @@ load_params <- function(sheet, params_url){
                           eval(parse(text = val)),
                           envir = .GlobalEnv)}))
 }
+
+#' Save object
+#'
+#' @param obj_name name of the object used in these scripts (as a character string)
+#' @param date date (character string) attached to the .RDS filename where the object is stored
+save_obj <- function(obj_name, date){
+  x <- get(obj_name, envir = .GlobalEnv)
+  saveRDS(x,
+    file.path(
+      "obj",
+      paste0(obj_name, "_", date, ".RDS")
+  ))
+}
+
+#' Retrieve saved object
+#'
+#' @inheritParams save_obj
+get_obj <- function(obj_name, date){
+  x <- readRDS(file.path(
+    "obj",
+    paste0(obj_name, "_", date, ".RDS")
+  ))
+  assign(obj_name, x, envir = .GlobalEnv)
+}
+

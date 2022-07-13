@@ -4,7 +4,7 @@
 # load and tidy data on variant counts and frequencies
 # ---------------------------
 
-variants_raw <- readRDS("metadata/covvarnet_voc.rds")
+variants_raw <- readRDS("data/covvarnet_voc.rds")
 
 ## This repo is for Ontario Only
 ## We will make a new repo later for other pts

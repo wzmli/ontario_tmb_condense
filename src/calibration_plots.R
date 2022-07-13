@@ -114,6 +114,6 @@ if(plot_diagnostics_modelspecific){
 # Script output
 # ---------------------------
 
-env <- clean_env(
-  env,
-  c(""))
+# env <- clean_env(
+#   env,
+#   c(""))

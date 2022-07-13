@@ -108,8 +108,8 @@ attach_opt_tv_params <- function(model){
 # Script output
 # ---------------------------
 
-env <- clean_env(
-  env,
-  c("attach_opt_params",
-    "params_timevar_opt",
-    "attach_opt_tv_params"))
+# env <- clean_env(
+#   env,
+#   c("attach_opt_params",
+#     "params_timevar_opt",
+#     "attach_opt_tv_params"))
