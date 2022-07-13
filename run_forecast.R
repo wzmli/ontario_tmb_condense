@@ -1,4 +1,4 @@
-# rm(list = ls()) ## start fresh
+rm(list = ls()) ## start fresh
 
 # ---------------------------
 # Pipeline Setup

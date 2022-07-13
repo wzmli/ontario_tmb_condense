@@ -1,3 +1,5 @@
+rm(list = ls()) ## start fresh
+
 start_time <- Sys.time()
 
 source("run_calibration.R")
