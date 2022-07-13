@@ -81,7 +81,8 @@ if("scale_factor" %in% names(calibration_dat)){
 env <- clean_env(
   env,
   c("model_to_forecast",
-    "forecast_ensemble"))
+    "forecast_ensemble",
+    "calib_date"))
 
 saveRDS(forecast_ensemble,
         file = file.path("results",

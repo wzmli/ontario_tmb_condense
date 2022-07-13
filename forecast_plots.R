@@ -37,7 +37,6 @@ ggsave(
 #
 # A diagnostic plot that looks at seroprevalence as implied by the model vs estimates from blood donor data
 # ---------------------------
-calib_date <- "2022-07-12"
 ## get model output
 pop_size <- unname(readRDS(
   file.path("results",
