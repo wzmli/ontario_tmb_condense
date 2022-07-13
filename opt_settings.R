@@ -84,7 +84,14 @@ attach_opt_tv_params <- function(model){
                        , paste(log_beta0_prior_mean, collapse = ",") ## mean
                        , "), 0.25)")) ## variance
               , logit_mu ~ logit_normal(
-                qlogis(0.9853643) ## mean
+                qlogis(c(
+                          0.97, 0.94, 0.98, 0.98, ## wild-type
+                          rep(0.985, 2), ## Alpha,
+                         rep(0.96, 2),
+                         ## delta
+                         rep(0.99, 3) ## omicrons
+
+                         )) ## mean
                 , 0.1 ## variance
               ) ## starting value on the logit scale
               , log_rho ~ log_normal(
