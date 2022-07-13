@@ -35,7 +35,7 @@ theme_update(
   , legend.position = "bottom"
 )
 fig.width <- 6 ## inches
-date_range <- c(as.Date("2022-01-01"),
+date_range <- c(as.Date("2020-01-01"),
                 today()) ## x-scale for plots
 
 
@@ -44,5 +44,5 @@ options(MP_default_do_sim_constraint = TRUE)
 options(MP_get_bbmle_init_from_nlminb = TRUE)
 
 ## load utils
-source("utils.R")
+source("src/utils.R")
 

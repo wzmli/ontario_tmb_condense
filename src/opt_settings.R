@@ -69,9 +69,9 @@ params_timevar_opt <- NULL ## initialize variable name
 
 ## schedules for time-varying parameters that are being fitted
 ## add rows for each time-varying parameter
-source("scripts/params_timevar_beta.R")
-source("scripts/params_timevar_mu.R")
-source("scripts/params_timevar_rho.R")
+source("src/params_timevar_beta.R")
+source("src/params_timevar_mu.R")
+source("src/params_timevar_rho.R")
 
 # time-varying params to optimize and priors
 attach_opt_tv_params <- function(model){

@@ -6,8 +6,8 @@
 params_timevar_data <- NULL ## initialize variable name
 
 ## get time-varying parameters from data
-source("scripts/params_timevar_vaxdosing.R")
-source("scripts/params_timevar_invader.R")
+source("src/params_timevar_vaxdosing.R")
+source("src/params_timevar_invader.R")
 
 # ---------------------------
 # Script output

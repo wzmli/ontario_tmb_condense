@@ -107,7 +107,7 @@ ggsave(
 # ---------------------------
 
 if(plot_diagnostics_modelspecific){
-  source("check_vaccine_admin.R")
+  source("src/check_vaccine_admin.R")
 }
 
 # ---------------------------

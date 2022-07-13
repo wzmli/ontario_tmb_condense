@@ -4,7 +4,7 @@ rm(list = ls()) ## start fresh
 # Pipeline Setup
 # ---------------------------
 
-source("pipeline_setup.R") ## EDIT RARELY
+source("src/pipeline_setup.R") ## EDIT RARELY
 
 # ---------------------------
 # Load calibration
@@ -41,9 +41,9 @@ env <- clean_env(env, "env")
 # ---------------------------
 # Forecast
 # ---------------------------
-source("forecast_settings.R") ## EDIT OFTEN
-source("forecast.R") ## EDIT NEVER
-source("forecast_plots.R")
+source("src/forecast_settings.R") ## EDIT OFTEN
+source("src/forecast.R") ## EDIT NEVER
+source("src/forecast_plots.R")
 
 # ---------------------------
 # Save environment
