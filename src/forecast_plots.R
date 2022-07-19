@@ -23,7 +23,8 @@ p1 <- (ggplot(forecast_ensemble)
          , strip.position = "top"
        )
        + labs(title = "Forecast")
-       + scale_x_date(limits = date_range)
+       + scale_x_date(limits = c(date_range[1],
+                                 date_range[2] + n_days_forecast))
 )
 p1
 ggsave(
@@ -81,7 +82,9 @@ p2 <- (ggplot(ens, aes(x = date))
          data = obs %>% filter(value_type == 'est'),
          aes(y = value, colour = assay)
        )
-       + scale_x_date(expand = expansion(mult = 0))
+       + scale_x_date(expand = expansion(mult = 0),
+                      limits = c(date_range[1],
+                                 date_range[2] + n_days_forecast))
        + scale_y_continuous(expand = expansion(mult = 0))
        + scale_colour_manual(values = c('dodgerblue', 'forestgreen'))
        + labs(title = 'Seroprevalence (%) over time as implied by model')
