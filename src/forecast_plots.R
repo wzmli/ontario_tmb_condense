@@ -82,8 +82,7 @@ p2 <- (ggplot(ens, aes(x = date))
          aes(y = value, colour = assay)
        )
        + scale_x_date(expand = expansion(mult = 0))
-       + scale_y_continuous(minor_breaks = seq(2.5, 48.5, by = 2.5),
-                            expand = expansion(mult = 0))
+       + scale_y_continuous(expand = expansion(mult = 0))
        + scale_colour_manual(values = c('dodgerblue', 'forestgreen'))
        + labs(title = 'Seroprevalence (%) over time as implied by model')
        + theme(axis.title = element_blank(),

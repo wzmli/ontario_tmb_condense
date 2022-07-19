@@ -4,6 +4,9 @@
 # load and tidy data on variant counts and frequencies
 # ---------------------------
 
+## established variants
+## from covarnet
+## --------------------------
 variants_raw <- readRDS("data/covvarnet_voc.rds")
 
 ## This repo is for Ontario Only
@@ -90,6 +93,67 @@ params_timevar_inv_prop <- (
   %>% as.data.frame()
 )
 
+## for a newly invading variant (BA.4/5)
+## ----------------------------
+
+## read raw variant data
+df <- bind_rows(
+  read_csv(file.path("data", "ba4.csv")) %>% mutate(strain = "ba4"),
+  read_csv(file.path("data", "ba5.csv")) %>% mutate(strain = "ba5"))
+
+## tidy variant data
+df <- (df
+       %>% rename(date = x, percent = y)
+       %>% separate(date, into = c("date", "time"),
+                    sep = " ")
+       %>% select(-time)
+       %>% mutate(date = as.Date(date))
+       ## combine ba4 and ba5 percentages and convert to proportion
+       %>% group_by(date)
+       %>% summarize(obs = sum(percent)/100, .groups = 'drop')
+)
+first_obs <- min(df$date)
+
+## fill first obs date as start date for "Omicron5"
+invader_properties[which(invader_properties$label == "Omicron5"), "start_date"] <- first_obs
+
+## regression to project until the end of the calibration period
+inv_prop_model <- glm(obs ~ date, family = "binomial", data = df)
+save_obj("inv_prop_model", calib_end_date)
+df <- (data.frame(date = seq(first_obs,
+                             calib_end_date,
+                             by = 1))
+       %>% left_join(df, by = "date"))
+df$pred <- predict(inv_prop_model,
+                   newdata = df,
+                   type = "response")
+
+## diagnostic plot
+p1 <- (ggplot(df,
+              aes(x = date))
+       + geom_point(aes(y = obs))
+       + geom_line(aes(y = pred))
+       + scale_y_continuous(limits = c(0, 1))
+       + labs(title = "Proportion of BA.4 and BA.5 combined",
+              subtitle = "(until calibration end date)"))
+
+print(p1)
+
+## convert to params_timevar format and bind to rows for established variants
+params_timevar_inv_prop_new <- (
+  df
+    %>% select(-obs)
+    %>% rename(Date = date, inv_prop = pred)
+    %>% pivot_longer(-Date,
+                     names_to = "Symbol",
+                     values_to = "Value")
+    %>% as.data.frame()
+)
+params_timevar_inv_prop <- rbind(
+  params_timevar_inv_prop,
+  params_timevar_inv_prop_new
+)
+
 # ---------------------------
 # Variant parameter changes
 #
@@ -141,26 +205,33 @@ prep_invasion_params <- function(
 }
 
 ## prep all parameters that need to change upon an invasion
-
-prep_invasion_params("vax_VE_trans")
-
 inv_params_list <- c("vax_VE_trans", "vax_VE_hosp")
-
 params_timevar_inv_params <- bind_rows(
   lapply(inv_params_list,
          prep_invasion_params)
-)
+) %>% as.data.frame()
+
+## attach transmission advantages, if specified
+if("inv_trans_adv" %in% names(invader_properties)){
+  params_timevar_inv_params <- rbind(
+    params_timevar_inv_params,
+    (invader_properties
+    %>% filter(!is.na(inv_trans_adv))
+    %>% select(start_date, inv_trans_adv)
+    %>% rename(Date = start_date)
+    %>% pivot_longer(-Date,
+                     names_to = "Symbol",
+                     values_to = "Value"))
+    %>% mutate(Value = as.numeric(Value))
+    %>% as.data.frame())
+}
 
 # ---------------------------
 # Script output
 # ---------------------------
 
-params_timevar_invader <- bind_rows(
-  params_timevar_inv_prop,
-  params_timevar_inv_params
-)
-
 params_timevar_data <- bind_rows(
   params_timevar_data,
-  params_timevar_invader
+  params_timevar_inv_prop,
+  params_timevar_inv_params
 )

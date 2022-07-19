@@ -1,4 +1,4 @@
-rm(list = ls()) ## start fresh
+rm(list = setdiff(ls(), "start_time")) ## start fresh
 
 # ---------------------------
 # Pipeline Setup

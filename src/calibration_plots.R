@@ -102,6 +102,8 @@ ggsave(
   height = 1.5*fig.width
 )
 
+print(model_calibrated$timevar$piece_wise$schedule %>% filter(Symbol == "mu") %>% select(Date, Value))
+
 # ---------------------------
 # Model-specific diagnostics
 # ---------------------------
