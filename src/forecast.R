@@ -1,4 +1,11 @@
 # ---------------------------
+# Load calibration
+# ---------------------------
+
+## load calibrated model
+get_obj("model_calibrated", calib_date)
+
+# ---------------------------
 # Produce forecast using calibrated model
 # ---------------------------
 

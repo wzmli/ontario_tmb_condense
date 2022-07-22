@@ -1,20 +1,28 @@
 # ---------------------------
+# Specify calibration date
+# ---------------------------
+
+## if NULL, will use calibration with most recent date in the file name in obj directory
+calib_date <- NULL
+if(is.null(calib_date)) get_calib_date()
+
+# ---------------------------
 # Define forecast settings
 # ---------------------------
 
 ## number of days to forecast past the calibration end date
-n_days_forecast <-30
+n_days_forecast <- 60
 
 ## time-varying parameters in the forecast period
 params_timevar_forecast <- data.frame(
-  Date = model_calibrated$end_date + 1, ## start on the date after the calibration end date
+  Date = calib_date + 1, ## start on the date after the calibration end date
   Symbol = "beta0",
   Value = 1, ## status quo beta0 in forecast
   Type = "rel_prev" ## make beta0 value relative to the last calibrated value (scalar multiply with entry in the Value column)
 )
 
 ## number of simulations for the ensemble
-n_sim <- 100 ### 5e4 produces a nice smooth median and confidence band
+n_sim <- 5e4 ### 5e4 produces a nice smooth median and confidence band
 
 ## add new invader variant proportion from model,
 ## if used in calibration
