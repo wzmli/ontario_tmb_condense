@@ -8,7 +8,7 @@ params_url <- "https://docs.google.com/spreadsheets/d/13GBes6A2PMXITwfkyYw7E3Lt3
 load_params("base_default", params_url)
 
 ## province-specific overwrites
-load_params("base_ON", params_url)
+load_params(paste0("base_", region), params_url)
 
 ## map to simplify variant data (bucket multiple strains under a single label)
 variant_map <- data.frame(
@@ -36,10 +36,10 @@ invader_properties <- (bind_rows(
     col_types = 'c' ## in order to parse fractional values later
   )
 ,
-  ## ontario-specific variant params
+  ## region-specific variant params
   read_sheet(
     params_url,
-    sheet = "variant_ON",
+    sheet = paste0("variant_", region),
     col_types = 'c' ## in order to parse fractional values later
   ))
   %>% select(label, symbol, value)
