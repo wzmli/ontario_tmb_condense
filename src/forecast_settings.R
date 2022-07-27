@@ -22,7 +22,7 @@ params_timevar_forecast <- data.frame(
 )
 
 ## number of simulations for the ensemble
-n_sim <- 100 ### 5e4 produces a nice smooth median and confidence band
+n_sim <- 5e4 ### 5e4 produces a nice smooth median and confidence band
 
 ## add new invader variant proportion from model,
 ## if used in calibration
