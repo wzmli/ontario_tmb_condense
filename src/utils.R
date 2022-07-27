@@ -68,3 +68,39 @@ get_calib_date <- function(){
 
   assign("calib_date", calib_date, envir = .GlobalEnv)
 }
+
+#' Run calibration
+#'
+#' @param region province/territory for which to run the calibration as a two-letter abreviation
+run_calibration <- function(region = "ON"){
+  ## Load model params
+  source(file.path("src","get_params.R"))
+
+  ## Load observed data
+  source(file.path("src","observed_data.R")) ## EDIT RARELY
+
+  ## Define model
+  source(file.path("src","model.R")) ## EDIT RARELY
+
+  ## Generate time-varying params from data
+  source(file.path("src","params_timevar_data.R")) ## EDIT RARELY
+
+  ## Set up optimization parameters, schedules for time-varying ones, and priors
+  source(file.path("src","opt_settings.R")) ## EDIT SOMETIMES
+
+  ## Calibrate and plot
+  source(file.path("src","calibrate.R")) ## EDIT NEVER
+  source(file.path("src","calibration_plots.R"))
+}
+
+#' Run forecast
+#'
+#' @inheritParams run_calibration
+run_forecast <- function(region = "ON"){
+  ## Specify forecast settings
+  source(file.path("src","forecast_settings.R")) ## EDIT OFTEN
+
+  ## Forecast and plot
+  source(file.path("src","forecast.R")) ## EDIT NEVER
+  source(file.path("src","forecast_plots.R"))
+}
