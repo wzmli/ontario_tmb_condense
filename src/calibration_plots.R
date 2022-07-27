@@ -108,14 +108,4 @@ print(model_calibrated$timevar$piece_wise$schedule %>% filter(Symbol == "mu") %>
 # Model-specific diagnostics
 # ---------------------------
 
-if(plot_diagnostics_modelspecific){
-  source("src/check_vaccine_admin.R")
-}
-
-# ---------------------------
-# Script output
-# ---------------------------
-
-# env <- clean_env(
-#   env,
-#   c(""))
+source("src/check_vaccine_admin.R")

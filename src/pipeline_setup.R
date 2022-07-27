@@ -15,6 +15,11 @@ library(data.table)
 library(jsonlite)
 library(patchwork)
 library(googlesheets4)
+gs4_deauth() ## bypass authentication, not needed for public sheets
+
+## macpan technical options (see manual for details)
+options(MP_default_do_sim_constraint = TRUE)
+options(MP_get_bbmle_init_from_nlminb = TRUE)
 
 # ---------------------------
 # Make output directories (not tracked by git)
@@ -24,24 +29,9 @@ if(!file.exists("figs")) dir.create("figs")
 if(!file.exists("obj")) dir.create("obj")
 
 # ---------------------------
-# Define shared plot settings
+# Load utils + plot settings
 # ---------------------------
 
-theme_set(theme_bw())
-theme_update(
-  axis.title.y = element_blank()
-  , strip.background = element_rect(fill = "white")
-  , legend.position = "bottom"
-)
-fig.width <- 6 ## inches
-date_range <- c(as.Date("2020-01-01"),
-                today()) ## x-scale for plots
-
-
-## Macpan technical options (see manual for details)
-options(MP_default_do_sim_constraint = TRUE)
-options(MP_get_bbmle_init_from_nlminb = TRUE)
-
-## load utils
-source("src/utils.R")
+source(file.path("src", "utils.R"))
+source(file.path("src", "plot_settings.R"))
 

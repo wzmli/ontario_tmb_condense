@@ -1,6 +1,7 @@
 # ---------------------------
 # Produce forecast plots
 # ---------------------------
+
 get_obj("observed_data", calib_date)
 calib_vars <- calibration_dat %>% pull(var) %>% unique()
 ## plot forecast
