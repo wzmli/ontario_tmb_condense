@@ -80,7 +80,7 @@ condense_map = c(
 print(observed_data)
 
 df <- bind_rows(
-  observed_data %>% mutate(type = "as reported"),
+  observed_data %>% mutate(type = "available"),
   calibration_dat %>% select(-scale_factor) %>% mutate(type = "used in calibration")
 )
 

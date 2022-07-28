@@ -23,7 +23,9 @@ if(timing) start_time <- Sys.time()
 # ---------------------------
 
 source(file.path("src","pipeline_setup.R")) ## EDIT RARELY
-source(file.path("src", "observed_data.R")) ## get all observations for the region
+
+source(file.path("src", "observed_data.R")) ## get all observations for the region (now, so that it can be used in pipeline_parameters)
+
 source(file.path("src", "pipeline_parameters",
                  paste0(region, ".R"))) ## EDIT OFTEN
 source(file.path("src", "check_pipeline_parameters.R"))
