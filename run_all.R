@@ -5,9 +5,11 @@ rm(list = ls()) ## start fresh
 # ---------------------------
 
 region <- "ON" ## which region?
+region_name_long <- "Ontario" ## just need this for variant data
+## FIXME: update variant data processing to include a join with a province name lookup table to eliminate the need for this manual assign
 
 calibrate <- TRUE ## should we calibrate?
-forecast <- FALSE ## should we forecast?
+forecast <- TRUE ## should we forecast?
 
 timing <- TRUE ## should the run be timed?
 beeping <- TRUE ## should run end with a beep?
