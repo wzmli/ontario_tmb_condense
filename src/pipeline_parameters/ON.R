@@ -8,9 +8,8 @@
 # Dates
 # ---------------------------
 
-calib_end_date <- as.Date("2022-07-18")
-# calib_end_date <- today()
 calib_start_date <- as.Date("2020-02-01")
+# calib_end_date <- today() ## don't specify anything here if you want the calibration end date to be the date of the last observation in the observed data
 
 report_end_date <- as.Date("2021-12-28") ## when we assume the report signal stops being reliable (can't be after calibration_end_date!)
 
