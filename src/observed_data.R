@@ -4,8 +4,7 @@
 # load and tidy data to which the model is being calibrated
 # ---------------------------
 
-# Load and tidy minimally
-# ----------------------------
+cat("loading observed data...\n")
 
 # load raw data
 observed_data_raw <- read_csv(
@@ -22,5 +21,7 @@ observed_data <- (observed_data_raw
                   %>% pivot_longer(names_to = "var", -"date")
 )
 
-## set calibration end date to date of last observation by default,
+## set calibration end date to date of last observation by default (can override this in the pipeline_parameters)
 calib_end_date <- max(observed_data$date)
+
+cat("observed data loaded...\n")
