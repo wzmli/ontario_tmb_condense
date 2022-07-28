@@ -85,25 +85,14 @@ attach_opt_tv_params <- function(model){
                 paste0("log_beta0 ~ log_normal(c("
                        , paste(log_beta_prior_mean, collapse = ",") ## mean
                        , "), 0.25)")) ## variance
-              , logit_mu ~ logit_normal(
-                qlogis(c(
-                  ## wild-type
-                  0.97, 0.94, 0.98, 0.98,
-                  ## Alpha
-                  rep(0.985, 2),
-                  ## Delta
-                  rep(0.96, 2),
-                  ## BA.1
-                  0.987, 0.987,
-                  # rep(0.99, 2),
-                  ## BA.2
-                  0.993, 0.995,
-                  # rep(0.99, 2),
-                  ## BA.4/5
-                  0.985
-                )) ## mean
-                , 0.1 ## variance
-              ) ## starting value on the logit scale
+              , as.formula(
+                paste0("logit_mu ~ logit_normal(c("
+                       , paste(qlogis(mu_prior_mean), collapse = ",") ## mean
+                       , "), 0.1)")) ## variance
+              # , logit_mu ~ logit_normal(
+              #   qlogis(mu_prior_mean) ## mean
+              #   , 0.1 ## variance
+              # ) ## starting value on the logit scale
               , log_rho ~ log_normal(
                 log(1/10) ## setting approx avg length of stay = 10 days
                 , 0.008 ## variance calculated so that 5-15 days are within 1 standard deviation of the mean

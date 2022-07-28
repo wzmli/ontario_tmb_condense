@@ -71,3 +71,18 @@ log_manual_beta_prior_mean <- rep(-0.2818156,
 log_beta_prior_mean <- c(log_auto_beta_prior_mean,
                          log_manual_beta_prior_mean)
 
+## prior means for mu
+mu_prior_mean <- c(
+  ## wild-type
+  0.97, 0.94, 0.98, 0.98,
+  ## Alpha
+  rep(0.985, 2),
+  ## Delta
+  rep(0.96, 2),
+  ## BA.1
+  0.987, 0.987,
+  ## BA.2
+  0.993, 0.995,
+  ## BA.4/5
+  0.985
+)
