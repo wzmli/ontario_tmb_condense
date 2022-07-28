@@ -59,7 +59,8 @@ ens <- (get_obj("forecast_ensemble", calib_date)
 )
 
 ## pull seroprev data
-obs <- (read_csv("https://github.com/wzmli/COVID19-Canada/raw/master/seroprevalence.csv")
+obs <- (read_csv("https://github.com/wzmli/COVID19-Canada/raw/master/seroprevalence.csv",
+                 show_col_types = FALSE)
         %>% rename(date = Date)
         %>% filter(Province == "ON")
         %>% select(-Province)

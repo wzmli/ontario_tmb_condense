@@ -90,7 +90,7 @@ load_params <- function(sheet, params_url){
 #'
 #' Caches the data daily to speed up the pipeline.
 download_observed_data <- function(){
-  print("downloading observed data for all regions...")
+  cat("-- downloading observed data for all regions...\n")
 
   # load raw data
   observed_data_raw <- suppressMessages(read_csv(
