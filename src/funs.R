@@ -126,12 +126,12 @@ download_observed_data <- function(){
 
   ## bind together and pivot longer
   observed_data_all <- (bind_rows(
-    observed_data,
+    observed_data_pt,
     observed_data_CA
   ))
 
   ## assign to global environment so that save_obj works
-  assign("observed_data_all", observed_data, envir = .GlobalEnv)
+  assign("observed_data_all", observed_data_all, envir = .GlobalEnv)
 
   ## save for later
   save_obj("observed_data_all", NULL)

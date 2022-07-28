@@ -4,35 +4,40 @@
 # load and tidy data to which the model is being calibrated
 # ---------------------------
 
-# Load and tidy minimally
-# ----------------------------
+cat("loading observed data...\n")
 
-# load raw data
-observed_data_raw <- read_csv("https://data.ontario.ca/datastore/dump/ed270bb8-340b-41f9-a7c6-e8ef587e6d11?bom=True")
+## Download latest observations if the cache file doesn't exist
+if(!file.exists(file.path("obj", "observed_data_all.RDS"))) download_observed_data()
 
-## tidy all observed data into long form for calibration
-observed_data <- (observed_data_raw
-	%>% transmute(date = as.Date(`Reported Date`)
-		, report_inc = diff(c(0,`Total Cases`))
-		, hosp_preval = `Number of patients hospitalized with COVID-19`
-		, icu_preval = `Number of patients in ICU due to COVID-19`
-	)
-	%>% pivot_longer(names_to = "var", -"date")
+## Load latest observations
+get_obj("observed_data_all", date = NULL)
+
+## Update observations if last download was before today
+if(attr(observed_data_all, "save_date") < today()) download_observed_data()
+
+## Pull out observed data for the given province
+observed_data <- (observed_data_all
+  %>% filter(province == region)
 )
 
-## save for later
-save_obj("observed_data", calib_end_date)
-
-## if user sets calib_vars to NULL, use all available observation variables in calibration
+## Select calibration variables
+## (if user sets calib_vars to NULL, use all available observation variables in calibration, otherwise use user-provided list)
 if(is.null(calib_vars)) calib_vars <- unique(observed_data$var)
 
 # Prep obs for calibration
 # ----------------------------
 
+## select province
+observed_data <- (observed_data
+  %>% filter(province == region)
+)
+
 ## make calibration data
 calibration_dat <- (observed_data
-   ## filter to calibration period
-   %>% filter(between(date, as.Date(calib_start_date), as.Date(calib_end_date)))
+   %>% filter(
+     ## select calibration period
+     between(date, as.Date(calib_start_date), as.Date(calib_end_date))
+     )
    ## keep only desired observations
    %>% filter(var %in% calib_vars)
    ## remove reports after date when testing became unreliable
@@ -99,11 +104,12 @@ condense_map = c(
 # Diagnostics
 # ---------------------------
 
-print(observed_data)
-
 df <- bind_rows(
-  observed_data %>% mutate(type = "as reported"),
-  calibration_dat %>% select(-scale_factor) %>% mutate(type = "used in calibration")
+  (observed_data
+    %>% mutate(type = "as reported")),
+  (calibration_dat
+    %>% select(-scale_factor)
+    %>% mutate(type = "used in calibration"))
 )
 
 ## plot observed data
@@ -112,9 +118,6 @@ p1 <- (ggplot(df)
        + geom_point(aes(x = date, y = value,
                        colour = type, alpha = type))
        + labs(title = "Observed data")
-       # + scale_size_manual(
-         # values = c(2, 1)
-       # )
        + scale_colour_manual(
          values = c("grey75", "palevioletred1")
        )
@@ -125,21 +128,11 @@ p1 <- (ggplot(df)
        + theme(legend.title = element_blank())
 )
 
-ggsave(
+suppressWarnings(ggsave(
   file.path("figs", "observed_data.png")
   , p1
   , width = fig.width
   , height = 1.3*fig.width
-)
+))
 
-# ---------------------------
-# Script output
-# ---------------------------
-
-# env <- clean_env(
-#   env,
-#   c("observed_data",
-#     "calibration_dat",
-#     "condense_map"))
-
-
+cat("observed data loaded\n\n")
