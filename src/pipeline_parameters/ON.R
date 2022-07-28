@@ -71,24 +71,3 @@ log_manual_beta_prior_mean <- rep(-0.2818156,
 log_beta_prior_mean <- c(log_auto_beta_prior_mean,
                          log_manual_beta_prior_mean)
 
-  # as.Date(
-  # c(
-  #   invader_properties %>% filter(label == "Omicron1") %>% pull(start_date) ## takeoff of omicron1
-  #   , "2021-12-30" ## behaviour changes in response to omicron?
-  #   # , "2022-01-21"
-  #   # , invader_properties %>% filter(label == "Omicron2") %>% pull(start_date) ## takeoff of omicron1
-  #   # , "2022-01-31" ## begin easing restrictions (change in capacity limits)
-  #   , "2022-01-28" ## next phase of reopening (change in capacity limits)
-  #   # , "2022-03-01" ## proof of vaccine mandate lifted
-  #   , "2022-02-28"## behaviour changes?
-  #   # , "2022-03-21" ## most indoor mask mandates lifted
-  #   , "2022-03-28"
-  # ))
-manual_beta0_breaks <- manual_beta0_breaks[
-  between(
-  manual_beta0_breaks,
-  calib_start_date,
-  calib_end_date)]
-log_beta0_prior_mean <- c(log_beta0_prior_mean,
-                          rep(-0.2818156,
-                              length(manual_beta0_breaks)))
