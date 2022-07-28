@@ -90,7 +90,7 @@ load_params <- function(sheet, params_url){
 #'
 #' Caches the data daily to speed up the pipeline.
 download_observed_data <- function(){
-  print("downloading observed data for all regions...")
+  cat("-- downloading observed data for all regions...\n")
 
   # load raw data
   observed_data_raw <- suppressMessages(read_csv(
@@ -193,8 +193,8 @@ run_calibration <- function(region = "ON"){
   ## Load model params
   source(file.path("src","get_params.R"))
 
-  ## Load observed data
-  source(file.path("src","observed_data.R"))
+  ## Prep observed data for calibration
+  source(file.path("src","calibration_dat.R"))
 
   ## Define model
   source(file.path("src","model.R"))
