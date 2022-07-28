@@ -8,10 +8,9 @@
 # Dates
 # ---------------------------
 
-calib_start_date <- as.Date("2020-02-06") ## start date for each simulation in the calibration (may be before obs_start_date to enable a burn-in period before observations that we're calibrating to start)
-## FIXME: should be able to make this work even if calib_start_date > min(observed_data$date)
 calib_end_date <- as.Date("2022-07-18")
 # calib_end_date <- today()
+calib_start_date <- as.Date("2020-02-01")
 
 report_end_date <- as.Date("2021-12-28") ## when we assume the report signal stops being reliable (can't be after calibration_end_date!)
 

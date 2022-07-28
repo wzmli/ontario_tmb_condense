@@ -193,8 +193,8 @@ run_calibration <- function(region = "ON"){
   ## Load model params
   source(file.path("src","get_params.R"))
 
-  ## Load observed data
-  source(file.path("src","observed_data.R"))
+  ## Prep observed data for calibration
+  source(file.path("src","calibration_dat.R"))
 
   ## Define model
   source(file.path("src","model.R"))
