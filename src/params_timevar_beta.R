@@ -27,7 +27,7 @@ fit <- lm(lmavg ~ date,data=report_dat)
 ## refit with piecewise break dates. We can pick as many break points as we want
 ## here, we are arbitrary picking 14 (we had roughly 6 waves)
 
-refit <- segmented(fit, seg.Z = ~date, npsi=n_breaks_beta0)
+refit <- segmented(fit, seg.Z = ~date, npsi=n_breaks_auto_beta)
 
 ## extract breakdates
 break_date <- as.Date(c(round(refit$indexU$date)))
@@ -41,9 +41,9 @@ auto_beta <- data.frame(Date = break_date - reporting_lag
 )
 
 ## manual breaks (after reports drop out)
-if(length(manual_beta0_breaks) != 0){
+if(length(manual_beta_breaks) != 0){
   manual_beta <-data.frame(
-    Date = manual_beta0_breaks
+    Date = manual_beta_breaks
     , Symbol = "beta0"
     , Value = NA
   )

@@ -43,33 +43,33 @@ save_obj("obs_scaling", calib_end_date)
 # Calibration settings
 # ---------------------------
 
-# Number of break dates for beta0
-# to be auto-detected from report time series
-# and corresponding priors
+# beta0
 # ---------------------------
-n_breaks_beta0 <- 10 ## number of breaks
-log_beta0_prior_mean <- c(
+
+# settings for beta from auto-detected breaks
+
+n_breaks_auto_beta <- 10 ## number of breaks
+log_auto_beta_prior_mean <- c(
   # -1.0563457, -2.1741484, -2.5953720,
   # -2.5761787,
   -2.1924082, -1.4564057,
   -1.6901006, -2.1915752, -1.4090154,
   -1.5156526, -1.8297348, -0.2460687,
   -0.2818156, 0.6694880) ## these priors are based on previous calibrations with non-time-varying mu
-try(if(!(length(log_beta0_prior_mean) == 1 |
-       length(log_beta0_prior_mean) == n_breaks_beta0)) stop("either specify only one prior mean for time-varying beta0 or exactly as many as there are desired breaks"))
 
-# Manual break dates for beta0
-# after reports drop out
-# and corresponding priors
-# ---------------------------
-manual_beta0_breaks <- c(
+# settings for manually specified beta breaks
+# (after reports drop out)
+manual_beta_breaks <- c(
   as.Date("2021-12-12"),
   seq(
   as.Date("2022-01-01")
   , calib_end_date-days(1), by = 14)
-  )
+)
+log_manual_beta_prior_mean <- rep(-0.2818156,
+                                  length(manual_beta_breaks))
 
-  # seq(invader_properties %>% filter(label == "Omicron1") %>% pull(start_date), today(), by = 21) ## every three weeks starting from omicron invasion
+log_beta_prior_mean <- c(log_auto_beta_prior_mean,
+                         log_manual_beta_prior_mean)
 
   # as.Date(
   # c(

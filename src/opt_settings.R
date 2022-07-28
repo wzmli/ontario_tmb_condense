@@ -71,9 +71,9 @@ params_timevar_opt <- NULL ## initialize variable name
 
 ## schedules for time-varying parameters that are being fitted
 ## add rows for each time-varying parameter
-source("src/params_timevar_beta.R")
-source("src/params_timevar_mu.R")
-source("src/params_timevar_rho.R")
+source(file.path("src", "params_timevar_beta.R"))
+source(file.path("src", "params_timevar_mu.R"))
+source(file.path("src", "params_timevar_rho.R"))
 
 # time-varying params to optimize and priors
 attach_opt_tv_params <- function(model){
@@ -83,7 +83,7 @@ attach_opt_tv_params <- function(model){
               'abs'
               , as.formula(
                 paste0("log_beta0 ~ log_normal(c("
-                       , paste(log_beta0_prior_mean, collapse = ",") ## mean
+                       , paste(log_beta_prior_mean, collapse = ",") ## mean
                        , "), 0.25)")) ## variance
               , logit_mu ~ logit_normal(
                 qlogis(c(
