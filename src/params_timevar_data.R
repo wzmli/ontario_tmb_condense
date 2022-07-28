@@ -3,16 +3,12 @@
 # generated from data
 # ---------------------------
 
+cat("loading ...\n")
+
 params_timevar_data <- NULL ## initialize variable name
 
 ## get time-varying parameters from data
-source("src/params_timevar_vaxdosing.R")
-source("src/params_timevar_invader.R")
+source(file.path("src", "params_timevar_vaxdosing.R"))
+source(file.path("src", "params_timevar_invader.R"))
 
-# ---------------------------
-# Script output
-# ---------------------------
-
-# env <- clean_env(
-#   env,
-#   c("params_timevar_data"))
+cat("all time-varying parameter schedules loaded\n\n")

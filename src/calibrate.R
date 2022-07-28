@@ -71,19 +71,19 @@ attach_error_dist <- function(model){
 # ---------------------------
 
 model_uncalibrated = (model
-                      %>% update_condense_map(condense_map)
-                      ## attach time-varying parameters (not fitted)
-                      %>% add_piece_wise(params_timevar)
-                      ## attach observed data
-                      %>% update_observed(calibration_dat %>% select(date, var, value))
-                      ## specify observation error distributions for observed data
-                      ## distributions, specifications for parameters to optimize over for
-                      ## calibration, and priors
-                      %>% attach_error_dist()
-                      ## specify priors for base parameters that are being fitted
-                      %>% attach_opt_params()
-                      ## specify priors for time-varying parameters that are being fitted
-                      %>% attach_opt_tv_params()
+    %>% update_condense_map(condense_map)
+    ## attach time-varying parameters (not fitted)
+    %>% add_piece_wise(params_timevar)
+    ## attach observed data
+    %>% update_observed(calibration_dat %>% select(date, var, value))
+    ## specify observation error distributions for observed data
+    ## distributions, specifications for parameters to optimize over for
+    ## calibration, and priors
+    %>% attach_error_dist()
+    ## specify priors for base parameters that are being fitted
+    %>% attach_opt_params()
+    ## specify priors for time-varying parameters that are being fitted
+    %>% attach_opt_tv_params()
 )
 
 # ---------------------------

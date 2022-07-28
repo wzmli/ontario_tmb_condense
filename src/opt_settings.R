@@ -1,6 +1,8 @@
 # Optimization variables + priors
 # ---------------------------
 
+cat("loading optimization settings...\n")
+
 # constant params (not time-varying)
 # ---------------------------
 
@@ -112,12 +114,4 @@ attach_opt_tv_params <- function(model){
   return(model)
 }
 
-# ---------------------------
-# Script output
-# ---------------------------
-
-# env <- clean_env(
-#   env,
-#   c("attach_opt_params",
-#     "params_timevar_opt",
-#     "attach_opt_tv_params"))
+cat("\nall optimization settings loaded\n\n")

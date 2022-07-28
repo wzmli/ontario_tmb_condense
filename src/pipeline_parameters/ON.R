@@ -49,10 +49,11 @@ save_obj("obs_scaling", calib_end_date)
 # to be auto-detected from report time series
 # and corresponding priors
 # ---------------------------
-n_breaks_beta0 <- 11 ## number of breaks
+n_breaks_beta0 <- 10 ## number of breaks
 log_beta0_prior_mean <- c(
   # -1.0563457, -2.1741484, -2.5953720,
-  -2.5761787, -2.1924082, -1.4564057,
+  # -2.5761787,
+  -2.1924082, -1.4564057,
   -1.6901006, -2.1915752, -1.4090154,
   -1.5156526, -1.8297348, -0.2460687,
   -0.2818156, 0.6694880) ## these priors are based on previous calibrations with non-time-varying mu

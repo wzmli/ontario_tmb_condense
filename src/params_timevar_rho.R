@@ -2,6 +2,8 @@
 # Length of stay, acute care
 # ---------------------------
 
+cat("-- settings for rho...\n")
+
 date_seq_rho <- c(
   ## start of each variant invasion
   # invader_properties$start_date,
@@ -58,3 +60,5 @@ params_timevar_opt <- bind_rows(
   params_timevar_opt,
   manual_rho
 )
+
+cat("---- loaded\n")

@@ -2,6 +2,8 @@
 # Load model parameters
 # ---------------------------
 
+cat("loading model parameters...\n")
+
 params_url <- "https://docs.google.com/spreadsheets/d/13GBes6A2PMXITwfkyYw7E3Lt3odpb3tbiFznpVy8VhU/edit?usp=sharing"
 
 ## get default params
@@ -30,18 +32,18 @@ variant_map <- data.frame(
 ## load invading variant properties, including label, corresponding start date, end date, and vaccine efficacies against each variant
 invader_properties <- (bind_rows(
   ## default variant params
-  read_sheet(
+  suppressMessages(read_sheet(
     params_url,
     sheet = "variant_default",
     col_types = 'c' ## in order to parse fractional values later
-  )
+  ))
 ,
   ## region-specific variant params
-  read_sheet(
+  suppressMessages(read_sheet(
     params_url,
     sheet = paste0("variant_", region),
     col_types = 'c' ## in order to parse fractional values later
-  ))
+  )))
   %>% select(label, symbol, value)
   %>% pivot_wider(id_cols = "label",
                   names_from = "symbol")
@@ -52,10 +54,4 @@ invader_properties <- (bind_rows(
   %>% as.data.frame()
 )
 
-# ---------------------------
-# Script output
-# ---------------------------
-
-# ## save names of initialized parameters in a list
-# env <- ls()
-# env <- clean_env(env, "env")
+cat("model parameters loaded\n\n")

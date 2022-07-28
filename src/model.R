@@ -4,6 +4,8 @@
 # parameters, flows, condensation, report variables
 # ---------------------------
 
+cat("loading model...\n")
+
 spec_check("0.1.0", "model structure")
 
 ## Draw out diagram before doing this
@@ -407,10 +409,4 @@ model = (flexmodel(params = params
     %>% update_initial_state(silent = TRUE)
 )
 
-# ---------------------------
-# Script output
-# ---------------------------
-
-# env <- clean_env(
-#   env,
-#   c("model"))
+cat("model loaded\n\n")

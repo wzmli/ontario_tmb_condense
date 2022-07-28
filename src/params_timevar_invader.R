@@ -4,14 +4,12 @@
 # load and tidy data on variant counts and frequencies
 # ---------------------------
 
+cat("-- variant proportion timeseries\n")
+
 ## established variants
 ## from covarnet
 ## --------------------------
 variants_raw <- readRDS("data/covvarnet_voc.rds")
-
-## This repo is for Ontario Only
-## We will make a new repo later for other pts
-region_name_long = c("Ontario")
 
 variants_tidy <- data.frame()
 
@@ -28,30 +26,28 @@ for(i in names(variants_raw)){
   variants_tidy <- bind_rows(variants_tidy,tempdf)
 }
 
-print(names(variants_tidy))
-
 variants_long <- (variants_tidy
-                  %>% filter(province %in% region_name_long)
-                  %>% pivot_longer(names_to = "strain",
-                                   values_to= "count",
-                                   -c("date","province"))
-                  ## tack on lookup table for variant names
-                  %>% left_join(variant_map, by = "strain")
-                  %>% mutate(
-                    label = ifelse(is.na(label), "other", label)
-                    , date = as.Date(date)
-                  )
+    %>% filter(province %in% region_name_long)
+    %>% pivot_longer(names_to = "strain",
+                     values_to= "count",
+                     -c("date","province"))
+    ## tack on lookup table for variant names
+    %>% left_join(variant_map, by = "strain")
+    %>% mutate(
+      label = ifelse(is.na(label), "other", label)
+      , date = as.Date(date)
+    )
 )
 
 variants_ts_all <- (variants_long
-                    %>% group_by(date, province, label)
-                    %>% summarise(simple_count = sum(count,na.rm=TRUE), .groups = "drop")
-                    %>% group_by(date,province)
-                    %>% mutate(simple_sum = sum(simple_count,na.rm=TRUE))
-                    %>% filter(simple_sum != 0)
-                    %>% mutate(inv_prop = simple_count/simple_sum)
-                    %>% arrange(province, date, label)
-                    %>% ungroup()
+    %>% group_by(date, province, label)
+    %>% summarise(simple_count = sum(count,na.rm=TRUE), .groups = "drop")
+    %>% group_by(date,province)
+    %>% mutate(simple_sum = sum(simple_count,na.rm=TRUE))
+    %>% filter(simple_sum != 0)
+    %>% mutate(inv_prop = simple_count/simple_sum)
+    %>% arrange(province, date, label)
+    %>% ungroup()
 )
 
 ## filter each variant down to desired start and end dates
@@ -78,9 +74,9 @@ gg <- (
   + theme(legend.position = "bottom")
 )
 
-print(gg)
+suppressWarnings(print(gg))
 
-print(gg %+% variants_ts)
+suppressWarnings(print(gg %+% variants_ts))
 
 ## make params_timevar lines for invader proportion
 ## NOTE: there is no interpolation here! inv_prop will be piecewise constant
@@ -98,19 +94,19 @@ params_timevar_inv_prop <- (
 
 ## read raw variant data
 df <- bind_rows(
-  read_csv(file.path("data", "ba4.csv")) %>% mutate(strain = "ba4"),
-  read_csv(file.path("data", "ba5.csv")) %>% mutate(strain = "ba5"))
+  suppressMessages(read_csv(file.path("data", "ba4.csv"))) %>% mutate(strain = "ba4"),
+  suppressMessages(read_csv(file.path("data", "ba5.csv"))) %>% mutate(strain = "ba5"))
 
 ## tidy variant data
 df <- (df
-       %>% rename(date = x, percent = y)
-       %>% separate(date, into = c("date", "time"),
-                    sep = " ")
-       %>% select(-time)
-       %>% mutate(date = as.Date(date))
-       ## combine ba4 and ba5 percentages and convert to proportion
-       %>% group_by(date)
-       %>% summarize(obs = sum(percent)/100, .groups = 'drop')
+   %>% rename(date = x, percent = y)
+   %>% separate(date, into = c("date", "time"),
+                sep = " ")
+   %>% select(-time)
+   %>% mutate(date = as.Date(date))
+   ## combine ba4 and ba5 percentages and convert to proportion
+   %>% group_by(date)
+   %>% summarize(obs = sum(percent)/100, .groups = 'drop')
 )
 first_obs <- min(df$date)
 
@@ -118,7 +114,7 @@ first_obs <- min(df$date)
 invader_properties[which(invader_properties$label == "Omicron5"), "start_date"] <- first_obs
 
 ## regression to project until the end of the calibration period
-inv_prop_model <- glm(obs ~ date, family = "binomial", data = df)
+inv_prop_model <- suppressWarnings(glm(obs ~ date, family = "binomial", data = df))
 save_obj("inv_prop_model", calib_end_date)
 df <- (data.frame(date = seq(first_obs,
                              calib_end_date,
@@ -137,7 +133,7 @@ p1 <- (ggplot(df,
        + labs(title = "Proportion of BA.4 and BA.5 combined",
               subtitle = "(until calibration end date)"))
 
-print(p1)
+suppressWarnings(print(p1))
 
 ## convert to params_timevar format and bind to rows for established variants
 params_timevar_inv_prop_new <- (
@@ -161,48 +157,6 @@ params_timevar_inv_prop <- rbind(
 # Several parameters have to change roles from invader to resident upon a new invasion
 # That gets taken care of here
 # ---------------------------
-
-#' Prepare time-varying invasion parameters
-#'
-#' Subset the invader_properties df defined in pipeline_parameters.R to pull out a specific set of parameters, then attach resident parameters for each invasion and put in standard params_timevar format
-#'
-#' @param params_prefix prefix for a set of parameters (the non-invader version)
-#'
-#' @return a `data.frame` of time-varying parameter changes
-#'
-#' @examples params_prefix("vax_VE_trans")
-
-prep_invasion_params <- function(
-    params_prefix
-){
-  df <- (invader_properties
-         %>% select(start_date, contains(params_prefix))
-         ## attach corresponding resident VEs for each invasion
-         ## (take VE from previous variant)
-         %>% mutate(across(contains(params_prefix),
-                           lag,
-                           .names = "not_{.col}"))
-  )
-
-  df <- (
-    df
-    %>% rename(Date = start_date)
-    %>% pivot_longer(-Date,
-                     names_to = "Symbol",
-                     values_to = "Value")
-    ## correct parameter names
-    %>% mutate(Symbol = str_replace(Symbol,
-                                    "not_inv_",
-                                    ""))
-    ## drop NA from the lag operation
-    ## (wild-type values will be being used
-    ## regardless for the first invasion because
-    ## they're in the default parameters list)
-    %>% drop_na()
-  )
-
-  return(df)
-}
 
 ## prep all parameters that need to change upon an invasion
 inv_params_list <- c("vax_VE_trans", "vax_VE_hosp")
@@ -235,3 +189,5 @@ params_timevar_data <- bind_rows(
   params_timevar_inv_prop,
   params_timevar_inv_params
 )
+
+cat("---- loaded\n")

@@ -1,5 +1,8 @@
 # ---------------------------
 # Mildness
+# ---------------------------
+
+cat("-- settings for mu...\n")
 
 ## periodically re-fit severity (mu) and hospital occupancy (rho)
 ## to get better fits, especially after the reports signal drops out
@@ -66,3 +69,5 @@ params_timevar_opt <- bind_rows(
   params_timevar_opt,
   manual_mu
 )
+
+cat("---- loaded\n")

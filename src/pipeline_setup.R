@@ -14,6 +14,7 @@ library(zoo)
 library(data.table)
 library(jsonlite)
 library(patchwork)
+library(gsheet)
 library(googlesheets4)
 gs4_deauth() ## bypass authentication, not needed for public sheets
 
@@ -29,9 +30,9 @@ if(!file.exists("figs")) dir.create("figs")
 if(!file.exists("obj")) dir.create("obj")
 
 # ---------------------------
-# Load utils + plot settings
+# Load functions + plot settings
 # ---------------------------
 
-source(file.path("src", "utils.R"))
+source(file.path("src", "funs.R"))
 source(file.path("src", "plot_settings.R"))
 

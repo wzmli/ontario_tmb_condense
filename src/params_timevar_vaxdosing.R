@@ -1,9 +1,10 @@
 # ---------------------------
-# Prepare time-varing parameters
+# Vaccine dosing
 #
-# params that are fixed and not fitted
-# e.g., daily vaccine dosing, testing, variant frequencies
+# load and tidy data on vaccine dosing schedules
 # ---------------------------
+
+cat("-- vaccine dosing schedule\n")
 
 # ---------------------------
 # Vaccine Dosing
@@ -140,3 +141,5 @@ params_timevar_data <- bind_rows(
   params_timevar_data,
   params_timevar_vaxdosing
 )
+
+cat("---- loaded\n")
