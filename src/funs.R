@@ -137,6 +137,158 @@ download_observed_data <- function(){
   save_obj("observed_data_all", NULL)
 }
 
+#' Load vaccine dosing timeseries
+#'
+#' @param region two-letter abbreviation of the province/territory (use 'CA' for Canada)
+#'
+#' @return a long `tibble` with daily (incident) and cumulative values of each dose # administered
+#' @export
+#'
+#' @examples load_vaxdosing("ON")
+load_vaxdosing <- function(region){
+  ## data inputs
+  url <- paste0('https://api.covid19tracker.ca/reports/province/'
+                , region
+                , '?fill_dates=true'
+  )
+
+  ## pull data
+  vaccine_database <- fromJSON(url)
+
+  ## select and rename
+  vaccine_raw <- (
+    vaccine_database$data
+    ## select only relevant columns and rename to tidier names
+    %>% transmute(
+      province = prov
+      , date
+      , doseall_total = total_vaccinations ## total number of doses administered
+      ## preval = "prevalence", vs inc = "incidence"
+      ## preval = cumulative vax, (daily) incidence = new vax
+      , dose2_preval = total_vaccinated ## total number of people with two doses (second doses given)
+      , dose3_preval = total_boosters_1 ## third doses given
+      , dose4_preval = total_boosters_2 ## fourth doses given
+    )
+  )
+
+  ## tidy data
+  vaccine_tidy <- (vaccine_raw
+     ## convert date col to dates
+     %>% mutate(
+       date = as.Date(date)
+     )
+     ## get dose1 prevalence
+     %>% mutate(
+       ## count up all non-dose1 prevalence
+       not_dose1_preval = rowSums(across(ends_with("preval"))),
+       ## get dose1 prev by subtracting non-dose1 from total vaccines administered
+       dose1_preval = doseall_total - not_dose1_preval
+     )
+     ## drop unneeded cols
+     %>% select(-ends_with("total"), -starts_with("not"))
+     ## reorder
+     %>% relocate(dose1_preval, .after = "date")
+     ## calculate incidence and relabel cols
+     %>% transmute(
+       date
+       , across(ends_with("preval"), ~ .x - lag(.x))
+     )
+     %>% rename_with(~ str_replace(.x, "preval", "inc"),
+                     ends_with("preval"))
+     ## replace negative incidence or NA
+     ## with 0 for all numeric columns
+     %>% mutate(across(where(is.numeric),
+                       ~ ifelse((.x < 0 | is.na(.x)), 0, .x)))
+     %>% mutate(total = rowSums(across(ends_with("inc"))))
+     %>% filter(total != 0)
+     %>% select(-total)
+     %>% pivot_longer(-date)
+     %>% group_by(name)
+     %>% mutate(cumval = cumsum(value))
+     %>% ungroup()
+  )
+
+  return(vaccine_tidy)
+}
+
+#' Produce diagnostic plots for vaccine dosing timeseries
+#'
+#' @param df vaccine dosing timeseries as output by [load_vaxdosing()]
+#' @examples plot_vaxdosing(load_vaxdosing("ON"))
+plot_vaxdosing <- function(df){
+  p1 <- (ggplot(df,
+                aes(x = date, y = value))
+   + geom_point(alpha = 0.3)
+   + facet_wrap(~ name,ncol = 1)
+   + labs(title = "Daily vaccine doses")
+  )
+
+  print(p1)
+
+  p2 <- (ggplot(df,
+                aes(x = date, y = cumval))
+   + geom_point(alpha = 0.3)
+   + facet_wrap(~ name,ncol = 1)
+   + labs(title = "Cumulative vaccine doses")
+  )
+
+  print(p2)
+}
+
+#' Prepare tidy vaccine dosing timeseries to be attached into [McMasterPandemic::flexmodel()] object
+#'
+#' @param df output of [load_vaxdosing()]
+#'
+#' @return a `data.frame` with the following columns: `Date`, `Symbol`, `Value`
+#'
+#' @example ptv_vaxdosing(load_vaxdosing("ON"))
+ptv_vaxdosing <- function(df){
+  df <- (df
+    %>% select(-cumval)
+    ## keep only doses 1-4
+    %>% filter(str_detect(name, "^dose(1|2|3|4)"))
+    ## rename params to match names in model definition
+    %>% mutate(name = paste0("vax_", name))
+    %>% pivot_wider(
+      id_cols = date)
+    # ## sum total daily doses
+    %>% mutate(doseall_inc = rowSums(across(where(is.numeric))))
+    ## drop days where no vaccines were administered at all
+    %>% filter(doseall_inc != 0)
+    ## format as params_timevar
+    %>% select(-doseall_inc)
+    %>% pivot_longer(
+      -date,
+      names_to = "Symbol",
+      values_to = "Value"
+    )
+    %>% rename(Date = date)
+    %>% as.data.frame())
+
+  return(df)
+}
+
+#' Plot a params_timevar format `data.frame`
+#'
+#' @param df output from any [ptv_*] function in this repo
+plot_ptv <- function(df){
+  pp <- (ggplot(
+    df,
+    aes(x = Date, y = Value, colour = Symbol)
+  )
+  + geom_point(alpha = 0.3)
+  + facet_wrap(
+    ~ Symbol,
+    ncol = 1,
+    scales = "free_y",
+    strip.position = "top"
+  )
+  + guides(colour = "none")
+  + theme(axis.title = element_blank())
+  )
+  print(pp)
+}
+
 #' Prepare time-varying parameters for variant invasions
 #'
 #' Set up time-varying parameters (matching the supplied `params_prefix`) for each variant invasion by also updating
@@ -188,7 +340,7 @@ prep_invasion_params <- function(
 
 #' Run calibration
 #'
-#' @param region province/territory for which to run the calibration as a two-letter abreviation
+#' @param region two-letter abbreviation of the province/territory (use 'CA' for Canada)
 run_calibration <- function(region = "ON"){
   ## Load model params
   source(file.path("src","get_params.R"))
@@ -213,7 +365,7 @@ run_calibration <- function(region = "ON"){
 #' Run forecast
 #'
 #' @inheritParams run_calibration
-run_forecast <- function(region = "ON"){
+run_forecast <- function(region){
   ## Specify forecast settings
   source(file.path("src","forecast_settings.R")) ## EDIT OFTEN
 
