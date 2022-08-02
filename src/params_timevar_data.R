@@ -1,8 +1,9 @@
+## testing
+
 # ---------------------------
 # Prepare schedules for time-varying parameters
 # generated from data
 # ---------------------------
-
 cat("loading ...\n")
 
 params_timevar_data <- NULL ## initialize variable name
@@ -13,17 +14,9 @@ params_timevar_data <- NULL ## initialize variable name
 
 cat("-- vaccine dosing schedule\n")
 
-## get vaxdosing data, tidy, plot diagnostics
-df <- load_vaxdosing(region)
-plot_vaxdosing(df)
-
-## format as params_timevar lines
-params_timevar_vaxdosing <- ptv_vaxdosing(df)
-
-## diagnostic plot to check dosing
-print(
-  plot_ptv(params_timevar_vaxdosing)
-  + labs(title = "Time-varying parameters input for vaccination")
+params_timevar_vaxdosing <- get_params_timevar_vaxdosing(
+  region,
+  diagnostics = diagnostics
 )
 
 ## add schedule

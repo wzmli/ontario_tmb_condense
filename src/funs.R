@@ -137,30 +137,37 @@ download_observed_data <- function(){
   save_obj("observed_data_all", NULL)
 }
 
-#' Load vaccine dosing timeseries
+#' Get vaccine dosing timeseries and prepare for attachment to model
 #'
-#' @param region two-letter abbreviation of the province/territory (use 'CA' for Canada)
+#' @param region two-letter abbreviation of the region (province or territory; use "CA" for Canada)
 #'
-#' @return a long `tibble` with daily (incident) and cumulative values of each dose # administered
+#' @return
 #' @export
 #'
-#' @examples load_vaxdosing("ON")
-load_vaxdosing <- function(region){
+#' @examples
+get_params_timevar_vaxdosing <- function(
+    region,
+    diagnostics = TRUE
+){
+  ## get vaxdosing data, tidy, plot diagnostics
   ## data inputs
-  url <- paste0('https://api.covid19tracker.ca/reports/province/'
-                , region
+  url_seg <- ifelse(region == "CA",
+                    "",
+                    paste0("/province/", region))
+  url <- paste0('https://api.covid19tracker.ca/reports'
+                , url_seg
                 , '?fill_dates=true'
   )
 
   ## pull data
-  vaccine_database <- fromJSON(url)
+  db <- fromJSON(url)
 
   ## select and rename
-  vaccine_raw <- (
-    vaccine_database$data
+  df <- (
+    db$data
     ## select only relevant columns and rename to tidier names
     %>% transmute(
-      province = prov
+      province = region
       , date
       , doseall_total = total_vaccinations ## total number of doses administered
       ## preval = "prevalence", vs inc = "incidence"
@@ -172,7 +179,7 @@ load_vaxdosing <- function(region){
   )
 
   ## tidy data
-  vaccine_tidy <- (vaccine_raw
+  df <- (df
      ## convert date col to dates
      %>% mutate(
        date = as.Date(date)
@@ -208,62 +215,57 @@ load_vaxdosing <- function(region){
      %>% ungroup()
   )
 
-  return(vaccine_tidy)
-}
-
-#' Produce diagnostic plots for vaccine dosing timeseries
-#'
-#' @param df vaccine dosing timeseries as output by [load_vaxdosing()]
-#' @examples plot_vaxdosing(load_vaxdosing("ON"))
-plot_vaxdosing <- function(df){
-  p1 <- (ggplot(df,
-                aes(x = date, y = value))
-   + geom_point(alpha = 0.3)
-   + facet_wrap(~ name,ncol = 1)
-   + labs(title = "Daily vaccine doses")
-  )
-
-  print(p1)
-
-  p2 <- (ggplot(df,
-                aes(x = date, y = cumval))
-   + geom_point(alpha = 0.3)
-   + facet_wrap(~ name,ncol = 1)
-   + labs(title = "Cumulative vaccine doses")
-  )
-
-  print(p2)
-}
-
-#' Prepare tidy vaccine dosing timeseries to be attached into [McMasterPandemic::flexmodel()] object
-#'
-#' @param df output of [load_vaxdosing()]
-#'
-#' @return a `data.frame` with the following columns: `Date`, `Symbol`, `Value`
-#'
-#' @example ptv_vaxdosing(load_vaxdosing("ON"))
-ptv_vaxdosing <- function(df){
-  df <- (df
-    %>% select(-cumval)
-    ## keep only doses 1-4
-    %>% filter(str_detect(name, "^dose(1|2|3|4)"))
-    ## rename params to match names in model definition
-    %>% mutate(name = paste0("vax_", name))
-    %>% pivot_wider(
-      id_cols = date)
-    # ## sum total daily doses
-    %>% mutate(doseall_inc = rowSums(across(where(is.numeric))))
-    ## drop days where no vaccines were administered at all
-    %>% filter(doseall_inc != 0)
-    ## format as params_timevar
-    %>% select(-doseall_inc)
-    %>% pivot_longer(
-      -date,
-      names_to = "Symbol",
-      values_to = "Value"
+  if(diagnostics){
+    p1 <- (ggplot(df,
+                  aes(x = date, y = value))
+           + geom_point(alpha = 0.3)
+           + facet_wrap(~ name,ncol = 1)
+           + labs(title = paste0("Daily vaccine doses for ", region))
     )
-    %>% rename(Date = date)
-    %>% as.data.frame())
+
+    print(p1)
+
+    p2 <- (ggplot(df,
+                  aes(x = date, y = cumval))
+           + geom_point(alpha = 0.3)
+           + facet_wrap(~ name,ncol = 1)
+           + labs(title = paste0("Cumulative vaccine doses for ", region))
+    )
+
+    print(p2)
+  }
+
+  ## format as params_timevar lines
+  df <- (df
+     %>% select(-cumval)
+     ## keep only doses 1-4
+     %>% filter(str_detect(name, "^dose(1|2|3|4)"))
+     ## rename params to match names in model definition
+     %>% mutate(name = paste0("vax_", name))
+     %>% pivot_wider(
+       id_cols = date)
+     # ## sum total daily doses
+     %>% mutate(doseall_inc = rowSums(across(where(is.numeric))))
+     ## drop days where no vaccines were administered at all
+     %>% filter(doseall_inc != 0)
+     ## format as params_timevar
+     %>% select(-doseall_inc)
+     %>% pivot_longer(
+       -date,
+       names_to = "Symbol",
+       values_to = "Value"
+     )
+     %>% rename(Date = date)
+     %>% as.data.frame()
+   )
+
+  ## diagnostic plot to check dosing
+  if(diagnostics){
+    print(
+      plot_ptv(df)
+      + labs(title = paste0("Time-varying parameters input for vaccination for ", region))
+    )
+  }
 
   return(df)
 }
@@ -340,8 +342,8 @@ prep_invasion_params <- function(
 
 #' Run calibration
 #'
-#' @param region two-letter abbreviation of the province/territory (use 'CA' for Canada)
-run_calibration <- function(region = "ON"){
+#' @param region two-letter abbreviation of the region (province or territory; use "CA" for Canada)
+run_calibration <- function(region){
   ## Load model params
   source(file.path("src","get_params.R"))
 

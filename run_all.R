@@ -11,6 +11,8 @@ region_name_long <- "Ontario" ## just need this for variant data
 calibrate <- TRUE ## should we calibrate?
 forecast <- TRUE ## should we forecast?
 
+diagnostics <- TRUE ## should we output diagnostics
+
 timing <- TRUE ## should the run be timed?
 beeping <- TRUE ## should run end with a beep?
 
