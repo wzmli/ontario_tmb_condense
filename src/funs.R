@@ -84,6 +84,16 @@ load_params <- function(sheet, params_url){
                           envir = .GlobalEnv)}))
 }
 
+get_popsize <- function(region){
+  (suppressMessages(get_cansim("98-10-0001-01"))
+    %>% left_join(read_csv("data/region_lookup.csv", show_col_types = FALSE),
+                           by = c("GEO" = "province"))
+    %>% filter(prov == region)
+    %>% pull(`Population and dwelling counts (11): Population, 2021 [1]`)
+    %>% as.numeric()
+  )
+}
+
 #' Download all observed data locally
 #'
 #' from Michael Li's COVID19-Canada repository.

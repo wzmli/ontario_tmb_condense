@@ -14,9 +14,9 @@ library(zoo)
 library(data.table)
 library(jsonlite)
 library(patchwork)
-library(gsheet)
 library(googlesheets4)
 gs4_deauth() ## bypass authentication, not needed for public sheets
+library(cansim) ## for population data from statcan
 
 ## macpan technical options (see manual for details)
 options(MP_default_do_sim_constraint = TRUE)

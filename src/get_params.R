@@ -12,6 +12,9 @@ load_params("base_default", params_url)
 ## province-specific overwrites
 load_params(paste0("base_", region), params_url)
 
+## update population size automatically from statcan data
+N = get_popsize(region)
+
 ## map to simplify variant data (bucket multiple strains under a single label)
 variant_map <- data.frame(
   strain = c("Alpha", "B.1.438.1"
