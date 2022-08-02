@@ -66,6 +66,12 @@ get_calib_date <- function(){
 #' @param sheet sheet name
 #' @param params_url url to a Google Sheet
 load_params <- function(sheet, params_url){
+  
+  ## check if sheet exists, if not, do nothing
+  sheet_list <- sheet_names("https://docs.google.com/spreadsheets/d/13GBes6A2PMXITwfkyYw7E3Lt3odpb3tbiFznpVy8VhU/edit?usp=sharing")
+  if(!(sheet %in% sheet_list)) return()
+  
+  ## load
   pp <- (
     suppressMessages(read_sheet(
       params_url,
@@ -75,6 +81,7 @@ load_params <- function(sheet, params_url){
     %>% select(symbol, value)
   )
 
+  ## assign each variable to the global environment
   invisible(map2(pp$symbol,
                  pp$value,
                  function(sym,val){
