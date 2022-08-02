@@ -27,10 +27,12 @@ for(i in names(variants_raw)){
 }
 
 variants_long <- (variants_tidy
-    %>% filter(province %in% region_name_long)
+    %>% left_join(read_csv("data/region_lookup.csv"), by = "province")
+    %>% filter(prov %in% region)
+    %>% select(-province, -prov)
     %>% pivot_longer(names_to = "strain",
                      values_to= "count",
-                     -c("date","province"))
+                     -c("date"))
     ## tack on lookup table for variant names
     %>% left_join(variant_map, by = "strain")
     %>% mutate(
@@ -40,13 +42,13 @@ variants_long <- (variants_tidy
 )
 
 variants_ts_all <- (variants_long
-    %>% group_by(date, province, label)
+    %>% group_by(date, label)
     %>% summarise(simple_count = sum(count,na.rm=TRUE), .groups = "drop")
-    %>% group_by(date,province)
+    %>% group_by(date)
     %>% mutate(simple_sum = sum(simple_count,na.rm=TRUE))
     %>% filter(simple_sum != 0)
     %>% mutate(inv_prop = simple_count/simple_sum)
-    %>% arrange(province, date, label)
+    %>% arrange(date, label)
     %>% ungroup()
 )
 
@@ -69,7 +71,6 @@ gg <- (
          aes(x = date, y = inv_prop, color = label,
              group = label))
   + geom_line()
-  + facet_wrap(~province)
   + scale_x_date(date_labels = "%Y")
   + theme(legend.position = "bottom")
 )
