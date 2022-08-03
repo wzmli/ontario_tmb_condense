@@ -392,3 +392,79 @@ run_forecast <- function(region){
   source(file.path("src","forecast.R")) ## EDIT NEVER
   source(file.path("src","forecast_plots.R"))
 }
+
+#' Plot model-inferred seroprevalence against observed data
+#'
+#' @param region two-letter abbreviation of the region (province or territory; use "CA" for Canada)
+plot_seroprev <- function(region){
+  ## check whether seroprev data exists
+  obs_raw <- read_csv("https://github.com/wzmli/COVID19-Canada/raw/master/seroprevalence.csv",
+                      show_col_types = FALSE)
+  if(!(region %in% unique(obs_raw$Province))){
+    warning(paste0("seroprevalence data not available for ", region))
+    return()
+  }
+  
+  ## pull seroprev data
+  obs <- (obs_raw
+          %>% rename(date = Date)
+          %>% filter(Province == region)
+          %>% select(-Province)
+          %>% mutate(across(-date, as.numeric))
+          %>% pivot_longer(-date)
+          %>% separate(name,
+                       into = c("trash", "assay", "value_type"))
+          %>% select(-trash)
+  )
+  
+  ## get model output
+  pop_size <- unname(get_obj("model_calibrated",
+                             calib_date)$params["N"])
+  
+  ens <- (get_obj("forecast_ensemble", calib_date)
+          %>% ungroup()
+          %>% filter(var == 'recov_preval')
+          %>% rename(date = Date)
+          %>% select(-var, -scale_factor)
+          ## rescale to seroprev scale (% of the pop)
+          %>% mutate(
+            population = pop_size,
+            value = value/population*100,
+            lwr = lwr/population*100,
+            upr = upr/population*100)
+          %>% select(-population)
+  )
+  
+  p <- (ggplot(ens, aes(x = date))
+        + geom_ribbon(
+          aes(ymin = lwr, ymax = upr),
+          alpha = 0.2, fill = 'grey30')
+        + geom_line(aes(y = value), colour = 'red')
+        + geom_errorbar(
+          data = obs %>% filter(value_type != 'est') %>% pivot_wider(id_cols = c('date', 'assay'),
+                                                                     names_from = 'value_type'),
+          aes(x = date, ymin = lwr, ymax = upr, colour = assay))
+        + geom_point(
+          data = obs %>% filter(value_type == 'est'),
+          aes(y = value, colour = assay)
+        )
+        + scale_x_date(expand = expansion(mult = 0),
+                       limits = c(date_range[1],
+                                  date_range[2] + n_days_forecast))
+        + scale_y_continuous(expand = expansion(mult = 0))
+        + scale_colour_manual(values = c('dodgerblue', 'forestgreen'))
+        + labs(title = 'Seroprevalence (%) over time as implied by model')
+        + theme(axis.title = element_blank(),
+                legend.position = c(0,1),
+                legend.justification = c(0.01,1),
+                legend.background = element_rect(fill = NA))
+  )
+  
+  ggsave(
+    file.path('figs',
+              'seroprev.png'),
+    p,
+    width = 6,
+    height = 0.75*6
+  ) 
+}
