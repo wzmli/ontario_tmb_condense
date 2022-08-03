@@ -16,20 +16,10 @@ load_params(paste0("base_", region), params_url)
 N = get_popsize(region)
 
 ## map to simplify variant data (bucket multiple strains under a single label)
-variant_map <- data.frame(
-  strain = c("Alpha", "B.1.438.1"
-             , "Beta", "Gamma"
-             , "Delta", "Delta AY.25", "Delta AY.27"
-             , "Omicron BA.1", "Omicron BA.1.1"
-             , "Omicron BA.2"
-  )
-  ## these labels should match those used in "variant_*" sheet loaded below
-  , label = c("Alpha", "Alpha"
-              , "Alpha", "Alpha" ## Hack! Changing beta and gamma to alpha
-              , "Delta", "Delta", "Delta"
-              , "Omicron1", "Omicron1"
-              , "Omicron2"
-  )
+variant_map <- (
+  read_csv(file.path("data", "variant_map.csv"), show_col_types = FALSE)
+  %>% select(-notes)
+  %>% as.data.frame()
 )
 
 ## load invading variant properties, including label, corresponding start date, end date, and vaccine efficacies against each variant
